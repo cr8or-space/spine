@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Tabs } from 'bits-ui';
+
   interface Tab {
     id: string;
     label: string;
@@ -13,25 +15,21 @@
   let { tabs, active = $bindable('') }: Props = $props();
 </script>
 
-<div class="tabs" role="tablist">
-  {#each tabs as tab}
-    <button
-      class="tab"
-      class:active={active === tab.id}
-      role="tab"
-      aria-selected={active === tab.id}
-      onclick={() => active = tab.id}
-    >
-      {tab.label}
-      {#if tab.count !== undefined}
-        <span class="tab-count">{tab.count}</span>
-      {/if}
-    </button>
-  {/each}
-</div>
+<Tabs.Root bind:value={active}>
+  <Tabs.List class="tabs">
+    {#each tabs as tab}
+      <Tabs.Trigger value={tab.id} class="tab">
+        {tab.label}
+        {#if tab.count !== undefined}
+          <span class="tab-count">{tab.count}</span>
+        {/if}
+      </Tabs.Trigger>
+    {/each}
+  </Tabs.List>
+</Tabs.Root>
 
 <style>
-  .tabs {
+  :global(.tabs) {
     display: flex;
     gap: var(--space-1);
     border-bottom: 1px solid var(--color-border);
@@ -39,7 +37,7 @@
     overflow-x: auto;
   }
 
-  .tab {
+  :global(.tab) {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -57,11 +55,11 @@
     white-space: nowrap;
   }
 
-  .tab:hover {
+  :global(.tab:hover) {
     color: var(--color-text);
   }
 
-  .tab.active {
+  :global(.tab[data-state='active']) {
     color: var(--color-primary);
     border-bottom-color: var(--color-primary);
   }
@@ -78,7 +76,7 @@
     border-radius: var(--radius-full);
   }
 
-  .tab.active .tab-count {
+  :global(.tab[data-state='active']) .tab-count {
     background-color: var(--color-primary-light);
     color: var(--color-primary);
   }
