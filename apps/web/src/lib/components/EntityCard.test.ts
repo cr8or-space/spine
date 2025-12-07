@@ -1,0 +1,127 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/svelte';
+import EntityCard from './EntityCard.svelte';
+
+describe('EntityCard', () => {
+	it('renders with required props', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'A test description',
+			},
+		});
+		const link = container.querySelector('a');
+		expect(link).toBeTruthy();
+		expect(link?.getAttribute('href')).toBe('/test/1');
+		expect(container.textContent).toContain('Test Entity');
+		expect(container.textContent).toContain('A test description');
+	});
+
+	it('renders aliases when provided', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				aliases: ['Alias One', 'Alias Two'],
+			},
+		});
+		expect(container.textContent).toContain('Also known as:');
+		expect(container.textContent).toContain('Alias One, Alias Two');
+	});
+
+	it('does not render aliases section when empty', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				aliases: [],
+			},
+		});
+		expect(container.textContent).not.toContain('Also known as:');
+	});
+
+	it('renders badges when provided', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				badges: [
+					{ text: 'Active', variant: 'success' },
+					{ text: 'Major', variant: 'primary' },
+				],
+			},
+		});
+		expect(container.textContent).toContain('Active');
+		expect(container.textContent).toContain('Major');
+	});
+
+	it('does not render badges section when empty', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				badges: [],
+			},
+		});
+		const badges = container.querySelector('.entity-badges');
+		expect(badges).toBeFalsy();
+	});
+
+	it('truncates long descriptions', () => {
+		const longDescription = 'A'.repeat(300);
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: longDescription,
+				maxDescLength: 200,
+			},
+		});
+		const desc = container.querySelector('.entity-description');
+		expect(desc?.textContent?.length).toBeLessThan(210); // 200 + "..."
+		expect(desc?.textContent?.endsWith('...')).toBe(true);
+	});
+
+	it('does not truncate short descriptions', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Short description',
+			},
+		});
+		const desc = container.querySelector('.entity-description');
+		expect(desc?.textContent).toBe('Short description');
+	});
+
+	it('renders meta items with text', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				meta: [{ text: '5 traits' }, { text: '3 relationships' }],
+			},
+		});
+		expect(container.textContent).toContain('5 traits');
+		expect(container.textContent).toContain('3 relationships');
+	});
+
+	it('does not render meta section when empty', () => {
+		const { container } = render(EntityCard, {
+			props: {
+				href: '/test/1',
+				name: 'Test Entity',
+				description: 'Description',
+				meta: [],
+			},
+		});
+		const meta = container.querySelector('.entity-meta');
+		expect(meta).toBeFalsy();
+	});
+});
