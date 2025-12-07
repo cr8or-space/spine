@@ -1,5 +1,5 @@
 {
-  "name": "novelgen",
+  "name": "spine",
   "private": true,
   "scripts": {
     "build": "turbo run build",
