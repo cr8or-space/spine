@@ -180,10 +180,10 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Rebalancing suggestions
 
 ### 5.3 Release planning
-- [ ] Schedule configuration
-- [ ] Buffer calculation
-- [ ] Depletion projection
-- [ ] Deadline tracking
+- [x] Schedule configuration
+- [x] Buffer calculation
+- [x] Depletion projection
+- [x] Deadline tracking
 
 ### 5.4 Mystery tracking
 - [ ] Layer classification

@@ -233,3 +233,27 @@ export {
   type Project,
   type ProjectSummary,
 } from './project';
+
+// Release planning types (Phase 5.3)
+export {
+  ReleaseScheduleConfigSchema,
+  ScheduledReleaseSchema,
+  BufferStatusSchema,
+  ReleaseProjectionSchema,
+  BufferDepletionSchema,
+  DeadlineUrgencySchema,
+  DeadlineStatusSchema,
+  ChapterReleaseDataPointSchema,
+  ReleasePlanningResultSchema,
+  ReleasePlanningConfigSchema,
+  type ReleaseScheduleConfig,
+  type ScheduledRelease,
+  type BufferStatus,
+  type ReleaseProjection,
+  type BufferDepletion,
+  type DeadlineUrgency,
+  type DeadlineStatus,
+  type ChapterReleaseDataPoint,
+  type ReleasePlanningResult,
+  type ReleasePlanningConfig,
+} from './release';
