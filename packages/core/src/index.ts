@@ -6,9 +6,9 @@
  * - Repository pattern for all entities
  * - Project management
  * - Auto-save functionality
+ * - Bible management (CRUD operations, relationships)
  *
  * Future packages will be added:
- * - Bible management (CRUD operations, relationships)
  * - Generation pipeline
  * - Analysis engine
  * - Continuity checking
@@ -16,3 +16,6 @@
 
 // Re-export storage layer
 export * from './storage';
+
+// Re-export bible management
+export * from './bible';
