@@ -97,10 +97,10 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 6: Architecture Preparation (AP)
 
 ### 6.AP Base Interfaces
-- [ ] Base Entity interface
-- [ ] Base Content interface
-- [ ] Spine interface
-- [ ] Validator interface
+- [x] Base Entity interface
+- [x] Base Content interface
+- [x] Spine interface
+- [x] Validator interface
 
 ### 6.AP Type Extensions
 - [ ] Extend Character type from BaseEntity
@@ -109,7 +109,7 @@ This is a pure checklist file. No comments other than this one.
 ### 6.AP Infrastructure
 - [ ] Content status transitions
 - [ ] Generic EntityRepository interface
-- [ ] Separate Shell from Workspace in UI
+- [x] Separate Shell from Workspace in UI
 
 ## Phase 7: Validation & Rendering (VR)
 

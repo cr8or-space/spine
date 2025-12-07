@@ -11,6 +11,29 @@ export {
   type Result,
 } from './common';
 
+// Base types (Spine framework preparation)
+export {
+  SpinePositionSchema,
+  BaseEntitySchema,
+  BaseContentStatusSchema,
+  ReferenceSchema,
+  BaseContentSchema,
+  ValidationPhaseSchema,
+  ValidationResultSchema,
+  type SpinePosition,
+  type BaseEntity,
+  type BaseContentStatus,
+  type Reference,
+  type BaseContent,
+  type Spine,
+  type TreeSpine,
+  type MutableSpine,
+  type ValidationPhase,
+  type ValidationResult,
+  type Validator,
+  type ValidatorRegistry,
+} from './base';
+
 // Character types
 export {
   TraitSchema,
