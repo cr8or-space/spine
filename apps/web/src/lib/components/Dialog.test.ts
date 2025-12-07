@@ -65,7 +65,7 @@ describe('Dialog', () => {
 	});
 
 	it('has correct ARIA attributes', () => {
-		render(Dialog, {
+		const { container } = render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test',
@@ -74,12 +74,8 @@ describe('Dialog', () => {
 			},
 		});
 
-		// Bits UI Dialog uses Portal, so query document.body instead of container
-		const dialog = document.body.querySelector('[role="dialog"]');
-		expect(dialog).toBeTruthy();
-		// Bits UI sets aria-modal on the dialog element
+		const dialog = container.querySelector('[role="dialog"]');
 		expect(dialog?.getAttribute('aria-modal')).toBe('true');
-		// Bits UI generates aria-labelledby dynamically
-		expect(dialog?.hasAttribute('aria-labelledby')).toBe(true);
+		expect(dialog?.getAttribute('aria-labelledby')).toBe('dialog-title');
 	});
 });

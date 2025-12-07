@@ -1,7 +1,5 @@
 <script lang="ts">
   import type { HTMLSelectAttributes } from 'svelte/elements';
-  import { Select } from 'bits-ui';
-  import { Check, ChevronDown } from 'lucide-svelte';
 
   interface Option {
     value: string;
@@ -16,18 +14,9 @@
     hint?: string;
   }
 
-  let { label, value = $bindable(), options, error, hint, id, name, required, disabled }: Props =
-    $props();
+  let { label, value = $bindable(), options, error, hint, id, name, required, disabled }: Props = $props();
 
   const inputId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
-
-  const selectedLabel = $derived(options.find((o) => o.value === value)?.label ?? '');
-
-  function handleValueChange(newValue: string | undefined) {
-    if (newValue !== undefined) {
-      value = newValue;
-    }
-  }
 </script>
 
 <div class="select-field" class:has-error={error}>
@@ -35,43 +24,25 @@
     <label for={inputId} class="label">{label}</label>
   {/if}
 
-  <!-- Hidden input for form submission -->
-  <input type="hidden" {name} {value} />
-
-  <Select.Root
-    type="single"
-    {disabled}
-    value={value}
-    onValueChange={handleValueChange}
-    items={options}
-  >
-    <Select.Trigger
+  <div class="select-wrapper">
+    <select
       id={inputId}
-      class="select-trigger"
+      class="select"
+      bind:value
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-      aria-required={required}
+      {name}
+      {required}
+      {disabled}
     >
-      <span class="select-value">{selectedLabel || 'Select...'}</span>
-      <ChevronDown size={16} class="select-icon" />
-    </Select.Trigger>
-    <Select.Portal>
-      <Select.Content class="select-content">
-        <Select.Viewport class="select-viewport">
-          {#each options as option}
-            <Select.Item value={option.value} label={option.label} class="select-item">
-              {#snippet children({ selected })}
-                <span class="select-item-text">{option.label}</span>
-                {#if selected}
-                  <Check size={16} class="select-check" />
-                {/if}
-              {/snippet}
-            </Select.Item>
-          {/each}
-        </Select.Viewport>
-      </Select.Content>
-    </Select.Portal>
-  </Select.Root>
+      {#each options as option}
+        <option value={option.value}>{option.label}</option>
+      {/each}
+    </select>
+    <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  </div>
 
   {#if error}
     <p id="{inputId}-error" class="error-text">{error}</p>
@@ -93,100 +64,45 @@
     color: var(--color-text);
   }
 
-  :global(.select-trigger) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .select-wrapper {
+    position: relative;
+  }
+
+  .select {
     width: 100%;
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
     font-family: inherit;
     font-size: var(--text-sm);
     background-color: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     color: var(--color-text);
+    appearance: none;
     cursor: pointer;
-    transition:
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
 
-  :global(.select-trigger:focus) {
+  .select:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-primary-light);
   }
 
-  :global(.select-trigger[data-disabled]) {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .select-icon {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-text-secondary);
   }
 
-  .has-error :global(.select-trigger) {
+  .has-error .select {
     border-color: var(--color-danger);
   }
 
-  .has-error :global(.select-trigger:focus) {
+  .has-error .select:focus {
     box-shadow: 0 0 0 3px var(--color-danger-light);
-  }
-
-  .select-value {
-    flex: 1;
-    text-align: left;
-  }
-
-  :global(.select-icon) {
-    color: var(--color-text-secondary);
-    flex-shrink: 0;
-  }
-
-  :global(.select-content) {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    z-index: 1002;
-    overflow: hidden;
-    width: var(--bits-select-anchor-width);
-    max-height: var(--bits-select-content-available-height, 300px);
-  }
-
-  :global(.select-viewport) {
-    padding: var(--space-1);
-  }
-
-  :global(.select-item) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--text-sm);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    outline: none;
-  }
-
-  :global(.select-item[data-highlighted]) {
-    background-color: var(--color-surface-hover);
-  }
-
-  :global(.select-item[data-state='checked']) {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-
-  :global(.select-item[data-disabled]) {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .select-item-text {
-    flex: 1;
-  }
-
-  :global(.select-check) {
-    color: var(--color-primary);
-    flex-shrink: 0;
   }
 
   .error-text {

@@ -22,12 +22,11 @@ describe('Tabs', () => {
 		expect(getByText('3')).toBeTruthy();
 	});
 
-	it('applies active state to the active tab', () => {
+	it('applies active class to the active tab', () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
 		const buttons = container.querySelectorAll('.tab');
-		// Bits UI uses data-state attribute instead of class for active state
-		expect(buttons[0].getAttribute('data-state')).toBe('active');
-		expect(buttons[1].getAttribute('data-state')).toBe('inactive');
+		expect(buttons[0].classList.contains('active')).toBe(true);
+		expect(buttons[1].classList.contains('active')).toBe(false);
 	});
 
 	it('changes active tab on click', async () => {

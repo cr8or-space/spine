@@ -1,7 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { Dialog } from 'bits-ui';
-  import { X } from 'lucide-svelte';
 
   interface Props {
     open: boolean;
@@ -11,24 +9,34 @@
     footer?: Snippet;
   }
 
-  let { open = $bindable(), title, onClose, children, footer }: Props = $props();
+  let { open, title, onClose, children, footer }: Props = $props();
 
-  function handleOpenChange(isOpen: boolean) {
-    if (!isOpen) {
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
       onClose();
     }
   }
 </script>
 
-<Dialog.Root bind:open onOpenChange={handleOpenChange}>
-  <Dialog.Portal>
-    <Dialog.Overlay class="dialog-backdrop" />
-    <Dialog.Content class="dialog">
+<svelte:window onkeydown={handleKeydown} />
+
+{#if open}
+  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+  <div class="dialog-backdrop" onclick={handleBackdropClick}>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
       <header class="dialog-header">
-        <Dialog.Title class="dialog-title">{title}</Dialog.Title>
-        <Dialog.Close class="dialog-close" aria-label="Close dialog">
-          <X size={20} />
-        </Dialog.Close>
+        <h2 id="dialog-title" class="dialog-title">{title}</h2>
+        <button class="dialog-close" onclick={onClose} aria-label="Close dialog">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
       </header>
 
       <div class="dialog-content">
@@ -40,43 +48,42 @@
           {@render footer()}
         </footer>
       {/if}
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
+    </div>
+  </div>
+{/if}
 
 <style>
-  :global(.dialog-backdrop) {
+  .dialog-backdrop {
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1000;
+    padding: var(--space-4);
   }
 
-  :global(.dialog) {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+  .dialog {
     background-color: var(--color-surface);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
-    width: calc(100% - var(--space-8));
+    width: 100%;
     max-width: 480px;
     max-height: calc(100vh - var(--space-8));
     display: flex;
     flex-direction: column;
-    z-index: 1001;
     animation: dialogIn 0.2s ease-out;
   }
 
   @keyframes dialogIn {
     from {
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.95);
+      transform: scale(0.95);
     }
     to {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+      transform: scale(1);
     }
   }
 
@@ -88,13 +95,13 @@
     border-bottom: 1px solid var(--color-border);
   }
 
-  :global(.dialog-title) {
+  .dialog-title {
     font-size: var(--text-lg);
     font-weight: 600;
     margin: 0;
   }
 
-  :global(.dialog-close) {
+  .dialog-close {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -108,7 +115,7 @@
     transition: all var(--transition-fast);
   }
 
-  :global(.dialog-close:hover) {
+  .dialog-close:hover {
     background-color: var(--color-surface-hover);
     color: var(--color-text);
   }
