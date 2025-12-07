@@ -18,7 +18,8 @@
 	"dependencies": {
 		"@repo/core": "workspace:*",
 		"@repo/types": "workspace:*",
-		"@repo/ui": "workspace:*"
+		"@repo/ui": "workspace:*",
+		"bits-ui": "^2.14.4"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.49.1",
