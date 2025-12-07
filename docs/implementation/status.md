@@ -168,10 +168,10 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 5: Serial features
 
 ### 5.1 Hook management
-- [ ] Hook type classification
-- [ ] Pattern analysis
-- [ ] Strength trending
-- [ ] Variety warnings
+- [x] Hook type classification
+- [x] Pattern analysis
+- [x] Strength trending
+- [x] Variety warnings
 
 ### 5.2 Cycle enforcement
 - [ ] Cycle configuration
