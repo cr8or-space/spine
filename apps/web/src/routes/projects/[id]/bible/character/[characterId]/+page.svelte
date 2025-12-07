@@ -370,13 +370,14 @@
         rows={4}
         required
       />
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showTraitDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Add Trait</Button>
+      </div>
     </div>
-    {#snippet footer()}
-      <Button type="button" variant="secondary" onclick={() => (showTraitDialog = false)}>
-        Cancel
-      </Button>
-      <Button type="submit">Add Trait</Button>
-    {/snippet}
   </form>
 </Dialog>
 
@@ -427,13 +428,14 @@
         <input type="checkbox" name="mutual" bind:checked={relationshipForm.mutual} />
         Mutual relationship
       </label>
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showRelationshipDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Add Relationship</Button>
+      </div>
     </div>
-    {#snippet footer()}
-      <Button type="button" variant="secondary" onclick={() => (showRelationshipDialog = false)}>
-        Cancel
-      </Button>
-      <Button type="submit">Add Relationship</Button>
-    {/snippet}
   </form>
 </Dialog>
 
@@ -670,5 +672,14 @@
 
   .checkbox-label input[type="checkbox"] {
     cursor: pointer;
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
   }
 </style>

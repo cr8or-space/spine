@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { TimelineEvent } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     timelineEvents: TimelineEvent[];
@@ -21,6 +22,49 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    description: '',
+    type: 'current' as TimelineEvent['type'],
+    significance: 'moderate' as TimelineEvent['significance'],
+    date: '',
+    storyTime: '',
+    chapterNumber: '',
+    approximate: false,
+    revealed: true,
+  });
+
+  const typeOptions = [
+    { value: 'backstory', label: 'Backstory' },
+    { value: 'flashback', label: 'Flashback' },
+    { value: 'current', label: 'Current' },
+    { value: 'flashforward', label: 'Flashforward' },
+    { value: 'prophecy', label: 'Prophecy' },
+    { value: 'hypothetical', label: 'Hypothetical' },
+  ];
+
+  const significanceOptions = [
+    { value: 'critical', label: 'Critical' },
+    { value: 'major', label: 'Major' },
+    { value: 'moderate', label: 'Moderate' },
+    { value: 'minor', label: 'Minor' },
+    { value: 'background', label: 'Background' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      description: '',
+      type: 'current',
+      significance: 'moderate',
+      date: '',
+      storyTime: '',
+      chapterNumber: '',
+      approximate: false,
+      revealed: true,
+    };
+  }
 
   function getTypeBadgeVariant(type: TimelineEvent['type']): 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default' {
     switch (type) {
@@ -245,4 +289,141 @@
     align-items: center;
     gap: var(--space-1);
   }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+  }
+
+  .checkbox-group {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .position-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  .position-group-full {
+    grid-column: 1 / -1;
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
+  }
 </style>
+
+<!-- Create Timeline Event Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create Timeline Event"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createTimelineEvent" use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'redirect') {
+        showCreateDialog = false;
+        resetCreateForm();
+        window.location.href = result.location;
+      } else if (result.type === 'failure') {
+        console.error('Create timeline event failed:', result.data);
+      }
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+      />
+
+      <Select
+        label="Type"
+        name="type"
+        bind:value={createForm.type}
+        options={typeOptions}
+      />
+
+      <Select
+        label="Significance"
+        name="significance"
+        bind:value={createForm.significance}
+        options={significanceOptions}
+      />
+
+      <div class="position-group">
+        <TextField
+          label="Date (in-world)"
+          name="date"
+          bind:value={createForm.date}
+          hint="e.g., Year 1042, Day of Fire"
+        />
+
+        <TextField
+          label="Story Time"
+          name="storyTime"
+          bind:value={createForm.storyTime}
+          hint="e.g., Before the war, 5 years ago"
+        />
+
+        <TextField
+          label="Chapter Number"
+          name="chapterNumber"
+          type="number"
+          bind:value={createForm.chapterNumber}
+          hint="When this is revealed"
+        />
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" bind:checked={createForm.approximate} />
+            Approximate time
+          </label>
+          <input type="hidden" name="approximate" value={createForm.approximate.toString()} />
+        </div>
+      </div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" bind:checked={createForm.revealed} />
+        Already revealed in story
+      </label>
+      <input type="hidden" name="revealed" value={createForm.revealed.toString()} />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={6}
+        required
+      />
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Create Event</Button>
+      </div>
+    </div>
+  </form>
+</Dialog>

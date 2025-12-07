@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PlotThread } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     plotThreads: PlotThread[];
@@ -21,6 +22,53 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    description: '',
+    type: 'subplot' as PlotThread['type'],
+    status: 'active' as PlotThread['status'],
+    scope: 'arc' as PlotThread['scope'],
+    priority: 50,
+  });
+
+  const typeOptions = [
+    { value: 'main-plot', label: 'Main Plot' },
+    { value: 'subplot', label: 'Subplot' },
+    { value: 'mystery', label: 'Mystery' },
+    { value: 'romance', label: 'Romance' },
+    { value: 'conflict', label: 'Conflict' },
+    { value: 'character-arc', label: 'Character Arc' },
+    { value: 'worldbuilding', label: 'Worldbuilding' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  const statusOptions = [
+    { value: 'planned', label: 'Planned' },
+    { value: 'active', label: 'Active' },
+    { value: 'dormant', label: 'Dormant' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'abandoned', label: 'Abandoned' },
+  ];
+
+  const scopeOptions = [
+    { value: 'scene', label: 'Scene' },
+    { value: 'chapter', label: 'Chapter' },
+    { value: 'arc', label: 'Arc' },
+    { value: 'book', label: 'Book' },
+    { value: 'series', label: 'Series' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      description: '',
+      type: 'subplot',
+      status: 'active',
+      scope: 'arc',
+      priority: 50,
+    };
+  }
 
   function getTypeBadgeVariant(type: PlotThread['type']): 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default' {
     switch (type) {
@@ -219,4 +267,94 @@
     align-items: center;
     gap: var(--space-1);
   }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
+  }
 </style>
+
+<!-- Create Plot Thread Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create Plot Thread"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createPlotThread" use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'redirect') {
+        showCreateDialog = false;
+        resetCreateForm();
+        window.location.href = result.location;
+      } else if (result.type === 'failure') {
+        console.error('Create plot thread failed:', result.data);
+      }
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+      />
+
+      <Select
+        label="Type"
+        name="type"
+        bind:value={createForm.type}
+        options={typeOptions}
+      />
+
+      <Select
+        label="Status"
+        name="status"
+        bind:value={createForm.status}
+        options={statusOptions}
+      />
+
+      <Select
+        label="Scope"
+        name="scope"
+        bind:value={createForm.scope}
+        options={scopeOptions}
+        hint="How long does this thread span?"
+      />
+
+      <TextField
+        label="Priority (0-100)"
+        name="priority"
+        type="number"
+        bind:value={createForm.priority}
+        min="0"
+        max="100"
+        hint="Higher priority threads are more central to the story"
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={6}
+        required
+      />
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Create Thread</Button>
+      </div>
+    </div>
+  </form>
+</Dialog>

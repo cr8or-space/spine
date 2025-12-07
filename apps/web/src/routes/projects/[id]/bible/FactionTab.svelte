@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Faction } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     factions: Faction[];
@@ -24,6 +25,57 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    description: '',
+    aliases: '',
+    type: 'organization' as Faction['type'],
+    status: 'active' as Faction['status'],
+    influence: 'moderate' as Faction['influence'],
+    ideology: '',
+  });
+
+  const typeOptions = [
+    { value: 'government', label: 'Government' },
+    { value: 'military', label: 'Military' },
+    { value: 'religious', label: 'Religious' },
+    { value: 'criminal', label: 'Criminal' },
+    { value: 'corporate', label: 'Corporate' },
+    { value: 'secret-society', label: 'Secret Society' },
+    { value: 'guild', label: 'Guild' },
+    { value: 'family', label: 'Family' },
+    { value: 'informal', label: 'Informal' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  const statusOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'disbanded', label: 'Disbanded' },
+    { value: 'underground', label: 'Underground' },
+    { value: 'emerging', label: 'Emerging' },
+    { value: 'unknown', label: 'Unknown' },
+  ];
+
+  const influenceOptions = [
+    { value: 'dominant', label: 'Dominant' },
+    { value: 'major', label: 'Major' },
+    { value: 'moderate', label: 'Moderate' },
+    { value: 'minor', label: 'Minor' },
+    { value: 'negligible', label: 'Negligible' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      description: '',
+      aliases: '',
+      type: 'organization',
+      status: 'active',
+      influence: 'moderate',
+      ideology: '',
+    };
+  }
 
   function getTypeBadgeVariant(type: Faction['type']): 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default' {
     switch (type) {
@@ -238,4 +290,103 @@
     align-items: center;
     gap: var(--space-1);
   }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
+  }
 </style>
+
+<!-- Create Faction Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create Faction"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createFaction" use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'redirect') {
+        showCreateDialog = false;
+        resetCreateForm();
+        window.location.href = result.location;
+      } else if (result.type === 'failure') {
+        console.error('Create faction failed:', result.data);
+      }
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+      />
+
+      <Select
+        label="Type"
+        name="type"
+        bind:value={createForm.type}
+        options={typeOptions}
+      />
+
+      <Select
+        label="Status"
+        name="status"
+        bind:value={createForm.status}
+        options={statusOptions}
+      />
+
+      <Select
+        label="Influence"
+        name="influence"
+        bind:value={createForm.influence}
+        options={influenceOptions}
+      />
+
+      <TextField
+        label="Aliases (comma-separated)"
+        name="aliases-display"
+        bind:value={createForm.aliases}
+        hint="Alternative names"
+      />
+
+      <input
+        type="hidden"
+        name="aliases"
+        value={JSON.stringify(createForm.aliases.split(',').map(a => a.trim()).filter(Boolean))}
+      />
+
+      <TextField
+        label="Ideology"
+        name="ideology"
+        bind:value={createForm.ideology}
+        hint="Core beliefs or principles"
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={6}
+        required
+      />
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Create Faction</Button>
+      </div>
+    </div>
+  </form>
+</Dialog>

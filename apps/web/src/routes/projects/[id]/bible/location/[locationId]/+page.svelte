@@ -36,7 +36,9 @@
     { value: 'city', label: 'City' },
     { value: 'district', label: 'District' },
     { value: 'building', label: 'Building' },
-    { value: 'landmark', label: 'Landmark' },
+    { value: 'room', label: 'Room' },
+    { value: 'natural', label: 'Natural' },
+    { value: 'virtual', label: 'Virtual' },
     { value: 'other', label: 'Other' },
   ];
 

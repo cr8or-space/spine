@@ -188,10 +188,14 @@
   onClose={() => (showCreateDialog = false)}
 >
   <form method="POST" action="?/createCharacter" use:enhance={() => {
-    return async ({ update }) => {
-      await update();
-      showCreateDialog = false;
-      resetCreateForm();
+    return async ({ result }) => {
+      if (result.type === 'redirect') {
+        showCreateDialog = false;
+        resetCreateForm();
+        window.location.href = result.location;
+      } else if (result.type === 'failure') {
+        console.error('Create character failed:', result.data);
+      }
     };
   }}>
     <div class="dialog-form">
@@ -236,13 +240,14 @@
         rows={6}
         required
       />
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Create Character</Button>
+      </div>
     </div>
-    {#snippet footer()}
-      <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
-        Cancel
-      </Button>
-      <Button type="submit">Create Character</Button>
-    {/snippet}
   </form>
 </Dialog>
 
@@ -341,5 +346,14 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
   }
 </style>

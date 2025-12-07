@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { WorldRule } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     worldRules: WorldRule[];
@@ -22,6 +23,40 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    category: 'magic' as WorldRule['category'],
+    rule: '',
+    description: '',
+    established: true,
+    publicKnowledge: true,
+    priority: 50,
+  });
+
+  const categoryOptions = [
+    { value: 'magic', label: 'Magic' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'physics', label: 'Physics' },
+    { value: 'social', label: 'Social' },
+    { value: 'biological', label: 'Biological' },
+    { value: 'economic', label: 'Economic' },
+    { value: 'political', label: 'Political' },
+    { value: 'metaphysical', label: 'Metaphysical' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      category: 'magic',
+      rule: '',
+      description: '',
+      established: true,
+      publicKnowledge: true,
+      priority: 50,
+    };
+  }
 
   function getCategoryBadgeVariant(category: WorldRule['category']): 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'default' {
     switch (category) {
@@ -220,4 +255,120 @@
     align-items: center;
     gap: var(--space-1);
   }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+  }
+
+  .checkbox-group {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2);
+  }
 </style>
+
+<!-- Create World Rule Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create World Rule"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createWorldRule" use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'redirect') {
+        showCreateDialog = false;
+        resetCreateForm();
+        window.location.href = result.location;
+      } else if (result.type === 'failure') {
+        console.error('Create world rule failed:', result.data);
+      }
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+        hint="A short name for this rule"
+      />
+
+      <Select
+        label="Category"
+        name="category"
+        bind:value={createForm.category}
+        options={categoryOptions}
+      />
+
+      <TextArea
+        label="Rule"
+        name="rule"
+        bind:value={createForm.rule}
+        rows={3}
+        required
+        hint="The actual rule statement (e.g., 'Magic cannot create food')"
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={4}
+        hint="Additional context or explanation"
+      />
+
+      <TextField
+        label="Priority (0-100)"
+        name="priority"
+        type="number"
+        bind:value={createForm.priority}
+        min="0"
+        max="100"
+        hint="Higher priority rules take precedence"
+      />
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="established" bind:checked={createForm.established} />
+          Established in story
+        </label>
+        <input type="hidden" name="established" value={createForm.established.toString()} />
+
+        <label class="checkbox-label">
+          <input type="checkbox" name="publicKnowledge" bind:checked={createForm.publicKnowledge} />
+          Public knowledge
+        </label>
+        <input type="hidden" name="publicKnowledge" value={createForm.publicKnowledge.toString()} />
+      </div>
+
+      <div class="dialog-actions">
+        <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+          Cancel
+        </Button>
+        <Button type="submit">Create Rule</Button>
+      </div>
+    </div>
+  </form>
+</Dialog>
