@@ -153,15 +153,25 @@ export {
 
 // Content types
 export {
+  VersionSourceSchema,
+  VersionMetadataSchema,
   ContentVersionSchema,
   ContentSchema,
   ContentSummarySchema,
+  DiffHunkSchema,
+  WordDiffSchema,
   ContentDiffSchema,
+  VersionComparisonSchema,
   createEmptyContent,
+  type VersionSource,
+  type VersionMetadata,
   type ContentVersion,
   type Content,
   type ContentSummary,
+  type DiffHunk,
+  type WordDiff,
   type ContentDiff,
+  type VersionComparison,
 } from './content';
 
 // Project types

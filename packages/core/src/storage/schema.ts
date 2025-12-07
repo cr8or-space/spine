@@ -9,7 +9,7 @@
  * - Cross-references tracked in dedicated junction table
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /**
  * SQL statements to create all tables
@@ -257,14 +257,16 @@ CREATE TABLE IF NOT EXISTS content_versions (
   version INTEGER NOT NULL,
   text TEXT NOT NULL,
   word_count INTEGER NOT NULL DEFAULT 0,
-  source TEXT NOT NULL CHECK (source IN ('generated', 'edited', 'imported')),
+  source TEXT NOT NULL CHECK (source IN ('generated', 'edited', 'imported', 'rollback')),
   previous_version INTEGER,
+  metadata_json TEXT,
   created_at TEXT NOT NULL,
   FOREIGN KEY (content_id) REFERENCES contents(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_content_versions_unique ON content_versions(content_id, version);
 CREATE INDEX IF NOT EXISTS idx_content_versions_content ON content_versions(content_id);
+CREATE INDEX IF NOT EXISTS idx_content_versions_created ON content_versions(created_at);
 
 -- Lock points table
 CREATE TABLE IF NOT EXISTS lock_points (

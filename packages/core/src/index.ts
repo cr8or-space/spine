@@ -10,6 +10,7 @@
  * - Structure management (outline hierarchy, beats, hooks)
  * - Generation pipeline (outline → beats → draft → review)
  * - Analysis engine (tension, hooks, pacing, continuity)
+ * - Version management (diff generation, history, rollback)
  */
 
 // Re-export storage layer
@@ -26,3 +27,6 @@ export * from './generation';
 
 // Re-export analysis engine
 export * from './analysis';
+
+// Re-export version management
+export * from './version';

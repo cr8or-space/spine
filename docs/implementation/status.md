@@ -101,10 +101,10 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 3: Review
 
 ### 3.1 Version management
-- [ ] Content version storage
-- [ ] Diff generation
-- [ ] Version metadata
-- [ ] Rollback support
+- [x] Content version storage
+- [x] Diff generation
+- [x] Version metadata
+- [x] Rollback support
 
 ### 3.2 Review workflow
 - [ ] Review queue

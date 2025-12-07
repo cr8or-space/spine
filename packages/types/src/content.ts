@@ -5,6 +5,37 @@ import { IdSchema, TimestampSchema } from './common';
 import { GenerationRecordSchema, ReviewSchema, ContentStatusSchema } from './review';
 
 /**
+ * Version source type - how a version was created
+ */
+export const VersionSourceSchema = z.enum(['generated', 'edited', 'imported', 'rollback']);
+export type VersionSource = z.infer<typeof VersionSourceSchema>;
+
+/**
+ * Version metadata - additional context about a content version
+ */
+export const VersionMetadataSchema = z.object({
+  /** Model used if generated */
+  modelId: z.string().optional(),
+  /** Temperature if generated */
+  temperature: z.number().min(0).max(2).optional(),
+  /** Prompt template used if generated */
+  promptTemplateId: z.string().optional(),
+  /** Generation stage if generated */
+  generationStage: z.enum(['outline', 'beats', 'draft', 'revision', 'self-review']).optional(),
+  /** Edit description if edited */
+  editDescription: z.string().optional(),
+  /** Import source if imported */
+  importSource: z.string().optional(),
+  /** Version this was rolled back from if rollback */
+  rolledBackFrom: z.number().int().positive().optional(),
+  /** Whether this version was auto-saved */
+  autoSaved: z.boolean().optional(),
+  /** Custom tags for organization */
+  tags: z.array(z.string()).optional(),
+});
+export type VersionMetadata = z.infer<typeof VersionMetadataSchema>;
+
+/**
  * Content version - a specific version of prose content
  */
 export const ContentVersionSchema = z.object({
@@ -13,9 +44,11 @@ export const ContentVersionSchema = z.object({
   /** Word count for this version */
   wordCount: z.number().int().min(0),
   /** How this version was created */
-  source: z.enum(['generated', 'edited', 'imported']),
+  source: VersionSourceSchema,
   /** Previous version if this is an edit */
   previousVersion: z.number().int().positive().optional(),
+  /** Additional metadata about this version */
+  metadata: VersionMetadataSchema.optional(),
   createdAt: TimestampSchema,
 });
 export type ContentVersion = z.infer<typeof ContentVersionSchema>;
@@ -79,29 +112,91 @@ export const ContentSummarySchema = z.object({
 export type ContentSummary = z.infer<typeof ContentSummarySchema>;
 
 /**
+ * Diff hunk type - a contiguous change block
+ */
+export const DiffHunkSchema = z.object({
+  /** Type of change */
+  type: z.enum(['add', 'remove', 'context']),
+  /** Lines in this hunk */
+  lines: z.array(z.string()),
+  /** Starting line in the source (from) version */
+  fromLine: z.number().int().min(0).optional(),
+  /** Starting line in the target (to) version */
+  toLine: z.number().int().min(0).optional(),
+  /** Number of lines in source */
+  fromCount: z.number().int().min(0).optional(),
+  /** Number of lines in target */
+  toCount: z.number().int().min(0).optional(),
+});
+export type DiffHunk = z.infer<typeof DiffHunkSchema>;
+
+/**
+ * Word-level diff for inline display
+ */
+export const WordDiffSchema = z.object({
+  /** Type of change */
+  type: z.enum(['add', 'remove', 'unchanged']),
+  /** The word or text fragment */
+  text: z.string(),
+});
+export type WordDiff = z.infer<typeof WordDiffSchema>;
+
+/**
  * Content diff between two versions
  */
 export const ContentDiffSchema = z.object({
   contentId: IdSchema,
   fromVersion: z.number().int().positive(),
   toVersion: z.number().int().positive(),
-  /** Diff hunks */
-  hunks: z.array(
-    z.object({
-      type: z.enum(['add', 'remove', 'context']),
-      lines: z.array(z.string()),
-      fromLine: z.number().int().min(0).optional(),
-      toLine: z.number().int().min(0).optional(),
-    })
-  ),
+  /** Diff hunks (line-level) */
+  hunks: z.array(DiffHunkSchema),
   /** Statistics */
   stats: z.object({
     additions: z.number().int().min(0),
     deletions: z.number().int().min(0),
     unchanged: z.number().int().min(0),
+    /** Percentage of content changed */
+    changePercent: z.number().min(0).max(100),
   }),
+  /** Time between versions */
+  timeDelta: z.object({
+    fromTimestamp: TimestampSchema,
+    toTimestamp: TimestampSchema,
+    /** Duration in milliseconds */
+    durationMs: z.number().int().min(0),
+  }).optional(),
+  /** Version sources for context */
+  sources: z.object({
+    from: VersionSourceSchema,
+    to: VersionSourceSchema,
+  }).optional(),
 });
 export type ContentDiff = z.infer<typeof ContentDiffSchema>;
+
+/**
+ * Version comparison result with word-level diff
+ */
+export const VersionComparisonSchema = z.object({
+  /** The content diff */
+  diff: ContentDiffSchema,
+  /** Word-level changes for inline display (optional, can be computed on demand) */
+  wordDiffs: z.array(
+    z.object({
+      paragraphIndex: z.number().int().min(0),
+      words: z.array(WordDiffSchema),
+    })
+  ).optional(),
+  /** Summary of changes */
+  summary: z.object({
+    /** Brief description of what changed */
+    description: z.string(),
+    /** Whether this is a major change */
+    isMajor: z.boolean(),
+    /** Estimated review time in seconds */
+    estimatedReviewTime: z.number().int().min(0),
+  }).optional(),
+});
+export type VersionComparison = z.infer<typeof VersionComparisonSchema>;
 
 /**
  * Create empty content for a structure

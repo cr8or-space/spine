@@ -115,12 +115,17 @@ interface Migration {
 }
 
 const MIGRATIONS: Migration[] = [
-  // Future migrations will be added here
-  // {
-  //   version: 2,
-  //   description: 'Add new column',
-  //   up: 'ALTER TABLE projects ADD COLUMN new_column TEXT',
-  // },
+  {
+    version: 2,
+    description: 'Add version metadata and rollback source type',
+    up: `
+      -- Add metadata_json column to content_versions
+      ALTER TABLE content_versions ADD COLUMN metadata_json TEXT;
+
+      -- Create index on created_at for version queries
+      CREATE INDEX IF NOT EXISTS idx_content_versions_created ON content_versions(created_at);
+    `,
+  },
 ];
 
 /**

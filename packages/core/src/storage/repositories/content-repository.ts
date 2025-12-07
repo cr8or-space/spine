@@ -4,7 +4,7 @@
 
 import type Database from 'better-sqlite3';
 
-import type { Content, ContentAnalysis, ContentStatus, ContentVersion, GenerationRecord, Review } from '@repo/types';
+import type { Content, ContentAnalysis, ContentStatus, ContentVersion, GenerationRecord, Review, VersionMetadata, VersionSource } from '@repo/types';
 
 import { boolToInt, createProjectScopedRepository, generateId, intToBool, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
@@ -38,8 +38,9 @@ interface ContentVersionRow {
   version: number;
   text: string;
   word_count: number;
-  source: ContentVersion['source'];
+  source: VersionSource;
   previous_version: number | null;
+  metadata_json: string | null;
   created_at: string;
 }
 
@@ -70,13 +71,15 @@ function versionRowToVersion(row: ContentVersionRow): ContentVersion {
     wordCount: row.word_count,
     source: row.source,
     previousVersion: row.previous_version ?? undefined,
+    metadata: row.metadata_json ? (JSON.parse(row.metadata_json) as VersionMetadata) : undefined,
     createdAt: row.created_at,
   };
 }
 
 export type CreateContentData = Omit<Content, 'id' | 'createdAt' | 'updatedAt' | 'versions' | 'currentVersion'> & {
   initialText?: string;
-  source?: ContentVersion['source'];
+  source?: VersionSource;
+  metadata?: VersionMetadata;
 };
 
 export type UpdateContentData = Partial<Omit<Content, 'id' | 'createdAt' | 'updatedAt' | 'versions' | 'currentVersion'>>;
@@ -92,7 +95,16 @@ export interface ContentRepository extends ProjectScopedRepository<Content, Crea
   // Version management
   getVersion(projectId: string, id: string, version: number): ContentVersion | undefined;
   getAllVersions(projectId: string, id: string): ContentVersion[];
-  addVersion(projectId: string, id: string, text: string, source: ContentVersion['source']): Content | undefined;
+  addVersion(
+    projectId: string,
+    id: string,
+    text: string,
+    source: VersionSource,
+    metadata?: VersionMetadata
+  ): Content | undefined;
+  rollbackToVersion(projectId: string, id: string, targetVersion: number): Content | undefined;
+  getVersionCount(projectId: string, id: string): number;
+  getLatestVersions(projectId: string, id: string, limit: number): ContentVersion[];
 
   // Status management
   setStatus(projectId: string, id: string, status: ContentStatus): Content | undefined;
@@ -127,9 +139,9 @@ export function createContentRepository(db: Database.Database): ContentRepositor
 
   const insertVersionStmt = db.prepare(`
     INSERT INTO content_versions (
-      content_id, version, text, word_count, source, previous_version, created_at
+      content_id, version, text, word_count, source, previous_version, metadata_json, created_at
     ) VALUES (
-      @content_id, @version, @text, @word_count, @source, @previous_version, @created_at
+      @content_id, @version, @text, @word_count, @source, @previous_version, @metadata_json, @created_at
     )
   `);
 
@@ -163,6 +175,10 @@ export function createContentRepository(db: Database.Database): ContentRepositor
 
   const getVersionsStmt = db.prepare(`SELECT * FROM content_versions WHERE content_id = ? ORDER BY version`);
   const getVersionStmt = db.prepare(`SELECT * FROM content_versions WHERE content_id = ? AND version = ?`);
+  const getVersionCountStmt = db.prepare(`SELECT COUNT(*) as count FROM content_versions WHERE content_id = ?`);
+  const getLatestVersionsStmt = db.prepare(
+    `SELECT * FROM content_versions WHERE content_id = ? ORDER BY version DESC LIMIT ?`
+  );
 
   function loadVersions(contentId: string): ContentVersion[] {
     const rows = getVersionsStmt.all(contentId) as ContentVersionRow[];
@@ -217,6 +233,7 @@ export function createContentRepository(db: Database.Database): ContentRepositor
         word_count: wordCount,
         source: data.source ?? 'generated',
         previous_version: null,
+        metadata_json: data.metadata ? JSON.stringify(data.metadata) : null,
         created_at: now,
       };
 
@@ -232,6 +249,7 @@ export function createContentRepository(db: Database.Database): ContentRepositor
           text,
           wordCount,
           source: data.source ?? 'generated',
+          metadata: data.metadata,
           createdAt: now,
         },
       ]);
@@ -328,7 +346,13 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       return loadVersions(id);
     },
 
-    addVersion(projectId: string, id: string, text: string, source: ContentVersion['source']): Content | undefined {
+    addVersion(
+      projectId: string,
+      id: string,
+      text: string,
+      source: VersionSource,
+      metadata?: VersionMetadata
+    ): Content | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
@@ -346,6 +370,7 @@ export function createContentRepository(db: Database.Database): ContentRepositor
         word_count: wordCount,
         source,
         previous_version: existing.currentVersion,
+        metadata_json: metadata ? JSON.stringify(metadata) : null,
         created_at: now,
       };
 
@@ -372,6 +397,43 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       addVersionTx();
 
       return this.findById(projectId, id);
+    },
+
+    rollbackToVersion(projectId: string, id: string, targetVersion: number): Content | undefined {
+      const existing = this.findById(projectId, id);
+      if (!existing) return undefined;
+
+      // Don't allow rollback on published content
+      if (existing.status === 'published') return undefined;
+
+      // Get the target version
+      const targetVersionData = this.getVersion(projectId, id, targetVersion);
+      if (!targetVersionData) return undefined;
+
+      // Can't rollback to current version
+      if (targetVersion === existing.currentVersion) return undefined;
+
+      // Create a new version as a rollback
+      return this.addVersion(projectId, id, targetVersionData.text, 'rollback', {
+        rolledBackFrom: existing.currentVersion,
+        editDescription: `Rolled back to version ${targetVersion}`,
+      });
+    },
+
+    getVersionCount(projectId: string, id: string): number {
+      const content = this.findById(projectId, id);
+      if (!content) return 0;
+
+      const row = getVersionCountStmt.get(id) as { count: number } | undefined;
+      return row?.count ?? 0;
+    },
+
+    getLatestVersions(projectId: string, id: string, limit: number): ContentVersion[] {
+      const content = this.findById(projectId, id);
+      if (!content) return [];
+
+      const rows = getLatestVersionsStmt.all(id, limit) as ContentVersionRow[];
+      return rows.map(versionRowToVersion);
     },
 
     setStatus(projectId: string, id: string, status: ContentStatus): Content | undefined {
