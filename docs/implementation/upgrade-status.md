@@ -73,17 +73,17 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 4: UI Accessibility (UA)
 
 ### 4.UA Setup
-- [ ] Install Bits UI
+- [x] Install Bits UI
 
 ### 4.UA New Components
-- [ ] AccessibleDialog component
-- [ ] AccessibleTabs component
-- [ ] AccessibleSelect component
+- [x] AccessibleDialog component (migrated in-place to Dialog.svelte)
+- [x] AccessibleTabs component (migrated in-place to Tabs.svelte)
+- [x] AccessibleSelect component (migrated in-place to Select.svelte)
 
 ### 4.UA Migrations
-- [ ] Migrate Dialog usage
-- [ ] Migrate Tabs usage
-- [ ] Migrate Select usage
+- [x] Migrate Dialog usage (in-place migration, no consumer changes needed)
+- [x] Migrate Tabs usage (in-place migration, no consumer changes needed)
+- [x] Migrate Select usage (in-place migration, no consumer changes needed)
 
 ## Phase 5: Icon System (IC)
 
