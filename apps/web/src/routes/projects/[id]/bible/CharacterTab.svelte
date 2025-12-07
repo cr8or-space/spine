@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Character } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     characters: Character[];
@@ -24,6 +25,39 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    description: '',
+    aliases: '',
+    role: 'supporting' as Character['role'],
+    status: 'active' as Character['status'],
+  });
+
+  const roleOptions = [
+    { value: 'protagonist', label: 'Protagonist' },
+    { value: 'antagonist', label: 'Antagonist' },
+    { value: 'major', label: 'Major' },
+    { value: 'supporting', label: 'Supporting' },
+    { value: 'minor', label: 'Minor' },
+  ];
+
+  const statusOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'deceased', label: 'Deceased' },
+    { value: 'absent', label: 'Absent' },
+    { value: 'unknown', label: 'Unknown' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      description: '',
+      aliases: '',
+      role: 'supporting',
+      status: 'active',
+    };
+  }
 
   function getRoleBadgeVariant(role: Character['role']): 'primary' | 'success' | 'warning' | 'info' | 'default' {
     switch (role) {
@@ -147,6 +181,71 @@
   {/if}
 </div>
 
+<!-- Create Character Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create Character"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createCharacter" use:enhance={() => {
+    return async ({ update }) => {
+      await update();
+      showCreateDialog = false;
+      resetCreateForm();
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+      />
+
+      <Select
+        label="Role"
+        name="role"
+        bind:value={createForm.role}
+        options={roleOptions}
+      />
+
+      <Select
+        label="Status"
+        name="status"
+        bind:value={createForm.status}
+        options={statusOptions}
+      />
+
+      <TextField
+        label="Aliases (comma-separated)"
+        name="aliases-display"
+        bind:value={createForm.aliases}
+        hint="Also known as, nicknames, etc."
+      />
+
+      <input
+        type="hidden"
+        name="aliases"
+        value={JSON.stringify(createForm.aliases.split(',').map(a => a.trim()).filter(Boolean))}
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={6}
+        required
+      />
+    </div>
+    {#snippet footer()}
+      <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+        Cancel
+      </Button>
+      <Button type="submit">Create Character</Button>
+    {/snippet}
+  </form>
+</Dialog>
+
 <style>
   .character-tab {
     display: flex;
@@ -236,5 +335,11 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
+  }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
 </style>

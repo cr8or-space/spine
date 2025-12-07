@@ -54,8 +54,8 @@ This is a pure checklist file.  No comments other than this one.
 - [x] World rules tab
 - [x] Plot threads tab
 - [x] Timeline tab
-- [x] Entity forms
-- [x] Search and filter
+- [ ] Entity forms
+- [ ] Search and filter
 
 ## Phase 2: Generation
 

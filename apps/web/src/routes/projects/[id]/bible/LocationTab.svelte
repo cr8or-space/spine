@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Location } from '@repo/types';
-  import { Button, Card, EmptyState, Badge } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { enhance } from '$app/forms';
 
   interface Props {
     locations: Location[];
@@ -24,6 +25,44 @@
   );
 
   let showCreateDialog = $state(false);
+
+  let createForm = $state({
+    name: '',
+    description: '',
+    aliases: '',
+    type: 'city' as Location['type'],
+    status: 'accessible' as Location['status'],
+  });
+
+  const typeOptions = [
+    { value: 'world', label: 'World' },
+    { value: 'continent', label: 'Continent' },
+    { value: 'country', label: 'Country' },
+    { value: 'region', label: 'Region' },
+    { value: 'city', label: 'City' },
+    { value: 'district', label: 'District' },
+    { value: 'building', label: 'Building' },
+    { value: 'landmark', label: 'Landmark' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  const statusOptions = [
+    { value: 'accessible', label: 'Accessible' },
+    { value: 'destroyed', label: 'Destroyed' },
+    { value: 'hidden', label: 'Hidden' },
+    { value: 'restricted', label: 'Restricted' },
+    { value: 'unknown', label: 'Unknown' },
+  ];
+
+  function resetCreateForm() {
+    createForm = {
+      name: '',
+      description: '',
+      aliases: '',
+      type: 'city',
+      status: 'accessible',
+    };
+  }
 
   function getTypeBadgeVariant(type: Location['type']): 'primary' | 'success' | 'warning' | 'info' | 'default' {
     switch (type) {
@@ -144,6 +183,71 @@
   {/if}
 </div>
 
+<!-- Create Location Dialog -->
+<Dialog
+  open={showCreateDialog}
+  title="Create Location"
+  onClose={() => (showCreateDialog = false)}
+>
+  <form method="POST" action="?/createLocation" use:enhance={() => {
+    return async ({ update }) => {
+      await update();
+      showCreateDialog = false;
+      resetCreateForm();
+    };
+  }}>
+    <div class="dialog-form">
+      <TextField
+        label="Name"
+        name="name"
+        bind:value={createForm.name}
+        required
+      />
+
+      <Select
+        label="Type"
+        name="type"
+        bind:value={createForm.type}
+        options={typeOptions}
+      />
+
+      <Select
+        label="Status"
+        name="status"
+        bind:value={createForm.status}
+        options={statusOptions}
+      />
+
+      <TextField
+        label="Aliases (comma-separated)"
+        name="aliases-display"
+        bind:value={createForm.aliases}
+        hint="Alternative names"
+      />
+
+      <input
+        type="hidden"
+        name="aliases"
+        value={JSON.stringify(createForm.aliases.split(',').map(a => a.trim()).filter(Boolean))}
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        bind:value={createForm.description}
+        rows={6}
+        required
+      />
+    </div>
+    {#snippet footer()}
+      <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
+        Cancel
+      </Button>
+      <Button type="submit">Create Location</Button>
+    {/snippet}
+  </form>
+</Dialog>
+
 <style>
   .location-tab {
     display: flex;
@@ -233,5 +337,11 @@
     display: flex;
     align-items: center;
     gap: var(--space-1);
+  }
+
+  .dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
 </style>
