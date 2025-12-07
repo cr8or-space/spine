@@ -133,29 +133,29 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 4: Analytics
 
 ### 4.1 Tension curve data
-- [ ] Planned tension extraction
-- [ ] Actual tension aggregation
-- [ ] Chapter data points
-- [ ] Divergence calculation
+- [x] Planned tension extraction
+- [x] Actual tension aggregation
+- [x] Chapter data points
+- [x] Divergence calculation
 
 ### 4.2 Character tracking
-- [ ] Appearance tracking
-- [ ] Presence intensity
-- [ ] Relationship evolution
-- [ ] Arc progress
+- [x] Appearance tracking
+- [x] Presence intensity
+- [x] Relationship evolution
+- [x] Arc progress
 
 ### 4.3 Plot thread tracking
-- [ ] Thread status tracking
-- [ ] Thread timeline
-- [ ] Dangling detection
-- [ ] Promise/payoff matching
+- [x] Thread status tracking
+- [x] Thread timeline
+- [x] Dangling detection
+- [x] Promise/payoff matching
 
 ### 4.4 Visualization components
-- [ ] Tension curve chart
-- [ ] Character heatmap
-- [ ] Plot thread Gantt
-- [ ] Quality trend charts
-- [ ] Chapter type distribution
+- [x] Tension curve chart
+- [x] Character heatmap
+- [x] Plot thread Gantt
+- [x] Quality trend charts
+- [x] Chapter type distribution
 
 ### 4.5 Analytics dashboard UI
 - [ ] Dashboard page

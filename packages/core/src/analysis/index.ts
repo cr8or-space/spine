@@ -7,6 +7,8 @@
  * - Pacing assessment
  * - Continuity checking against story bible
  * - Analysis storage and history
+ * - Tension curve data generation (Phase 4.1)
+ * - Character tracking and presence analysis (Phase 4.2)
  */
 
 // Service
@@ -19,6 +21,58 @@ export {
   DROP_ANALYSIS_TABLE_SQL,
   type AnalysisRepository,
 } from './repository';
+
+// Tension curve (Phase 4.1)
+export {
+  extractPlannedTension,
+  generateTensionCurve,
+  calculateDivergence,
+  aggregateActualTension,
+  calculateStructureDivergence,
+  getHighDivergenceChapters,
+  getMissingAnalysisChapters,
+  getMissingTargetChapters,
+  type TensionCurveInput,
+  type TensionCurveDependencies,
+} from './tension-curve';
+
+// Character tracking (Phase 4.2)
+export {
+  generateCharacterTrackingData,
+  generateAllCharacterTracking,
+  generatePresenceHeatmap,
+  presenceToIntensity,
+  intensityToPresence,
+  getCharactersWithDecliningPresence,
+  getCharactersMissingRecently,
+  getCharactersWithIncompleteArcs,
+  getTopCharactersByPresence,
+  getCharactersByPOVCount,
+  type CharacterTrackingInput,
+  type CharacterTrackingDependencies,
+} from './character-tracking';
+
+// Plot thread tracking (Phase 4.3)
+export {
+  generatePlotThreadTrackingData,
+  generateAllPlotThreadTracking,
+  generateThreadActivityHeatmap,
+  touchTypeToNumber,
+  numberToTouchType,
+  getThreadsWithDanglingPromises,
+  getThreadsMissingTouches,
+  getIncompleteThreads,
+  getDanglingThreads,
+  getThreadsByStatus,
+  getThreadsByType,
+  getTopThreadsByTouches,
+  getThreadsByPriority,
+  getPromiseFulfillmentSummary,
+  DEFAULT_DANGLING_CONFIG,
+  type PlotThreadTrackingInput,
+  type PlotThreadTrackingDependencies,
+  type DanglingDetectionConfig,
+} from './plot-thread-tracking';
 
 // Types
 export type {

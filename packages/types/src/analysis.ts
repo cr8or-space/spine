@@ -177,3 +177,451 @@ export const HookPatternAnalysisSchema = z.object({
   warnings: z.array(z.string()),
 });
 export type HookPatternAnalysis = z.infer<typeof HookPatternAnalysisSchema>;
+
+/**
+ * Content status for tension curve data points
+ */
+const ContentStatusForCurveSchema = z.enum([
+  'draft',
+  'review',
+  'approved',
+  'published',
+]);
+
+/**
+ * A single data point in the tension curve
+ *
+ * Combines planned tension (from structure) with actual tension
+ * (from content analysis) for a chapter or scene.
+ */
+export const TensionCurveDataPointSchema = z.object({
+  /** Structure ID (chapter or scene) */
+  structureId: IdSchema,
+  /** Chapter/scene number in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Title of the chapter/scene */
+  title: z.string(),
+  /** Type of structure */
+  structureType: z.enum(['chapter', 'scene']),
+  /** Planned tension target from structure (0-100) */
+  plannedTension: z.number().min(0).max(100).optional(),
+  /** Actual tension from content analysis (0-100) */
+  actualTension: z.number().min(0).max(100).optional(),
+  /** Divergence: actual - planned (positive = higher than planned) */
+  divergence: z.number().optional(),
+  /** Word count from analysis */
+  wordCount: z.number().int().min(0).optional(),
+  /** Content status */
+  contentStatus: ContentStatusForCurveSchema.optional(),
+  /** Whether content exists for this structure */
+  hasContent: z.boolean(),
+  /** Whether analysis exists for this content */
+  hasAnalysis: z.boolean(),
+  /** Content ID if content exists */
+  contentId: IdSchema.optional(),
+});
+export type TensionCurveDataPoint = z.infer<typeof TensionCurveDataPointSchema>;
+
+/**
+ * Metadata about the tension curve data
+ */
+export const TensionCurveMetadataSchema = z.object({
+  /** Book or arc ID that this curve covers */
+  rootStructureId: IdSchema,
+  /** Title of the root structure */
+  rootTitle: z.string(),
+  /** When this data was generated */
+  generatedAt: TimestampSchema,
+  /** Total number of data points */
+  dataPointCount: z.number().int().min(0),
+  /** Number of data points with planned tension */
+  plannedCount: z.number().int().min(0),
+  /** Number of data points with actual tension */
+  actualCount: z.number().int().min(0),
+  /** Average planned tension (if any planned data) */
+  averagePlannedTension: z.number().min(0).max(100).optional(),
+  /** Average actual tension (if any actual data) */
+  averageActualTension: z.number().min(0).max(100).optional(),
+  /** Average absolute divergence (if any divergence data) */
+  averageAbsoluteDivergence: z.number().min(0).optional(),
+});
+export type TensionCurveMetadata = z.infer<typeof TensionCurveMetadataSchema>;
+
+/**
+ * Complete tension curve data for visualization
+ *
+ * Contains all data points in reading order with metadata
+ * for summary statistics.
+ */
+export const TensionCurveDataSchema = z.object({
+  /** Data points in reading order */
+  dataPoints: z.array(TensionCurveDataPointSchema),
+  /** Summary metadata */
+  metadata: TensionCurveMetadataSchema,
+});
+export type TensionCurveData = z.infer<typeof TensionCurveDataSchema>;
+
+/**
+ * Presence type for character appearances
+ */
+export const PresenceTypeSchema = z.enum(['mention', 'scene', 'pov']);
+export type PresenceType = z.infer<typeof PresenceTypeSchema>;
+
+/**
+ * Character appearance in a specific chapter/scene
+ */
+export const CharacterAppearanceDataPointSchema = z.object({
+  /** Structure ID (chapter or scene) */
+  structureId: IdSchema,
+  /** Chapter/scene position in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Title of the chapter/scene */
+  title: z.string(),
+  /** Content ID if content exists */
+  contentId: IdSchema.optional(),
+  /** Type of presence in this chapter */
+  presenceType: PresenceTypeSchema,
+  /** Number of dialogue lines (if available) */
+  dialogueLines: z.number().int().min(0).optional(),
+  /** Whether this is a POV chapter for this character */
+  isPov: z.boolean(),
+});
+export type CharacterAppearanceDataPoint = z.infer<typeof CharacterAppearanceDataPointSchema>;
+
+/**
+ * Relationship state at a point in time
+ */
+export const RelationshipSnapshotSchema = z.object({
+  /** Target character ID */
+  targetCharacterId: IdSchema,
+  /** Target character name (for display) */
+  targetCharacterName: z.string(),
+  /** Relationship type */
+  type: z.enum([
+    'family',
+    'friend',
+    'enemy',
+    'romantic',
+    'professional',
+    'rival',
+    'mentor',
+    'other',
+  ]),
+  /** Intensity at this point (-100 to 100) */
+  intensity: z.number().min(-100).max(100),
+  /** Chapter position where this was measured */
+  position: z.number().int().positive(),
+  /** Structure ID of the chapter */
+  structureId: IdSchema,
+});
+export type RelationshipSnapshot = z.infer<typeof RelationshipSnapshotSchema>;
+
+/**
+ * Evolution of a relationship over time
+ */
+export const RelationshipEvolutionSchema = z.object({
+  /** Target character ID */
+  targetCharacterId: IdSchema,
+  /** Target character name */
+  targetCharacterName: z.string(),
+  /** Relationship type */
+  type: z.enum([
+    'family',
+    'friend',
+    'enemy',
+    'romantic',
+    'professional',
+    'rival',
+    'mentor',
+    'other',
+  ]),
+  /** Snapshots over time */
+  snapshots: z.array(RelationshipSnapshotSchema),
+  /** Starting intensity */
+  startIntensity: z.number().min(-100).max(100),
+  /** Current/latest intensity */
+  currentIntensity: z.number().min(-100).max(100),
+  /** Total change (current - start) */
+  totalChange: z.number(),
+});
+export type RelationshipEvolution = z.infer<typeof RelationshipEvolutionSchema>;
+
+/**
+ * Arc milestone with tracking status
+ */
+export const ArcMilestoneProgressSchema = z.object({
+  /** Milestone description */
+  description: z.string(),
+  /** Chapter ID where achieved (if achieved) */
+  chapterId: IdSchema.optional(),
+  /** Chapter position (if achieved) */
+  chapterPosition: z.number().int().positive().optional(),
+  /** Whether this milestone has been achieved */
+  achieved: z.boolean(),
+  /** Order of this milestone */
+  order: z.number().int().min(0),
+});
+export type ArcMilestoneProgress = z.infer<typeof ArcMilestoneProgressSchema>;
+
+/**
+ * Character arc progress tracking
+ */
+export const CharacterArcProgressSchema = z.object({
+  /** Arc type */
+  arcType: z.enum([
+    'positive-change',
+    'negative-change',
+    'flat',
+    'corruption',
+    'redemption',
+    'coming-of-age',
+    'disillusionment',
+  ]),
+  /** Starting point description */
+  startingPoint: z.string(),
+  /** Destination description */
+  destination: z.string(),
+  /** Overall progress percentage (0-100) */
+  progress: z.number().min(0).max(100),
+  /** Milestone progress */
+  milestones: z.array(ArcMilestoneProgressSchema),
+  /** Number of milestones achieved */
+  achievedMilestones: z.number().int().min(0),
+  /** Total number of milestones */
+  totalMilestones: z.number().int().min(0),
+});
+export type CharacterArcProgress = z.infer<typeof CharacterArcProgressSchema>;
+
+/**
+ * Complete character tracking data for a single character
+ */
+export const CharacterTrackingDataSchema = z.object({
+  /** Character ID */
+  characterId: IdSchema,
+  /** Character name */
+  characterName: z.string(),
+  /** Character role */
+  role: z.enum(['protagonist', 'antagonist', 'major', 'supporting', 'minor']),
+  /** Appearance data points */
+  appearances: z.array(CharacterAppearanceDataPointSchema),
+  /** Relationship evolution data */
+  relationshipEvolution: z.array(RelationshipEvolutionSchema),
+  /** Arc progress (if character has an arc) */
+  arcProgress: CharacterArcProgressSchema.optional(),
+  /** Summary statistics */
+  summary: z.object({
+    /** Total appearances */
+    totalAppearances: z.number().int().min(0),
+    /** POV chapters */
+    povChapters: z.number().int().min(0),
+    /** Scene appearances */
+    sceneAppearances: z.number().int().min(0),
+    /** Mention-only appearances */
+    mentionAppearances: z.number().int().min(0),
+    /** Total dialogue lines */
+    totalDialogueLines: z.number().int().min(0),
+    /** First appearance position */
+    firstAppearance: z.number().int().positive().optional(),
+    /** Last appearance position */
+    lastAppearance: z.number().int().positive().optional(),
+    /** Appearance density (appearances / total chapters) */
+    appearanceDensity: z.number().min(0).max(1),
+  }),
+});
+export type CharacterTrackingData = z.infer<typeof CharacterTrackingDataSchema>;
+
+/**
+ * Character presence heatmap data for visualization
+ *
+ * Each row is a character, each column is a chapter position.
+ * Value indicates presence intensity.
+ */
+export const CharacterPresenceHeatmapSchema = z.object({
+  /** Character IDs in row order */
+  characterIds: z.array(IdSchema),
+  /** Character names (parallel to characterIds) */
+  characterNames: z.array(z.string()),
+  /** Chapter positions (column headers) */
+  positions: z.array(z.number().int().positive()),
+  /** Chapter titles (parallel to positions) */
+  titles: z.array(z.string()),
+  /**
+   * Presence matrix: [characterIndex][positionIndex] = intensity
+   * 0 = not present, 1 = mention, 2 = scene, 3 = POV
+   */
+  matrix: z.array(z.array(z.number().int().min(0).max(3))),
+  /** When this data was generated */
+  generatedAt: TimestampSchema,
+});
+export type CharacterPresenceHeatmap = z.infer<typeof CharacterPresenceHeatmapSchema>;
+
+/**
+ * Touch type for plot thread interactions
+ */
+export const ThreadTouchTypeSchema = z.enum([
+  'introduction',
+  'development',
+  'complication',
+  'climax',
+  'resolution',
+]);
+export type ThreadTouchType = z.infer<typeof ThreadTouchTypeSchema>;
+
+/**
+ * A single data point tracking thread status at a chapter position
+ */
+export const ThreadStatusPointSchema = z.object({
+  /** Structure ID (chapter or scene) */
+  structureId: IdSchema,
+  /** Content ID if available */
+  contentId: IdSchema.optional(),
+  /** Chapter/scene position in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Title of the chapter/scene */
+  title: z.string(),
+  /** Type of touch at this position */
+  touchType: ThreadTouchTypeSchema,
+});
+export type ThreadStatusPoint = z.infer<typeof ThreadStatusPointSchema>;
+
+/**
+ * Promise fulfillment tracking for a single promise
+ */
+export const PromiseTrackingSchema = z.object({
+  /** Promise ID */
+  promiseId: IdSchema,
+  /** Promise description */
+  description: z.string(),
+  /** Chapter position where promise was made */
+  madeAtPosition: z.number().int().positive().optional(),
+  /** Content ID where promise was made */
+  madeAtContentId: IdSchema.optional(),
+  /** Expected payoff timeframe */
+  expectedPayoff: z.enum(['immediate', 'short-term', 'medium-term', 'long-term', 'series-end']),
+  /** Current status */
+  status: z.enum(['pending', 'fulfilled', 'subverted', 'abandoned']),
+  /** Chapter position where fulfilled (if applicable) */
+  fulfilledAtPosition: z.number().int().positive().optional(),
+  /** Content ID where fulfilled (if applicable) */
+  fulfilledAtContentId: IdSchema.optional(),
+  /** Number of chapters between made and fulfilled (if fulfilled) */
+  chaptersToFulfillment: z.number().int().min(0).optional(),
+});
+export type PromiseTracking = z.infer<typeof PromiseTrackingSchema>;
+
+/**
+ * A dormant period where a thread had no touches
+ */
+export const DormantPeriodSchema = z.object({
+  /** Starting position (last touch before dormancy) */
+  startPosition: z.number().int().positive(),
+  /** Ending position (first touch after dormancy, or current if still dormant) */
+  endPosition: z.number().int().positive(),
+  /** Number of chapters in dormant period */
+  duration: z.number().int().min(1),
+});
+export type DormantPeriod = z.infer<typeof DormantPeriodSchema>;
+
+/**
+ * Complete plot thread tracking data for a single thread
+ */
+export const PlotThreadTrackingDataSchema = z.object({
+  /** Thread ID */
+  threadId: IdSchema,
+  /** Thread name */
+  threadName: z.string(),
+  /** Thread type */
+  threadType: z.enum([
+    'main-plot',
+    'subplot',
+    'mystery',
+    'romance',
+    'conflict',
+    'character-arc',
+    'worldbuilding',
+    'other',
+  ]),
+  /** Thread scope */
+  scope: z.enum(['scene', 'chapter', 'arc', 'book', 'series']),
+  /** Current thread status */
+  status: z.enum(['planned', 'active', 'dormant', 'resolved', 'abandoned']),
+  /** Thread priority (0-100) */
+  priority: z.number().int().min(0).max(100),
+  /** Introduction point if detected in content */
+  introduction: z
+    .object({
+      position: z.number().int().positive(),
+      contentId: IdSchema,
+    })
+    .optional(),
+  /** Resolution point if thread is resolved */
+  resolution: z
+    .object({
+      position: z.number().int().positive(),
+      contentId: IdSchema,
+    })
+    .optional(),
+  /** All status points (touches) in reading order */
+  statusPoints: z.array(ThreadStatusPointSchema),
+  /** Promise tracking data */
+  promises: z.array(PromiseTrackingSchema),
+  /** IDs of characters involved in this thread */
+  involvedCharacterIds: z.array(IdSchema),
+  /** Summary statistics */
+  summary: z.object({
+    /** Total number of touches */
+    totalTouches: z.number().int().min(0),
+    /** First touch position */
+    firstTouchPosition: z.number().int().positive().optional(),
+    /** Last touch position */
+    lastTouchPosition: z.number().int().positive().optional(),
+    /** Active duration (last - first touch positions) */
+    activeDuration: z.number().int().min(0).optional(),
+    /** Periods where thread went dormant */
+    dormantPeriods: z.array(DormantPeriodSchema),
+    /** Total chapters in dormant periods */
+    totalDormantChapters: z.number().int().min(0),
+    /** Total promises */
+    totalPromises: z.number().int().min(0),
+    /** Fulfilled promises */
+    fulfilledPromises: z.number().int().min(0),
+    /** Promise fulfillment rate (0-1) */
+    promiseFulfillmentRate: z.number().min(0).max(1),
+    /** Number of unfulfilled promises */
+    unfulfilledCount: z.number().int().min(0),
+    /** Average chapters to fulfill a promise */
+    averageChaptersToFulfillment: z.number().min(0).optional(),
+    /** Whether thread is completed (resolved or abandoned) */
+    isCompleted: z.boolean(),
+    /** Whether thread is dangling (active/dormant with no recent touches) */
+    isDangling: z.boolean(),
+    /** Touch density (touches / total chapters) */
+    touchDensity: z.number().min(0).max(1),
+  }),
+});
+export type PlotThreadTrackingData = z.infer<typeof PlotThreadTrackingDataSchema>;
+
+/**
+ * Plot thread activity heatmap for visualization
+ *
+ * Each row is a thread, each column is a chapter position.
+ * Value indicates touch type (0 = no touch, 1-5 = touch types)
+ */
+export const ThreadActivityHeatmapSchema = z.object({
+  /** Thread IDs in row order */
+  threadIds: z.array(IdSchema),
+  /** Thread names (parallel to threadIds) */
+  threadNames: z.array(z.string()),
+  /** Chapter positions (column headers) */
+  positions: z.array(z.number().int().positive()),
+  /** Chapter titles (parallel to positions) */
+  titles: z.array(z.string()),
+  /**
+   * Activity matrix: [threadIndex][positionIndex] = touch type
+   * 0 = no touch, 1 = introduction, 2 = development, 3 = complication, 4 = climax, 5 = resolution
+   */
+  matrix: z.array(z.array(z.number().int().min(0).max(5))),
+  /** When this data was generated */
+  generatedAt: TimestampSchema,
+});
+export type ThreadActivityHeatmap = z.infer<typeof ThreadActivityHeatmapSchema>;
