@@ -19,12 +19,12 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Zod schemas
 
 ### 1.2 Storage layer
-- [ ] SQLite schema design
-- [ ] Database migrations
-- [ ] Bible entity repositories
-- [ ] File-based content storage
-- [ ] Project save/load
-- [ ] Auto-save implementation
+- [x] SQLite schema design
+- [x] Database migrations
+- [x] Bible entity repositories
+- [x] File-based content storage
+- [x] Project save/load
+- [x] Auto-save implementation
 
 ### 1.3 Bible management
 - [ ] Character CRUD
