@@ -73,7 +73,7 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 4: UI Accessibility (UA)
 
 ### 4.UA Setup
-- [ ] Install Bits UI
+- [x] Install Bits UI
 
 ### 4.UA New Components
 - [ ] AccessibleDialog component
