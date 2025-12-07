@@ -28,20 +28,22 @@ This is a pure checklist file. No comments other than this one.
 - [ ] Update Playwright config
 
 ### 2.TI Component Test Migrations
-- [ ] Button.test.ts migration
-- [ ] Card.test.ts migration
-- [ ] Dialog.test.ts migration
-- [ ] TextField.test.ts migration
-- [ ] Tabs.test.ts migration
+- [x] Button.test.ts migration
+- [x] Card.test.ts migration
+- [x] Dialog.test.ts migration
+- [x] TextField.test.ts migration
+- [x] Tabs.test.ts migration
 
 ### 2.TI New Component Tests
-- [ ] EntityCard tests
+- [x] EntityCard tests
 - [ ] EntityListPage tests
 - [ ] CreateEntityDialog tests
 
 ### 2.TI Integration Tests
 - [ ] Bible flow integration test
 - [ ] Project flow integration test
+- [ ] Fix better-sqlite3 ESM compatibility for SSR preview mode
+- [ ] Fix Playwright test timeouts (UI element selectors outdated)
 
 ## Phase 3: Tailwind CSS v4 (TW)
 

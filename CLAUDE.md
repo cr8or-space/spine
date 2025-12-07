@@ -39,14 +39,20 @@ pnpm check            # Svelte type checking
 
 **Monorepo Structure** (Turborepo + pnpm workspaces):
 - `apps/web` — SvelteKit application (Svelte 5, Vite)
+- `packages/types` — Zod schemas and TypeScript types for all domain entities
+- `packages/core` — Domain logic: storage (SQLite), bible, structure, generation, analysis, version, review, continuity, release
+- `packages/llm` — OpenAI-compatible client, token counting, context assembly with relevance scoring
 - `packages/ui` — Shared Svelte components
 - `packages/eslint-config` — Shared ESLint configuration
 - `packages/typescript-config` — Shared TypeScript configuration
 
-**Planned packages** (see `docs/implementation/plan.md`):
-- `packages/types` — Shared type definitions
-- `packages/core` — Domain logic (bible, continuity, generation, analysis, storage)
-- `packages/llm` — OpenAI-compatible LLM client and context assembly
+**Package Testing:**
+```bash
+# Run tests for specific package
+cd packages/core && pnpm test
+cd packages/llm && pnpm test
+cd packages/types && pnpm test
+```
 
 ## Key Concepts
 
@@ -64,6 +70,10 @@ pnpm check            # Svelte type checking
 - Co-locate tests: `foo.ts` → `foo.test.ts`
 - Imports: external → internal → relative, alphabetized within groups
 
+## Known Issues
+
+- **Integration tests**: Playwright tests have SSR compatibility issues with `better-sqlite3` (CommonJS `__filename` in ESM context) and outdated UI selectors causing timeouts
+  - Do not run until fixed, unless that is your task
 ## Documentation
 
 Key docs in `docs/`:
@@ -72,4 +82,5 @@ Key docs in `docs/`:
 - `proposal/project-proposal.md` — Full system design
 - `implementation/plan.md` — Phased implementation roadmap
 - `implementation/status.md` — Checklist of completed work
+- `implementation/upgrade-status.md` — Current upgrade progress
 - `development/coding-style.md` — Detailed code conventions
