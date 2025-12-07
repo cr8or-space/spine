@@ -30,4 +30,5 @@ yarn-error.log*
 .turbo
 
 dist
-.novelgen-data
+.bookgen-data
+worker.sh

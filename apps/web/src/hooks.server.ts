@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 // Data directory for storing projects
-const DATA_DIR = process.env.NOVELGEN_DATA_DIR || path.join(process.cwd(), '.novelgen-data');
+const DATA_DIR = process.env.NOVELGEN_DATA_DIR || path.join(process.cwd(), '.bookgen-data');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
