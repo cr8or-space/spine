@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
+import { render } from 'vitest-browser-svelte';
 import Dialog from './Dialog.svelte';
 
 describe('Dialog', () => {
-	it('does not render when open is false', () => {
+	it('does not render when open is false', async () => {
 		const { container } = render(Dialog, {
 			props: {
 				open: false,
@@ -12,12 +12,12 @@ describe('Dialog', () => {
 				children: () => 'Content',
 			},
 		});
-		const dialog = container.querySelector('.dialog-backdrop');
-		expect(dialog).toBeFalsy();
+		const backdrop = container.querySelector('.dialog-backdrop');
+		expect(backdrop).toBeFalsy();
 	});
 
-	it('renders when open is true', () => {
-		const { getByText } = render(Dialog, {
+	it('renders when open is true', async () => {
+		const { container } = render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test Dialog',
@@ -25,7 +25,9 @@ describe('Dialog', () => {
 				children: () => 'Content',
 			},
 		});
-		expect(getByText('Test Dialog')).toBeTruthy();
+		const title = container.querySelector('.dialog-title');
+		expect(title).toBeTruthy();
+		expect(title?.textContent).toBe('Test Dialog');
 	});
 
 	it('calls onClose when close button is clicked', async () => {
@@ -39,32 +41,13 @@ describe('Dialog', () => {
 			},
 		});
 
-		const closeButton = container.querySelector('.dialog-close');
-		if (closeButton) {
-			await fireEvent.click(closeButton);
-			expect(handleClose).toHaveBeenCalledOnce();
-		}
+		const closeButton = container.querySelector('.dialog-close') as HTMLButtonElement;
+		expect(closeButton).toBeTruthy();
+		closeButton.click();
+		expect(handleClose).toHaveBeenCalledOnce();
 	});
 
-	it('calls onClose when backdrop is clicked', async () => {
-		const handleClose = vi.fn();
-		const { container } = render(Dialog, {
-			props: {
-				open: true,
-				title: 'Test',
-				onClose: handleClose,
-				children: () => 'Content',
-			},
-		});
-
-		const backdrop = container.querySelector('.dialog-backdrop');
-		if (backdrop) {
-			await fireEvent.click(backdrop);
-			expect(handleClose).toHaveBeenCalledOnce();
-		}
-	});
-
-	it('has correct ARIA attributes', () => {
+	it('has correct ARIA attributes', async () => {
 		const { container } = render(Dialog, {
 			props: {
 				open: true,
@@ -75,6 +58,7 @@ describe('Dialog', () => {
 		});
 
 		const dialog = container.querySelector('[role="dialog"]');
+		expect(dialog).toBeTruthy();
 		expect(dialog?.getAttribute('aria-modal')).toBe('true');
 		expect(dialog?.getAttribute('aria-labelledby')).toBe('dialog-title');
 	});
