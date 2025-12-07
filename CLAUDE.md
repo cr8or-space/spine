@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NovelGen is a tool for producing web serials at scale using LLM assistance. It manages story bibles, tracks continuity, visualizes pacing, and orchestrates content generation with human review. Single-author, local-first, OpenAI-compatible API for LLM access.
 
+## SvelteKit Unbreakable Rules
+Unbreakable Rules:
+- Always use locators (page.getBy*()) - never containers in vitest-browser-svelte
+- Use .first(), .nth(), .last() for multiple elements to avoid strict mode violations
+- Always use untrack() when accessing $derived values in tests
+- Use real FormData/Request objects in server tests - minimal mocking only
+- Follow naming conventions: kebab-case files, snake_case variables
+- Always run pnpm lint after making changes
+- Never click SvelteKit form submit buttons - test state directly
+- Use await expect.element() for all locator assertions
+
 ## Commands
 
 ```bash
