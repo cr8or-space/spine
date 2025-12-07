@@ -1,32 +1,66 @@
-# Turborepo Svelte starter
+# NovelGen
 
-This Turborepo starter is maintained by the Turborepo core team.
+A tool for producing web serials at scale using LLM assistance. Manages story bibles, tracks continuity, visualizes pacing, and orchestrates content generation with human review.
 
-## Using this example
+## Features
 
-Run the following command:
+- **Story Bible** — Track characters, locations, factions, world rules, plot threads, and timeline
+- **Continuity Checking** — Prevent contradictions from reaching publication
+- **Pacing Visualization** — Plan tension curves and compare planned vs. actual
+- **Generation Pipeline** — Outline → Beats → Draft → Review → Revision
+- **Review Workflow** — Accept/reject/regenerate at paragraph granularity
+- **Serialization Tools** — Hook tracking, tension cycles, release buffer management
 
-```sh
-npx create-turbo@latest -e with-svelte
+## Quick Start
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-## What's inside?
+## Commands
 
-This Turborepo includes the following packages/apps:
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build all packages
+pnpm lint         # Lint all packages
+pnpm format       # Format with Prettier
+pnpm check-types  # TypeScript type checking
+```
 
-### Apps and Packages
+## Project Structure
 
-- `docs`: a [svelte-kit](https://kit.svelte.dev/) app
-- `web`: another [svelte-kit](https://kit.svelte.dev/) app
-- `ui`: a stub Svelte component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-plugin-svelte` and `eslint-config-prettier`)
+```
+apps/
+└── web/              # SvelteKit application
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+packages/
+├── ui/               # Shared Svelte components
+├── eslint-config/    # Shared ESLint configuration
+└── typescript-config/# Shared TypeScript configuration
 
-### Utilities
+docs/
+├── goals.md          # Project objectives
+├── rationale.md      # Design decisions
+├── proposal/         # System design
+├── implementation/   # Roadmap and status
+├── development/      # Coding standards
+└── examples/         # Sample story proposals
+```
 
-This Turborepo has some additional tools already setup for you:
+## Tech Stack
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- **Framework**: SvelteKit + Svelte 5
+- **Build**: Turborepo + pnpm workspaces
+- **Language**: TypeScript (strict mode)
+- **Testing**: Vitest + Playwright
+- **LLM**: OpenAI-compatible API (supports local models)
+
+## Documentation
+
+- [Project Goals](docs/goals.md)
+- [Design Rationale](docs/rationale.md)
+- [Project Proposal](docs/proposal/project-proposal.md)
+- [Implementation Plan](docs/implementation/plan.md)
+- [Implementation Status](docs/implementation/status.md)
+- [Coding Style](docs/development/coding-style.md)

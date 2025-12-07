@@ -1,4 +1,5 @@
 # Implementation Status
+This is a pure checklist file.  No comments other than this one.
 
 ## Phase 1: Foundation
 
