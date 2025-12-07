@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData, ActionData } from './$types';
+  import type { PageData } from './$types';
   import { enhance } from '$app/forms';
   import {
     Button,
@@ -11,7 +11,7 @@
     ConfirmDialog,
   } from '$lib/components';
 
-  let { data, form }: { data: PageData; form: ActionData } = $props();
+  let { data }: { data: PageData } = $props();
 
   // Edit state
   let isEditing = $state(false);
@@ -220,7 +220,7 @@
             </div>
 
             <div class="form-full-width">
-              <label class="field-label">Involved Characters</label>
+              <span class="field-label">Involved Characters</span>
               <div class="selection-grid">
                 {#each data.allCharacters as character}
                   <label class="selection-checkbox">
@@ -241,7 +241,7 @@
             </div>
 
             <div class="form-full-width">
-              <label class="field-label">Locations</label>
+              <span class="field-label">Locations</span>
               <div class="selection-grid">
                 {#each data.allLocations as location}
                   <label class="selection-checkbox">

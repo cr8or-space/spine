@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { TimelineEvent } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -39,11 +40,11 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<TimelineEvent> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        type: formData.get('type') as any,
-        significance: formData.get('significance') as any,
+        type: formData.get('type') as TimelineEvent['type'],
+        significance: formData.get('significance') as TimelineEvent['significance'],
         position: {
           date: formData.get('position-date') as string || undefined,
           storyTime: formData.get('position-storyTime') as string || undefined,
@@ -63,7 +64,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid timeline event data' });
     }
   },

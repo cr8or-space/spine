@@ -373,10 +373,6 @@
     gap: var(--space-4);
   }
 
-  .position-group-full {
-    grid-column: 1 / -1;
-  }
-
   .dialog-actions {
     display: flex;
     justify-content: flex-end;

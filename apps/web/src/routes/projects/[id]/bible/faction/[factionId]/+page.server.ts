@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { Faction } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -43,13 +44,13 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<Faction> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
-        influence: formData.get('influence') as any,
+        type: formData.get('type') as Faction['type'],
+        status: formData.get('status') as Faction['status'],
+        influence: formData.get('influence') as Faction['influence'],
         ideology: formData.get('ideology') as string || undefined,
         goals: JSON.parse(formData.get('goals') as string || '[]'),
       };
@@ -61,7 +62,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid faction data' });
     }
   },
@@ -80,9 +81,10 @@ export const actions: Actions = {
   addRank: async ({ request, params, locals }) => {
     const formData = await request.formData();
     const bibleService = createBibleService(locals.db, params.id);
+    type FactionRank = Faction['ranks'][number];
 
     try {
-      const rank = {
+      const rank: FactionRank = {
         name: formData.get('name') as string,
         level: parseInt(formData.get('level') as string),
         description: formData.get('description') as string,
@@ -96,7 +98,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid rank data' });
     }
   },
@@ -118,14 +120,15 @@ export const actions: Actions = {
   addMember: async ({ request, params, locals }) => {
     const formData = await request.formData();
     const bibleService = createBibleService(locals.db, params.id);
+    type FactionMember = Faction['members'][number];
 
     try {
-      const member = {
+      const member: FactionMember = {
         characterId: formData.get('characterId') as string,
         rank: formData.get('rank') as string,
         role: formData.get('role') as string || undefined,
         joinedAt: formData.get('joinedAt') as string || undefined,
-        status: formData.get('status') as any,
+        status: formData.get('status') as FactionMember['status'],
       };
 
       const updated = bibleService.factions.addMember(params.factionId, member);
@@ -135,7 +138,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid member data' });
     }
   },
@@ -157,11 +160,12 @@ export const actions: Actions = {
   addRelation: async ({ request, params, locals }) => {
     const formData = await request.formData();
     const bibleService = createBibleService(locals.db, params.id);
+    type FactionRelation = Faction['relations'][number];
 
     try {
-      const relation = {
+      const relation: FactionRelation = {
         targetId: formData.get('targetId') as string,
-        type: formData.get('type') as any,
+        type: formData.get('type') as FactionRelation['type'],
         description: formData.get('description') as string,
         public: formData.get('public') === 'true',
       };
@@ -173,7 +177,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid relation data' });
     }
   },

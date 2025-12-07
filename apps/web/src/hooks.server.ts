@@ -25,7 +25,6 @@ const projectService = createProjectService(dbConnection.db);
 
 // Make project service available to request handlers
 declare global {
-  // eslint-disable-next-line no-var
   var projectService: ProjectService;
 }
 

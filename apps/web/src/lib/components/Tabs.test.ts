@@ -30,7 +30,7 @@ describe('Tabs', () => {
 	});
 
 	it('changes active tab on click', async () => {
-		const { container, component } = render(Tabs, { props: { tabs, active: 'tab1' } });
+		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
 		const buttons = container.querySelectorAll('.tab');
 
 		await fireEvent.click(buttons[1]);

@@ -8,7 +8,7 @@
     hint?: string;
   }
 
-  let { label, value = $bindable(), error, hint, id, ...rest }: Props = $props();
+  let { label, value = $bindable(), error, hint, id, name, required, placeholder, disabled, type, min, max }: Props = $props();
 
   const inputId = id || `input-${Math.random().toString(36).slice(2, 9)}`;
 </script>
@@ -24,7 +24,13 @@
     bind:value
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-    {...rest}
+    {name}
+    {required}
+    {placeholder}
+    {disabled}
+    {type}
+    {min}
+    {max}
   />
 
   {#if error}

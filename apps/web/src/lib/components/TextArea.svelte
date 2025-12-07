@@ -8,7 +8,7 @@
     hint?: string;
   }
 
-  let { label, value = $bindable(), error, hint, id, rows = 4, ...rest }: Props = $props();
+  let { label, value = $bindable(), error, hint, id, rows = 4, name, required, placeholder, disabled }: Props = $props();
 
   const inputId = id || `textarea-${Math.random().toString(36).slice(2, 9)}`;
 </script>
@@ -25,7 +25,10 @@
     {rows}
     aria-invalid={error ? 'true' : undefined}
     aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-    {...rest}
+    {name}
+    {required}
+    {placeholder}
+    {disabled}
   ></textarea>
 
   {#if error}

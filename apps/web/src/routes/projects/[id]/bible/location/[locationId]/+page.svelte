@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData, ActionData } from './$types';
+  import type { PageData } from './$types';
   import { enhance } from '$app/forms';
   import {
     Button,
@@ -11,7 +11,7 @@
     ConfirmDialog,
   } from '$lib/components';
 
-  let { data, form }: { data: PageData; form: ActionData } = $props();
+  let { data }: { data: PageData } = $props();
 
   // Edit state
   let isEditing = $state(false);

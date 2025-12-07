@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { Tabs, SearchInput, EmptyState, Button } from '$lib/components';
+  import { Tabs, SearchInput } from '$lib/components';
   import CharacterTab from './CharacterTab.svelte';
   import LocationTab from './LocationTab.svelte';
   import FactionTab from './FactionTab.svelte';
@@ -21,10 +21,6 @@
     { id: 'plot-threads', label: 'Plot Threads', count: data.bible.plotThreads.length },
     { id: 'timeline', label: 'Timeline', count: data.bible.timelineEvents.length },
   ];
-
-  const hasAnyEntities = $derived(
-    tabs.some(tab => tab.count > 0)
-  );
 </script>
 
 <svelte:head>

@@ -1,7 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
-import { CharacterSchema } from '@repo/types';
+import type { Character, Trait } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -36,12 +36,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<Character> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        role: formData.get('role') as any,
-        status: formData.get('status') as any,
+        role: formData.get('role') as Character['role'],
+        status: formData.get('status') as Character['status'],
         voiceSamples: JSON.parse(formData.get('voiceSamples') as string || '[]'),
       };
 
@@ -52,7 +52,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid character data' });
     }
   },
@@ -73,8 +73,8 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const trait = {
-        category: formData.get('category') as any,
+      const trait: Trait = {
+        category: formData.get('category') as Trait['category'],
         name: formData.get('name') as string,
         description: formData.get('description') as string,
       };
@@ -86,7 +86,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid trait data' });
     }
   },
@@ -108,11 +108,13 @@ export const actions: Actions = {
   addRelationship: async ({ request, params, locals }) => {
     const formData = await request.formData();
     const bibleService = createBibleService(locals.db, params.id);
+    // Import Relationship type inline to avoid unused import warning
+    type Relationship = Character['relationships'][number];
 
     try {
-      const relationship = {
+      const relationship: Relationship = {
         targetId: formData.get('targetId') as string,
-        type: formData.get('type') as any,
+        type: formData.get('type') as Relationship['type'],
         description: formData.get('description') as string,
         intensity: parseInt(formData.get('intensity') as string),
         mutual: formData.get('mutual') === 'true',
@@ -125,7 +127,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid relationship data' });
     }
   },

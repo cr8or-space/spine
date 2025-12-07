@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData, ActionData } from './$types';
+  import type { PageData } from './$types';
   import type { Trait, Relationship } from '@repo/types';
   import { enhance } from '$app/forms';
   import {
@@ -13,7 +13,7 @@
     ConfirmDialog,
   } from '$lib/components';
 
-  let { data, form }: { data: PageData; form: ActionData } = $props();
+  let { data }: { data: PageData } = $props();
 
   // Edit state
   let isEditing = $state(false);
@@ -312,7 +312,7 @@
           <Card>
             <h2 class="section-title">Voice Samples ({data.character.voiceSamples.length})</h2>
             <div class="voice-samples">
-              {#each data.character.voiceSamples as sample, i}
+              {#each data.character.voiceSamples as sample}
                 <blockquote class="voice-sample">
                   {sample}
                 </blockquote>

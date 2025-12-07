@@ -15,14 +15,17 @@
     loading = false,
     disabled = false,
     children,
-    ...rest
+    type,
+    onclick,
+    class: className,
   }: Props = $props();
 </script>
 
 <button
-  class="btn btn-{variant} btn-{size}"
+  class="btn btn-{variant} btn-{size} {className ?? ''}"
   disabled={disabled || loading}
-  {...rest}
+  {type}
+  {onclick}
 >
   {#if loading}
     <span class="spinner"></span>

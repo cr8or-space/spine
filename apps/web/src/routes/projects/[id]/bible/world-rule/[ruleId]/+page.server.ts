@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { WorldRule, RuleException } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -35,10 +36,10 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<WorldRule> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        category: formData.get('category') as any,
+        category: formData.get('category') as WorldRule['category'],
         rule: formData.get('rule') as string,
         rationale: formData.get('rationale') as string || undefined,
         consequences: formData.get('consequences') as string || undefined,
@@ -56,7 +57,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid world rule data' });
     }
   },
@@ -77,7 +78,7 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const exception = {
+      const exception: RuleException = {
         condition: formData.get('condition') as string,
         effect: formData.get('effect') as string,
         applicableTo: JSON.parse(formData.get('applicableTo') as string || '[]'),
@@ -90,7 +91,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid exception data' });
     }
   },

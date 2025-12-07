@@ -14,7 +14,7 @@
     hint?: string;
   }
 
-  let { label, value = $bindable(), options, error, hint, id, ...rest }: Props = $props();
+  let { label, value = $bindable(), options, error, hint, id, name, required, disabled }: Props = $props();
 
   const inputId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
 </script>
@@ -31,7 +31,9 @@
       bind:value
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-      {...rest}
+      {name}
+      {required}
+      {disabled}
     >
       {#each options as option}
         <option value={option.value}>{option.label}</option>

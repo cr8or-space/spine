@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { PlotThread } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -37,12 +38,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<PlotThread> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
-        scope: formData.get('scope') as any,
+        type: formData.get('type') as PlotThread['type'],
+        status: formData.get('status') as PlotThread['status'],
+        scope: formData.get('scope') as PlotThread['scope'],
         priority: parseInt(formData.get('priority') as string),
         involvedCharacters: JSON.parse(formData.get('involvedCharacters') as string || '[]'),
         relatedLocations: JSON.parse(formData.get('relatedLocations') as string || '[]'),
@@ -55,7 +56,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid plot thread data' });
     }
   },

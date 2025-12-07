@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation', () => {
-	let projectUrl: string;
-
 	test.beforeEach(async ({ page }) => {
 		// Create a test project
 		await page.goto('/');
@@ -16,7 +14,6 @@ test.describe('Navigation', () => {
 			await page.getByLabel('Project Title').fill('Navigation Test Project');
 			await page.getByRole('button', { name: 'Create Project' }).click();
 			await page.waitForURL(/\/projects\/[^/]+\/bible/);
-			projectUrl = page.url();
 		}
 	});
 

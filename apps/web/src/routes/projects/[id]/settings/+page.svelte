@@ -1,7 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
-  import type { ProjectFormat } from '@repo/types';
   import { Button, Card, TextField, Select, TextArea } from '$lib/components';
   import { goto } from '$app/navigation';
 

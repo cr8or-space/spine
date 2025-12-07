@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { Location } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -35,12 +36,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Partial<Location> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
+        type: formData.get('type') as Location['type'],
+        status: formData.get('status') as Location['status'],
         features: JSON.parse(formData.get('features') as string || '[]'),
         associatedCharacters: JSON.parse(formData.get('associatedCharacters') as string || '[]'),
       };
@@ -52,7 +53,7 @@ export const actions: Actions = {
       }
 
       return { success: true };
-    } catch (err) {
+    } catch {
       return fail(400, { message: 'Invalid location data' });
     }
   },

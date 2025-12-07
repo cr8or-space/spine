@@ -1,6 +1,7 @@
 import { error, fail, redirect, isRedirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import type { Character, Location, Faction, WorldRule, PlotThread, TimelineEvent } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const project = locals.projectService.loadProject(params.id);
@@ -30,12 +31,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<Character, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        role: formData.get('role') as any,
-        status: formData.get('status') as any,
+        role: formData.get('role') as Character['role'],
+        status: formData.get('status') as Character['status'],
         traits: [],
         voiceSamples: [],
         relationships: [],
@@ -57,12 +58,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<Location, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
+        type: formData.get('type') as Location['type'],
+        status: formData.get('status') as Location['status'],
         features: [],
         relations: [],
         associatedCharacters: [],
@@ -83,13 +84,13 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
         aliases: JSON.parse(formData.get('aliases') as string || '[]'),
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
-        influence: formData.get('influence') as any,
+        type: formData.get('type') as Faction['type'],
+        status: formData.get('status') as Faction['status'],
+        influence: formData.get('influence') as Faction['influence'],
         ideology: (formData.get('ideology') as string) || undefined,
         goals: [],
         ranks: [],
@@ -113,9 +114,9 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<WorldRule, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
-        category: formData.get('category') as any,
+        category: formData.get('category') as WorldRule['category'],
         rule: formData.get('rule') as string,
         description: formData.get('description') as string || '',
         exceptions: [],
@@ -140,12 +141,12 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<PlotThread, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        type: formData.get('type') as any,
-        status: formData.get('status') as any,
-        scope: formData.get('scope') as any,
+        type: formData.get('type') as PlotThread['type'],
+        status: formData.get('status') as PlotThread['status'],
+        scope: formData.get('scope') as PlotThread['scope'],
         priority: parseInt(formData.get('priority') as string) || 50,
         involvedCharacters: [],
         relatedLocations: [],
@@ -169,11 +170,11 @@ export const actions: Actions = {
     const bibleService = createBibleService(locals.db, params.id);
 
     try {
-      const data = {
+      const data: Omit<TimelineEvent, 'id' | 'createdAt' | 'updatedAt'> = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        type: formData.get('type') as any,
-        significance: formData.get('significance') as any,
+        type: formData.get('type') as TimelineEvent['type'],
+        significance: formData.get('significance') as TimelineEvent['significance'],
         position: {
           date: (formData.get('date') as string) || undefined,
           storyTime: (formData.get('storyTime') as string) || undefined,
