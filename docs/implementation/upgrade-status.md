@@ -48,7 +48,7 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 3: Tailwind CSS v4 (TW)
 
 ### 3.TW Setup
-- [ ] Install Tailwind CSS v4
+- [x] Install Tailwind CSS v4
 - [ ] Configure Tailwind v4 with Vite
 - [ ] Create Tailwind theme from existing design tokens
 - [ ] Create cn utility helper
