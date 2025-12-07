@@ -156,27 +156,31 @@ export function createStructureRepository(db: Database.Database): StructureRepos
       if (!existing) return undefined;
 
       const now = nowTimestamp();
+
+      // Helper to handle explicit undefined (clear field) vs not provided (keep existing)
+      function resolveOptional<T>(dataValue: T | undefined, existingValue: T | undefined, key: keyof UpdateStructureData): T | null {
+        if (key in data) {
+          // Field was explicitly provided (including undefined to clear it)
+          return dataValue ?? null;
+        }
+        // Field was not provided, keep existing
+        return existingValue ?? null;
+      }
+
       const updated: StructureRow = {
         id,
         project_id: projectId,
         type: data.type ?? existing.type,
         title: data.title ?? existing.title,
         summary: data.summary ?? existing.summary,
-        beats_json: data.beats ? JSON.stringify(data.beats) : JSON.stringify(existing.beats),
-        tension_target: data.tensionTarget !== undefined ? (data.tensionTarget ?? null) : (existing.tensionTarget ?? null),
-        chapter_type: data.chapterType !== undefined ? (data.chapterType ?? null) : (existing.chapterType ?? null),
-        hook_json:
-          data.hook !== undefined
-            ? data.hook
-              ? JSON.stringify(data.hook)
-              : null
-            : existing.hook
-              ? JSON.stringify(existing.hook)
-              : null,
+        beats_json: 'beats' in data ? JSON.stringify(data.beats ?? []) : JSON.stringify(existing.beats),
+        tension_target: resolveOptional(data.tensionTarget, existing.tensionTarget, 'tensionTarget'),
+        chapter_type: resolveOptional(data.chapterType, existing.chapterType, 'chapterType'),
+        hook_json: 'hook' in data ? (data.hook ? JSON.stringify(data.hook) : null) : (existing.hook ? JSON.stringify(existing.hook) : null),
         sort_order: data.order ?? existing.order,
-        parent_id: data.parentId !== undefined ? (data.parentId ?? null) : (existing.parentId ?? null),
-        target_word_count: data.targetWordCount !== undefined ? (data.targetWordCount ?? null) : (existing.targetWordCount ?? null),
-        notes: data.notes !== undefined ? (data.notes ?? null) : (existing.notes ?? null),
+        parent_id: 'parentId' in data ? (data.parentId ?? null) : (existing.parentId ?? null),
+        target_word_count: resolveOptional(data.targetWordCount, existing.targetWordCount, 'targetWordCount'),
+        notes: 'notes' in data ? (data.notes ?? null) : (existing.notes ?? null),
         created_at: existing.createdAt,
         updated_at: now,
       };

@@ -7,6 +7,7 @@
  * - Project management
  * - Auto-save functionality
  * - Bible management (CRUD operations, relationships)
+ * - Structure management (outline hierarchy, beats, hooks)
  *
  * Future packages will be added:
  * - Generation pipeline
@@ -19,3 +20,6 @@ export * from './storage';
 
 // Re-export bible management
 export * from './bible';
+
+// Re-export structure management
+export * from './structure';

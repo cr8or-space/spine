@@ -67,12 +67,12 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Task-specific assembly
 
 ### 2.2 Structure management
-- [ ] Structure tree operations
-- [ ] Beat sheet management
-- [ ] Tension targets
-- [ ] Chapter types
-- [ ] Hook specification
-- [ ] Reordering
+- [x] Structure tree operations
+- [x] Beat sheet management
+- [x] Tension targets
+- [x] Chapter types
+- [x] Hook specification
+- [x] Reordering
 
 ### 2.3 Generation pipeline
 - [ ] Pipeline stage definitions
