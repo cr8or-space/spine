@@ -133,10 +133,10 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 4: Analytics
 
 ### 4.1 Tension curve data
-- [ ] Planned tension extraction
-- [ ] Actual tension aggregation
-- [ ] Chapter data points
-- [ ] Divergence calculation
+- [x] Planned tension extraction
+- [x] Actual tension aggregation
+- [x] Chapter data points
+- [x] Divergence calculation
 
 ### 4.2 Character tracking
 - [ ] Appearance tracking

@@ -135,11 +135,19 @@ export interface AnalysisRepository {
   deleteByContent(projectId: string, contentId: string): number;
   /** Delete all analyses for a project */
   deleteByProject(projectId: string): number;
-  /** Get aggregated analysis for a structure (arc, book) */
+  /**
+   * Get aggregated analysis for a structure (arc, book)
+   *
+   * @param projectId - Project ID
+   * @param structureId - Structure ID for the aggregation
+   * @param childContentIds - Content IDs to aggregate
+   * @param structureTensionTarget - Optional tension target from structure for divergence calculation
+   */
   aggregateForStructure(
     projectId: string,
     structureId: string,
-    childContentIds: string[]
+    childContentIds: string[],
+    structureTensionTarget?: number
   ): AggregatedAnalysis | undefined;
   /** Get continuity issues by severity */
   getIssuesBySeverity(
@@ -301,7 +309,8 @@ export function createAnalysisRepository(db: Database.Database): AnalysisReposit
     aggregateForStructure(
       projectId: string,
       structureId: string,
-      childContentIds: string[]
+      childContentIds: string[],
+      structureTensionTarget?: number
     ): AggregatedAnalysis | undefined {
       if (childContentIds.length === 0) return undefined;
 
@@ -322,6 +331,13 @@ export function createAnalysisRepository(db: Database.Database): AnalysisReposit
 
       const totalWordCount = analyses.reduce((sum, a) => sum + a.wordCount, 0);
       const totalReadingTime = analyses.reduce((sum, a) => sum + a.readingTime, 0);
+
+      // Calculate tension divergence if structure has a tension target
+      // Divergence = actual (average) - planned (target)
+      // Positive means actual tension is higher than planned
+      const tensionDivergence = structureTensionTarget !== undefined
+        ? averageTension - structureTensionTarget
+        : 0;
 
       // Count issues by severity
       const issuesBySeverity = { critical: 0, major: 0, minor: 0, nitpick: 0 };
@@ -362,7 +378,7 @@ export function createAnalysisRepository(db: Database.Database): AnalysisReposit
       return {
         structureId,
         averageTension,
-        tensionDivergence: 0, // Would need structure tension target
+        tensionDivergence,
         totalWordCount,
         totalReadingTime,
         issuesBySeverity,

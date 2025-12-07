@@ -7,6 +7,7 @@
  * - Pacing assessment
  * - Continuity checking against story bible
  * - Analysis storage and history
+ * - Tension curve data generation (Phase 4.1)
  */
 
 // Service
@@ -19,6 +20,20 @@ export {
   DROP_ANALYSIS_TABLE_SQL,
   type AnalysisRepository,
 } from './repository';
+
+// Tension curve (Phase 4.1)
+export {
+  extractPlannedTension,
+  generateTensionCurve,
+  calculateDivergence,
+  aggregateActualTension,
+  calculateStructureDivergence,
+  getHighDivergenceChapters,
+  getMissingAnalysisChapters,
+  getMissingTargetChapters,
+  type TensionCurveInput,
+  type TensionCurveDependencies,
+} from './tension-curve';
 
 // Types
 export type {

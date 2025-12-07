@@ -124,11 +124,17 @@ export {
   ContentAnalysisSchema,
   AggregatedAnalysisSchema,
   HookPatternAnalysisSchema,
+  TensionCurveDataPointSchema,
+  TensionCurveMetadataSchema,
+  TensionCurveDataSchema,
   type ContinuityIssue,
   type ExplainedScore,
   type ContentAnalysis,
   type AggregatedAnalysis,
   type HookPatternAnalysis,
+  type TensionCurveDataPoint,
+  type TensionCurveMetadata,
+  type TensionCurveData,
 } from './analysis';
 
 // Review types
