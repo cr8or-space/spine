@@ -5,8 +5,8 @@ This is a pure checklist file. No comments other than this one.
 
 ### 1.CR Generic Components
 - [x] EntityCard component
-- [ ] EntityListPage component
-- [ ] CreateEntityDialog component
+- [x] EntityListPage component
+- [x] CreateEntityDialog component
 
 ### 1.CR Tab Refactors
 - [ ] CharacterTab refactor
@@ -17,7 +17,7 @@ This is a pure checklist file. No comments other than this one.
 - [ ] TimelineTab refactor
 
 ### 1.CR Exports
-- [ ] Update component exports
+- [x] Update component exports
 
 ## Phase 2: Testing Infrastructure (TI)
 
@@ -36,8 +36,8 @@ This is a pure checklist file. No comments other than this one.
 
 ### 2.TI New Component Tests
 - [x] EntityCard tests
-- [ ] EntityListPage tests
-- [ ] CreateEntityDialog tests
+- [x] EntityListPage tests
+- [x] CreateEntityDialog tests
 
 ### 2.TI Integration Tests
 - [ ] Bible flow integration test
