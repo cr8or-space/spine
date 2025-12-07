@@ -8,6 +8,7 @@
  * - Continuity checking against story bible
  * - Analysis storage and history
  * - Tension curve data generation (Phase 4.1)
+ * - Character tracking and presence analysis (Phase 4.2)
  */
 
 // Service
@@ -34,6 +35,22 @@ export {
   type TensionCurveInput,
   type TensionCurveDependencies,
 } from './tension-curve';
+
+// Character tracking (Phase 4.2)
+export {
+  generateCharacterTrackingData,
+  generateAllCharacterTracking,
+  generatePresenceHeatmap,
+  presenceToIntensity,
+  intensityToPresence,
+  getCharactersWithDecliningPresence,
+  getCharactersMissingRecently,
+  getCharactersWithIncompleteArcs,
+  getTopCharactersByPresence,
+  getCharactersByPOVCount,
+  type CharacterTrackingInput,
+  type CharacterTrackingDependencies,
+} from './character-tracking';
 
 // Types
 export type {

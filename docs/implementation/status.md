@@ -139,10 +139,10 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Divergence calculation
 
 ### 4.2 Character tracking
-- [ ] Appearance tracking
-- [ ] Presence intensity
-- [ ] Relationship evolution
-- [ ] Arc progress
+- [x] Appearance tracking
+- [x] Presence intensity
+- [x] Relationship evolution
+- [x] Arc progress
 
 ### 4.3 Plot thread tracking
 - [ ] Thread status tracking

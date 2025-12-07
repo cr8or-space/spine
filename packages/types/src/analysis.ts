@@ -260,3 +260,197 @@ export const TensionCurveDataSchema = z.object({
   metadata: TensionCurveMetadataSchema,
 });
 export type TensionCurveData = z.infer<typeof TensionCurveDataSchema>;
+
+/**
+ * Presence type for character appearances
+ */
+export const PresenceTypeSchema = z.enum(['mention', 'scene', 'pov']);
+export type PresenceType = z.infer<typeof PresenceTypeSchema>;
+
+/**
+ * Character appearance in a specific chapter/scene
+ */
+export const CharacterAppearanceDataPointSchema = z.object({
+  /** Structure ID (chapter or scene) */
+  structureId: IdSchema,
+  /** Chapter/scene position in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Title of the chapter/scene */
+  title: z.string(),
+  /** Content ID if content exists */
+  contentId: IdSchema.optional(),
+  /** Type of presence in this chapter */
+  presenceType: PresenceTypeSchema,
+  /** Number of dialogue lines (if available) */
+  dialogueLines: z.number().int().min(0).optional(),
+  /** Whether this is a POV chapter for this character */
+  isPov: z.boolean(),
+});
+export type CharacterAppearanceDataPoint = z.infer<typeof CharacterAppearanceDataPointSchema>;
+
+/**
+ * Relationship state at a point in time
+ */
+export const RelationshipSnapshotSchema = z.object({
+  /** Target character ID */
+  targetCharacterId: IdSchema,
+  /** Target character name (for display) */
+  targetCharacterName: z.string(),
+  /** Relationship type */
+  type: z.enum([
+    'family',
+    'friend',
+    'enemy',
+    'romantic',
+    'professional',
+    'rival',
+    'mentor',
+    'other',
+  ]),
+  /** Intensity at this point (-100 to 100) */
+  intensity: z.number().min(-100).max(100),
+  /** Chapter position where this was measured */
+  position: z.number().int().positive(),
+  /** Structure ID of the chapter */
+  structureId: IdSchema,
+});
+export type RelationshipSnapshot = z.infer<typeof RelationshipSnapshotSchema>;
+
+/**
+ * Evolution of a relationship over time
+ */
+export const RelationshipEvolutionSchema = z.object({
+  /** Target character ID */
+  targetCharacterId: IdSchema,
+  /** Target character name */
+  targetCharacterName: z.string(),
+  /** Relationship type */
+  type: z.enum([
+    'family',
+    'friend',
+    'enemy',
+    'romantic',
+    'professional',
+    'rival',
+    'mentor',
+    'other',
+  ]),
+  /** Snapshots over time */
+  snapshots: z.array(RelationshipSnapshotSchema),
+  /** Starting intensity */
+  startIntensity: z.number().min(-100).max(100),
+  /** Current/latest intensity */
+  currentIntensity: z.number().min(-100).max(100),
+  /** Total change (current - start) */
+  totalChange: z.number(),
+});
+export type RelationshipEvolution = z.infer<typeof RelationshipEvolutionSchema>;
+
+/**
+ * Arc milestone with tracking status
+ */
+export const ArcMilestoneProgressSchema = z.object({
+  /** Milestone description */
+  description: z.string(),
+  /** Chapter ID where achieved (if achieved) */
+  chapterId: IdSchema.optional(),
+  /** Chapter position (if achieved) */
+  chapterPosition: z.number().int().positive().optional(),
+  /** Whether this milestone has been achieved */
+  achieved: z.boolean(),
+  /** Order of this milestone */
+  order: z.number().int().min(0),
+});
+export type ArcMilestoneProgress = z.infer<typeof ArcMilestoneProgressSchema>;
+
+/**
+ * Character arc progress tracking
+ */
+export const CharacterArcProgressSchema = z.object({
+  /** Arc type */
+  arcType: z.enum([
+    'positive-change',
+    'negative-change',
+    'flat',
+    'corruption',
+    'redemption',
+    'coming-of-age',
+    'disillusionment',
+  ]),
+  /** Starting point description */
+  startingPoint: z.string(),
+  /** Destination description */
+  destination: z.string(),
+  /** Overall progress percentage (0-100) */
+  progress: z.number().min(0).max(100),
+  /** Milestone progress */
+  milestones: z.array(ArcMilestoneProgressSchema),
+  /** Number of milestones achieved */
+  achievedMilestones: z.number().int().min(0),
+  /** Total number of milestones */
+  totalMilestones: z.number().int().min(0),
+});
+export type CharacterArcProgress = z.infer<typeof CharacterArcProgressSchema>;
+
+/**
+ * Complete character tracking data for a single character
+ */
+export const CharacterTrackingDataSchema = z.object({
+  /** Character ID */
+  characterId: IdSchema,
+  /** Character name */
+  characterName: z.string(),
+  /** Character role */
+  role: z.enum(['protagonist', 'antagonist', 'major', 'supporting', 'minor']),
+  /** Appearance data points */
+  appearances: z.array(CharacterAppearanceDataPointSchema),
+  /** Relationship evolution data */
+  relationshipEvolution: z.array(RelationshipEvolutionSchema),
+  /** Arc progress (if character has an arc) */
+  arcProgress: CharacterArcProgressSchema.optional(),
+  /** Summary statistics */
+  summary: z.object({
+    /** Total appearances */
+    totalAppearances: z.number().int().min(0),
+    /** POV chapters */
+    povChapters: z.number().int().min(0),
+    /** Scene appearances */
+    sceneAppearances: z.number().int().min(0),
+    /** Mention-only appearances */
+    mentionAppearances: z.number().int().min(0),
+    /** Total dialogue lines */
+    totalDialogueLines: z.number().int().min(0),
+    /** First appearance position */
+    firstAppearance: z.number().int().positive().optional(),
+    /** Last appearance position */
+    lastAppearance: z.number().int().positive().optional(),
+    /** Appearance density (appearances / total chapters) */
+    appearanceDensity: z.number().min(0).max(1),
+  }),
+});
+export type CharacterTrackingData = z.infer<typeof CharacterTrackingDataSchema>;
+
+/**
+ * Character presence heatmap data for visualization
+ *
+ * Each row is a character, each column is a chapter position.
+ * Value indicates presence intensity.
+ */
+export const CharacterPresenceHeatmapSchema = z.object({
+  /** Character IDs in row order */
+  characterIds: z.array(IdSchema),
+  /** Character names (parallel to characterIds) */
+  characterNames: z.array(z.string()),
+  /** Chapter positions (column headers) */
+  positions: z.array(z.number().int().positive()),
+  /** Chapter titles (parallel to positions) */
+  titles: z.array(z.string()),
+  /**
+   * Presence matrix: [characterIndex][positionIndex] = intensity
+   * 0 = not present, 1 = mention, 2 = scene, 3 = POV
+   */
+  matrix: z.array(z.array(z.number().int().min(0).max(3))),
+  /** When this data was generated */
+  generatedAt: TimestampSchema,
+});
+export type CharacterPresenceHeatmap = z.infer<typeof CharacterPresenceHeatmapSchema>;
