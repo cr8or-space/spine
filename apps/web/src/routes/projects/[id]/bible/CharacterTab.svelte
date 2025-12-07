@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Character } from '@repo/types';
-  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
 
   interface Props {
@@ -11,18 +11,34 @@
 
   let { characters, projectId, searchQuery }: Props = $props();
 
+  let roleFilter = $state('');
+  let statusFilter = $state('');
+
   const filteredCharacters = $derived(
-    searchQuery
-      ? characters.filter(
-          (char) =>
-            char.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            char.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            char.aliases.some((alias) =>
-              alias.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        )
-      : characters
+    characters.filter((char) => {
+      // Text search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          char.name.toLowerCase().includes(query) ||
+          char.description.toLowerCase().includes(query) ||
+          char.aliases.some((alias) => alias.toLowerCase().includes(query));
+        if (!matchesSearch) return false;
+      }
+      // Role filter
+      if (roleFilter && char.role !== roleFilter) return false;
+      // Status filter
+      if (statusFilter && char.status !== statusFilter) return false;
+      return true;
+    })
   );
+
+  const hasActiveFilters = $derived(!!roleFilter || !!statusFilter);
+
+  function clearFilters() {
+    roleFilter = '';
+    statusFilter = '';
+  }
 
   let showCreateDialog = $state(false);
 
@@ -90,13 +106,20 @@
 
 <div class="character-tab">
   <div class="tab-toolbar">
-    <div class="toolbar-info">
+    <div class="toolbar-left">
       <span class="count-label">
         {filteredCharacters.length} {filteredCharacters.length === 1 ? 'character' : 'characters'}
-        {#if searchQuery}
+        {#if searchQuery || hasActiveFilters}
           (filtered from {characters.length})
         {/if}
       </span>
+      <div class="filter-controls">
+        <FilterSelect bind:value={roleFilter} options={roleOptions} allLabel="All roles" />
+        <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
+        {#if hasActiveFilters}
+          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+        {/if}
+      </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -107,10 +130,10 @@
   </div>
 
   {#if filteredCharacters.length === 0}
-    {#if searchQuery}
+    {#if searchQuery || hasActiveFilters}
       <EmptyState
         title="No characters found"
-        description="Try adjusting your search query."
+        description="Try adjusting your search query or filters."
       />
     {:else}
       <EmptyState
@@ -263,11 +286,40 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
   }
 
   .count-label {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .clear-filters {
+    padding: var(--space-1) var(--space-2);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .clear-filters:hover {
+    color: var(--color-text);
   }
 
   .character-grid {

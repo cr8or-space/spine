@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PlotThread } from '@repo/types';
-  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
 
   interface Props {
@@ -11,15 +11,37 @@
 
   let { plotThreads, projectId, searchQuery }: Props = $props();
 
+  let typeFilter = $state('');
+  let statusFilter = $state('');
+  let scopeFilter = $state('');
+
   const filteredThreads = $derived(
-    searchQuery
-      ? plotThreads.filter(
-          (thread) =>
-            thread.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            thread.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : plotThreads
+    plotThreads.filter((thread) => {
+      // Text search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          thread.name.toLowerCase().includes(query) ||
+          thread.description.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+      // Type filter
+      if (typeFilter && thread.type !== typeFilter) return false;
+      // Status filter
+      if (statusFilter && thread.status !== statusFilter) return false;
+      // Scope filter
+      if (scopeFilter && thread.scope !== scopeFilter) return false;
+      return true;
+    })
   );
+
+  const hasActiveFilters = $derived(!!typeFilter || !!statusFilter || !!scopeFilter);
+
+  function clearFilters() {
+    typeFilter = '';
+    statusFilter = '';
+    scopeFilter = '';
+  }
 
   let showCreateDialog = $state(false);
 
@@ -103,13 +125,21 @@
 
 <div class="plot-thread-tab">
   <div class="tab-toolbar">
-    <div class="toolbar-info">
+    <div class="toolbar-left">
       <span class="count-label">
         {filteredThreads.length} {filteredThreads.length === 1 ? 'thread' : 'threads'}
-        {#if searchQuery}
+        {#if searchQuery || hasActiveFilters}
           (filtered from {plotThreads.length})
         {/if}
       </span>
+      <div class="filter-controls">
+        <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
+        <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
+        <FilterSelect bind:value={scopeFilter} options={scopeOptions} allLabel="All scopes" />
+        {#if hasActiveFilters}
+          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+        {/if}
+      </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -120,10 +150,10 @@
   </div>
 
   {#if filteredThreads.length === 0}
-    {#if searchQuery}
+    {#if searchQuery || hasActiveFilters}
       <EmptyState
         title="No plot threads found"
-        description="Try adjusting your search query."
+        description="Try adjusting your search query or filters."
       />
     {:else}
       <EmptyState
@@ -199,11 +229,40 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
   }
 
   .count-label {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .clear-filters {
+    padding: var(--space-1) var(--space-2);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .clear-filters:hover {
+    color: var(--color-text);
   }
 
   .thread-grid {

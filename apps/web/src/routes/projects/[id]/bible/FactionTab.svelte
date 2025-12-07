@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Faction } from '@repo/types';
-  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
 
   interface Props {
@@ -11,18 +11,38 @@
 
   let { factions, projectId, searchQuery }: Props = $props();
 
+  let typeFilter = $state('');
+  let statusFilter = $state('');
+  let influenceFilter = $state('');
+
   const filteredFactions = $derived(
-    searchQuery
-      ? factions.filter(
-          (faction) =>
-            faction.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            faction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            faction.aliases.some((alias) =>
-              alias.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        )
-      : factions
+    factions.filter((faction) => {
+      // Text search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          faction.name.toLowerCase().includes(query) ||
+          faction.description.toLowerCase().includes(query) ||
+          faction.aliases.some((alias) => alias.toLowerCase().includes(query));
+        if (!matchesSearch) return false;
+      }
+      // Type filter
+      if (typeFilter && faction.type !== typeFilter) return false;
+      // Status filter
+      if (statusFilter && faction.status !== statusFilter) return false;
+      // Influence filter
+      if (influenceFilter && faction.influence !== influenceFilter) return false;
+      return true;
+    })
   );
+
+  const hasActiveFilters = $derived(!!typeFilter || !!statusFilter || !!influenceFilter);
+
+  function clearFilters() {
+    typeFilter = '';
+    statusFilter = '';
+    influenceFilter = '';
+  }
 
   let showCreateDialog = $state(false);
 
@@ -112,13 +132,21 @@
 
 <div class="faction-tab">
   <div class="tab-toolbar">
-    <div class="toolbar-info">
+    <div class="toolbar-left">
       <span class="count-label">
         {filteredFactions.length} {filteredFactions.length === 1 ? 'faction' : 'factions'}
-        {#if searchQuery}
+        {#if searchQuery || hasActiveFilters}
           (filtered from {factions.length})
         {/if}
       </span>
+      <div class="filter-controls">
+        <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
+        <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
+        <FilterSelect bind:value={influenceFilter} options={influenceOptions} allLabel="All influence" />
+        {#if hasActiveFilters}
+          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+        {/if}
+      </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -129,10 +157,10 @@
   </div>
 
   {#if filteredFactions.length === 0}
-    {#if searchQuery}
+    {#if searchQuery || hasActiveFilters}
       <EmptyState
         title="No factions found"
-        description="Try adjusting your search query."
+        description="Try adjusting your search query or filters."
       />
     {:else}
       <EmptyState
@@ -212,11 +240,40 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
   }
 
   .count-label {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .clear-filters {
+    padding: var(--space-1) var(--space-2);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .clear-filters:hover {
+    color: var(--color-text);
   }
 
   .faction-grid {

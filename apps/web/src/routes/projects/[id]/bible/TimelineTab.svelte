@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TimelineEvent } from '@repo/types';
-  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
 
   interface Props {
@@ -11,15 +11,33 @@
 
   let { timelineEvents, projectId, searchQuery }: Props = $props();
 
+  let typeFilter = $state('');
+  let significanceFilter = $state('');
+
   const filteredEvents = $derived(
-    searchQuery
-      ? timelineEvents.filter(
-          (event) =>
-            event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            event.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : timelineEvents
+    timelineEvents.filter((event) => {
+      // Text search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          event.name.toLowerCase().includes(query) ||
+          event.description.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+      // Type filter
+      if (typeFilter && event.type !== typeFilter) return false;
+      // Significance filter
+      if (significanceFilter && event.significance !== significanceFilter) return false;
+      return true;
+    })
   );
+
+  const hasActiveFilters = $derived(!!typeFilter || !!significanceFilter);
+
+  function clearFilters() {
+    typeFilter = '';
+    significanceFilter = '';
+  }
 
   let showCreateDialog = $state(false);
 
@@ -108,13 +126,20 @@
 
 <div class="timeline-tab">
   <div class="tab-toolbar">
-    <div class="toolbar-info">
+    <div class="toolbar-left">
       <span class="count-label">
         {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
-        {#if searchQuery}
+        {#if searchQuery || hasActiveFilters}
           (filtered from {timelineEvents.length})
         {/if}
       </span>
+      <div class="filter-controls">
+        <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
+        <FilterSelect bind:value={significanceFilter} options={significanceOptions} allLabel="All significance" />
+        {#if hasActiveFilters}
+          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+        {/if}
+      </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -125,10 +150,10 @@
   </div>
 
   {#if filteredEvents.length === 0}
-    {#if searchQuery}
+    {#if searchQuery || hasActiveFilters}
       <EmptyState
         title="No timeline events found"
-        description="Try adjusting your search query."
+        description="Try adjusting your search query or filters."
       />
     {:else}
       <EmptyState
@@ -212,11 +237,40 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
   }
 
   .count-label {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .clear-filters {
+    padding: var(--space-1) var(--space-2);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .clear-filters:hover {
+    color: var(--color-text);
   }
 
   .event-grid {

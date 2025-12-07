@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { WorldRule } from '@repo/types';
-  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select } from '$lib/components';
+  import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
 
   interface Props {
@@ -11,16 +11,42 @@
 
   let { worldRules, projectId, searchQuery }: Props = $props();
 
+  let categoryFilter = $state('');
+  let establishedFilter = $state('');
+
+  const establishedOptions = [
+    { value: 'true', label: 'Established' },
+    { value: 'false', label: 'Draft' },
+  ];
+
   const filteredRules = $derived(
-    searchQuery
-      ? worldRules.filter(
-          (rule) =>
-            rule.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            rule.rule.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            rule.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : worldRules
+    worldRules.filter((rule) => {
+      // Text search
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          rule.name.toLowerCase().includes(query) ||
+          rule.rule.toLowerCase().includes(query) ||
+          rule.description.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+      // Category filter
+      if (categoryFilter && rule.category !== categoryFilter) return false;
+      // Established filter
+      if (establishedFilter) {
+        const isEstablished = establishedFilter === 'true';
+        if (rule.established !== isEstablished) return false;
+      }
+      return true;
+    })
   );
+
+  const hasActiveFilters = $derived(!!categoryFilter || !!establishedFilter);
+
+  function clearFilters() {
+    categoryFilter = '';
+    establishedFilter = '';
+  }
 
   let showCreateDialog = $state(false);
 
@@ -76,13 +102,20 @@
 
 <div class="world-rule-tab">
   <div class="tab-toolbar">
-    <div class="toolbar-info">
+    <div class="toolbar-left">
       <span class="count-label">
         {filteredRules.length} {filteredRules.length === 1 ? 'rule' : 'rules'}
-        {#if searchQuery}
+        {#if searchQuery || hasActiveFilters}
           (filtered from {worldRules.length})
         {/if}
       </span>
+      <div class="filter-controls">
+        <FilterSelect bind:value={categoryFilter} options={categoryOptions} allLabel="All categories" />
+        <FilterSelect bind:value={establishedFilter} options={establishedOptions} allLabel="All states" />
+        {#if hasActiveFilters}
+          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+        {/if}
+      </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -93,10 +126,10 @@
   </div>
 
   {#if filteredRules.length === 0}
-    {#if searchQuery}
+    {#if searchQuery || hasActiveFilters}
       <EmptyState
         title="No rules found"
-        description="Try adjusting your search query."
+        description="Try adjusting your search query or filters."
       />
     {:else}
       <EmptyState
@@ -176,11 +209,40 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
   }
 
   .count-label {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .clear-filters {
+    padding: var(--space-1) var(--space-2);
+    font-family: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .clear-filters:hover {
+    color: var(--color-text);
   }
 
   .rule-grid {
