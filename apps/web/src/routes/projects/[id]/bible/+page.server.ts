@@ -10,8 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   // Get bible service for this project
-  const db = (locals.projectService as any).db;
-  const bibleService = createBibleService(db, params.id);
+  const bibleService = createBibleService(locals.db, params.id);
 
   // Get the complete bible
   const bible = bibleService.getBible();

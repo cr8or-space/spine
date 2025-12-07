@@ -32,8 +32,9 @@ declare global {
 globalThis.projectService = projectService;
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // Add project service to locals for access in load functions
+  // Add project service and database to locals for access in load functions
   event.locals.projectService = projectService;
+  event.locals.db = dbConnection.db;
 
   return resolve(event);
 };
