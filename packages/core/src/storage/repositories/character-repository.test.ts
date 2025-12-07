@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import type { Character, Relationship } from '@repo/types';
+import type { Relationship } from '@repo/types';
 
 import { createTestDatabase, type DatabaseConnection } from '../database';
 import { createCharacterRepository, type CharacterRepository } from './character-repository';

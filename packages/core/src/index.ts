@@ -30,3 +30,6 @@ export * from './analysis';
 
 // Re-export version management
 export * from './version';
+
+// Re-export review workflow
+export * from './review';

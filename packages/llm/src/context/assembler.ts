@@ -184,7 +184,7 @@ function assembleBibleContext(
   opts: Required<Omit<ContextAssemblyOptions, 'customBudget' | 'alwaysInclude' | 'exclude'>> &
     Pick<ContextAssemblyOptions, 'alwaysInclude' | 'exclude'>
 ): BibleContext {
-  let remainingBudget = budget;
+  const remainingBudget = budget;
 
   // Filter by threshold and limit
   const filteredCharacters = topNByRelevance(

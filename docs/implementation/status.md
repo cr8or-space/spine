@@ -107,12 +107,12 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Rollback support
 
 ### 3.2 Review workflow
-- [ ] Review queue
-- [ ] Status transitions
-- [ ] Paragraph-level actions
-- [ ] Review comments
-- [ ] Lock points
-- [ ] Published immutability
+- [x] Review queue
+- [x] Status transitions
+- [x] Paragraph-level actions
+- [x] Review comments
+- [x] Lock points
+- [x] Published immutability
 
 ### 3.3 Revision cascade
 - [ ] Horizon configuration
