@@ -88,11 +88,11 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 5: Icon System (IC)
 
 ### 5.IC Setup
-- [ ] Install Lucide Svelte
-- [ ] Audit existing inline SVGs
+- [x] Install Lucide Svelte
+- [x] Audit existing inline SVGs (see docs/implementation/svg-audit.md)
 
 ### 5.IC Migration
-- [ ] Replace inline SVGs with Lucide icons
+- [ ] Replace inline SVGs with Lucide icons (~58 instances in ~19 files)
 
 ## Phase 6: Architecture Preparation (AP)
 
