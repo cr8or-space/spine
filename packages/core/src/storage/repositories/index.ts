@@ -71,3 +71,10 @@ export {
   type CreateProjectData as CreateProjectRepoData,
   type UpdateProjectData as UpdateProjectRepoData,
 } from './project-repository';
+
+// Lock point repository
+export {
+  createLockPointRepository,
+  type LockPointRepository,
+  type CreateLockPointData,
+} from './lock-point-repository';

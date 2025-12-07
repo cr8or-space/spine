@@ -115,7 +115,7 @@ export interface ContentRepository extends ProjectScopedRepository<Content, Crea
   unlock(projectId: string, id: string): Content | undefined;
 
   // Analysis
-  setAnalysis(projectId: string, id: string, analysis: ContentAnalysis | undefined): Content | undefined;
+  setAnalysis(projectId: string, id: string, analysis: ContentAnalysis | null | undefined): Content | undefined;
 
   // Reviews
   addReview(projectId: string, id: string, review: Review): Content | undefined;
@@ -475,8 +475,9 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       return this.update(projectId, id, { locked: false, lockReason: undefined });
     },
 
-    setAnalysis(projectId: string, id: string, analysis: ContentAnalysis | undefined): Content | undefined {
-      return this.update(projectId, id, { analysis });
+    setAnalysis(projectId: string, id: string, analysis: ContentAnalysis | null | undefined): Content | undefined {
+      // Pass null explicitly to clear analysis (undefined means "don't change")
+      return this.update(projectId, id, { analysis: analysis ?? null } as UpdateContentData);
     },
 
     addReview(projectId: string, id: string, review: Review): Content | undefined {

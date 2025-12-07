@@ -179,7 +179,7 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
     for (const line of lines) {
       const trimmed = line.trim();
       // Match numbered items or bullet points
-      const match = trimmed.match(/^(?:\d+[\.\)]\s*|\-\s*|\*\s*)(.+)$/);
+      const match = trimmed.match(/^(?:\d+[.)]\s*|-\s*|\*\s*)(.+)$/);
       if (match) {
         beats.push({
           id: nanoid(),
@@ -206,7 +206,7 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
       const trimmed = line.trim();
 
       // Match numbered items
-      const numberMatch = trimmed.match(/^(\d+)[\.\)]\s*(.+)$/);
+      const numberMatch = trimmed.match(/^(\d+)[.)]\s*(.+)$/);
       if (numberMatch) {
         // Save previous beat
         if (currentBeat && currentBeat.description) {

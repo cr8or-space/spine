@@ -10,12 +10,15 @@
     "test": "turbo run test"
   },
   "devDependencies": {
+    "eslint": "^9.39.1",
     "prettier": "^3.6.0",
     "prettier-plugin-svelte": "^3.4.0",
     "turbo": "^2.6.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["better-sqlite3"]
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   },
   "packageManager": "pnpm@10.0.0",
   "engines": {
