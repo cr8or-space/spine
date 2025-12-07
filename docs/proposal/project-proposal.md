@@ -179,11 +179,12 @@ interface ContentAnalysis {
 
 ### LLM integration
 
-**Multi-model strategy**
-- **Planning/Analysis**: Claude (strong reasoning for structure)
-- **Generation**: Claude or GPT-4 (prose quality)
-- **Quick checks**: Haiku/GPT-4o-mini (fast validation)
-- **Local fallback**: Ollama for offline work
+**OpenAI-compatible API**
+
+All LLM access uses the OpenAI-compatible API format. This supports:
+- Local models (LM Studio, Ollama, vLLM) for prototyping and offline work
+- Commercial APIs when production quality is needed
+- Single interface, model-agnostic code
 
 **Context assembly**
 ```typescript
@@ -390,17 +391,17 @@ Per the web serial proposal, specific controls for serial-specific concerns:
 - Queue generation requests when offline
 - Sync on reconnection
 
-## Open questions
+## Resolved decisions
 
-1. **Bible extraction automation** — How aggressively should the system suggest bible entries from content? Too aggressive is noisy, too conservative misses things.
+1. **Bible extraction automation** — Configurable. Author sets aggressiveness level per project.
 
-2. **Regeneration scope** — When a chapter changes, how far forward should we invalidate? Full cascade is safe but expensive.
+2. **Regeneration scope** — Published content is immutable. Author specifies revision horizon (e.g., 20 chapters, end of book X). Lock points protect specific future content from cascades.
 
-3. **Voice consistency measurement** — What makes character voice consistent? Simple metrics (word choice, sentence length) or LLM judgment?
+3. **Voice consistency measurement** — LLM judgment. Heuristics don't capture narrative quality; LLMs can explain their reasoning.
 
-4. **Multi-author support** — Is this single-author only, or should it support writing rooms?
+4. **Multi-author support** — Single-author only. Collaboration is out of scope.
 
-5. **Version control integration** — Should content changes create git commits automatically?
+5. **Version control integration** — No automatic commits. Author controls commit timing. Timer-based auto-save to a separate branch is acceptable.
 
 ## Success criteria
 
@@ -412,6 +413,8 @@ Per the web serial proposal, specific controls for serial-specific concerns:
 
 ## Related documents
 
+- [Project Goals](./goals.md)
+- [Design Rationale](../rationale.md)
 - [The Accident - Web Serial Proposal](../examples/web.serial/The.Accident/proposal.md)
 - [The Accident - Light Novel Proposal](../examples/light/The.Accident/proposal.md)
 - [Coding Style Guide](../development/coding-style.md)
