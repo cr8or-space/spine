@@ -1,0 +1,120 @@
+# Upgrade Implementation Status
+This is a pure checklist file. No comments other than this one.
+
+## Phase 1: Code Reduction (CR)
+
+### 1.CR Generic Components
+- [x] EntityCard component
+- [ ] EntityListPage component
+- [ ] CreateEntityDialog component
+
+### 1.CR Tab Refactors
+- [ ] CharacterTab refactor
+- [ ] LocationTab refactor
+- [ ] FactionTab refactor
+- [ ] WorldRuleTab refactor
+- [ ] PlotThreadTab refactor
+- [ ] TimelineTab refactor
+
+### 1.CR Exports
+- [ ] Update component exports
+
+## Phase 2: Testing Infrastructure (TI)
+
+### 2.TI Setup
+- [x] Install vitest-browser-svelte dependencies
+- [x] Update Vitest config for browser mode
+- [x] Create test setup file for browser tests
+- [ ] Update Playwright config
+
+### 2.TI Component Test Migrations
+- [ ] Button.test.ts migration
+- [ ] Card.test.ts migration
+- [ ] Dialog.test.ts migration
+- [ ] TextField.test.ts migration
+- [ ] Tabs.test.ts migration
+
+### 2.TI New Component Tests
+- [ ] EntityCard tests
+- [ ] EntityListPage tests
+- [ ] CreateEntityDialog tests
+
+### 2.TI Integration Tests
+- [ ] Bible flow integration test
+- [ ] Project flow integration test
+
+## Phase 3: Tailwind CSS v4 (TW)
+
+### 3.TW Setup
+- [ ] Install Tailwind CSS v4
+- [ ] Configure Tailwind v4 with Vite
+- [ ] Create Tailwind theme from existing design tokens
+- [ ] Create cn utility helper
+- [ ] Add Tailwind Prettier plugin
+
+### 3.TW Component Migrations
+- [ ] Button component migration
+- [ ] Card component migration
+- [ ] Badge component migration
+- [ ] TextField component migration
+- [ ] TextArea component migration
+- [ ] Dialog component migration
+- [ ] Remaining components migration
+
+### 3.TW Layout Migrations
+- [ ] Layout components migration
+- [ ] Bible tab components migration
+
+### 3.TW Cleanup
+- [ ] Remove legacy CSS
+
+## Phase 4: UI Accessibility (UA)
+
+### 4.UA Setup
+- [ ] Install Bits UI
+
+### 4.UA New Components
+- [ ] AccessibleDialog component
+- [ ] AccessibleTabs component
+- [ ] AccessibleSelect component
+
+### 4.UA Migrations
+- [ ] Migrate Dialog usage
+- [ ] Migrate Tabs usage
+- [ ] Migrate Select usage
+
+## Phase 5: Icon System (IC)
+
+### 5.IC Setup
+- [ ] Install Lucide Svelte
+- [ ] Audit existing inline SVGs
+
+### 5.IC Migration
+- [ ] Replace inline SVGs with Lucide icons
+
+## Phase 6: Architecture Preparation (AP)
+
+### 6.AP Base Interfaces
+- [ ] Base Entity interface
+- [ ] Base Content interface
+- [ ] Spine interface
+- [ ] Validator interface
+
+### 6.AP Type Extensions
+- [ ] Extend Character type from BaseEntity
+- [ ] Extend all Bible types from BaseEntity
+
+### 6.AP Infrastructure
+- [ ] Content status transitions
+- [ ] Generic EntityRepository interface
+- [ ] Separate Shell from Workspace in UI
+
+## Phase 7: Validation & Rendering (VR)
+
+### 7.VR Components
+- [ ] ValidationPanel component
+- [ ] ValidationBadge component
+
+### 7.VR Interfaces
+- [ ] ReferenceExtractor interface
+- [ ] ContentRenderer interface
