@@ -9,6 +9,9 @@
  * - Analysis storage and history
  * - Tension curve data generation (Phase 4.1)
  * - Character tracking and presence analysis (Phase 4.2)
+ * - Plot thread tracking (Phase 4.3)
+ * - Hook management for web serials (Phase 5.1)
+ * - Cycle enforcement for tension patterns (Phase 5.2)
  */
 
 // Service
@@ -101,3 +104,54 @@ export {
   buildPacingPrompt,
   buildTensionPrompt,
 } from './prompts';
+
+// Hook management (Phase 5.1)
+export {
+  analyzeHookPatterns,
+  calculateHookDistribution,
+  calculateStrengthTrend,
+  calculateVarietyScore,
+  classifyHookFromExplanation,
+  DEFAULT_HOOK_ANALYSIS_CONFIG,
+  detectRepetitions,
+  extractHookDataPoints,
+  generateVarietyWarnings,
+  getHookUsageSummary,
+  HOOK_TYPES,
+  suggestNextHookType,
+  type HookAnalysisConfig,
+  type HookDataPoint,
+  type HookPatternResult,
+  type RepetitionDetail,
+  type StrengthTrendInfo,
+} from './hook-management';
+
+// Cycle enforcement (Phase 5.2)
+export {
+  analyzeCycleEnforcement,
+  buildCyclePositionConfigs,
+  buildPositionTargetMap,
+  DEFAULT_CYCLE_ENFORCEMENT_CONFIG,
+  DEFAULT_CYCLE_PATTERN,
+  detectCyclePhase,
+  detectCycleViolations,
+  extractCycleDataPoints,
+  generateCycleWarnings,
+  generateRebalancingSuggestions,
+  getCycleNumber,
+  getCyclePosition,
+  getCycleSummary,
+  getPhaseDescription,
+  getPositionTargetTension,
+  PHASE_DESCRIPTIONS,
+  suggestNextChapterTension,
+  validateCycleConfiguration,
+  type CycleDataPoint,
+  type CycleEnforcementConfig,
+  type CycleEnforcementResult,
+  type CycleEnforcementStats,
+  type CyclePhaseResult,
+  type CyclePositionConfig,
+  type CycleViolation,
+  type RebalancingSuggestion,
+} from './cycle-enforcement';

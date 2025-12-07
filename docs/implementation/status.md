@@ -168,22 +168,22 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 5: Serial features
 
 ### 5.1 Hook management
-- [ ] Hook type classification
-- [ ] Pattern analysis
-- [ ] Strength trending
-- [ ] Variety warnings
+- [x] Hook type classification
+- [x] Pattern analysis
+- [x] Strength trending
+- [x] Variety warnings
 
 ### 5.2 Cycle enforcement
-- [ ] Cycle configuration
-- [ ] Position targets
-- [ ] Phase detection
-- [ ] Rebalancing suggestions
+- [x] Cycle configuration
+- [x] Position targets
+- [x] Phase detection
+- [x] Rebalancing suggestions
 
 ### 5.3 Release planning
-- [ ] Schedule configuration
-- [ ] Buffer calculation
-- [ ] Depletion projection
-- [ ] Deadline tracking
+- [x] Schedule configuration
+- [x] Buffer calculation
+- [x] Depletion projection
+- [x] Deadline tracking
 
 ### 5.4 Mystery tracking
 - [ ] Layer classification

@@ -36,3 +36,6 @@ export * from './review';
 
 // Re-export revision cascade
 export * from './continuity';
+
+// Re-export release planning (Phase 5.3)
+export * from './release';
