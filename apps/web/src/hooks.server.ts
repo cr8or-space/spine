@@ -19,8 +19,9 @@ if (!fs.existsSync(DATA_DIR)) {
 const DB_PATH = path.join(DATA_DIR, 'novelgen.db');
 
 // Initialize database and project service (singleton)
-const db = openDatabase(DB_PATH);
-const projectService = createProjectService(db);
+const dbConnection = openDatabase({ path: DB_PATH });
+dbConnection.initialize(); // Ensure schema is initialized
+const projectService = createProjectService(dbConnection.db);
 
 // Make project service available to request handlers
 declare global {
