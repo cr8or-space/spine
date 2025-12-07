@@ -151,11 +151,11 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Promise/payoff matching
 
 ### 4.4 Visualization components
-- [ ] Tension curve chart
-- [ ] Character heatmap
-- [ ] Plot thread Gantt
-- [ ] Quality trend charts
-- [ ] Chapter type distribution
+- [x] Tension curve chart
+- [x] Character heatmap
+- [x] Plot thread Gantt
+- [x] Quality trend charts
+- [x] Chapter type distribution
 
 ### 4.5 Analytics dashboard UI
 - [ ] Dashboard page
