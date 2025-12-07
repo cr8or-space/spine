@@ -18,7 +18,17 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "better-sqlite3"
-    ]
+    ],
+    "overrides": {
+      "@vitest/runner": "^4.0.15",
+      "@vitest/expect": "^4.0.15",
+      "@vitest/mocker": "^4.0.15",
+      "@vitest/pretty-format": "^4.0.15",
+      "@vitest/snapshot": "^4.0.15",
+      "@vitest/spy": "^4.0.15",
+      "@vitest/utils": "^4.0.15",
+      "vitest": "^4.0.15"
+    }
   },
   "packageManager": "pnpm@10.0.0",
   "engines": {
