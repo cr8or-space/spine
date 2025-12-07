@@ -25,7 +25,7 @@ This is a pure checklist file. No comments other than this one.
 - [x] Install vitest-browser-svelte dependencies
 - [x] Update Vitest config for browser mode
 - [x] Create test setup file for browser tests
-- [ ] Update Playwright config
+- [x] Update Playwright config
 
 ### 2.TI Component Test Migrations
 - [x] Button.test.ts migration
