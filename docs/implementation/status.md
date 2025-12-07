@@ -84,11 +84,11 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Generation history
 
 ### 2.4 Basic analysis
-- [ ] Tension scoring
-- [ ] Hook strength scoring
-- [ ] Pacing assessment
-- [ ] Continuity checking
-- [ ] Analysis storage
+- [x] Tension scoring
+- [x] Hook strength scoring
+- [x] Pacing assessment
+- [x] Continuity checking
+- [x] Analysis storage
 
 ### 2.5 Writing workspace UI
 - [ ] Outline editor

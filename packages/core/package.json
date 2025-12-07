@@ -20,13 +20,17 @@
     "./generation": {
       "types": "./dist/generation/index.d.ts",
       "import": "./dist/generation/index.js"
+    },
+    "./analysis": {
+      "types": "./dist/analysis/index.d.ts",
+      "import": "./dist/analysis/index.js"
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsup src/index.ts src/storage/index.ts src/bible/index.ts src/generation/index.ts --format esm --dts",
+    "build": "tsup src/index.ts src/storage/index.ts src/bible/index.ts src/generation/index.ts src/analysis/index.ts --format esm --dts",
     "check-types": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",

@@ -9,10 +9,7 @@
  * - Bible management (CRUD operations, relationships)
  * - Structure management (outline hierarchy, beats, hooks)
  * - Generation pipeline (outline → beats → draft → review)
- *
- * Future packages will be added:
- * - Analysis engine
- * - Continuity checking
+ * - Analysis engine (tension, hooks, pacing, continuity)
  */
 
 // Re-export storage layer
@@ -26,3 +23,6 @@ export * from './structure';
 
 // Re-export generation pipeline
 export * from './generation';
+
+// Re-export analysis engine
+export * from './analysis';
