@@ -49,8 +49,8 @@ This is a pure checklist file. No comments other than this one.
 
 ### 3.TW Setup
 - [x] Install Tailwind CSS v4
-- [ ] Configure Tailwind v4 with Vite
-- [ ] Create Tailwind theme from existing design tokens
+- [x] Configure Tailwind v4 with Vite
+- [x] Create Tailwind theme from existing design tokens
 - [ ] Create cn utility helper
 - [ ] Add Tailwind Prettier plugin
 
