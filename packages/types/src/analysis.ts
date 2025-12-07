@@ -454,3 +454,174 @@ export const CharacterPresenceHeatmapSchema = z.object({
   generatedAt: TimestampSchema,
 });
 export type CharacterPresenceHeatmap = z.infer<typeof CharacterPresenceHeatmapSchema>;
+
+/**
+ * Touch type for plot thread interactions
+ */
+export const ThreadTouchTypeSchema = z.enum([
+  'introduction',
+  'development',
+  'complication',
+  'climax',
+  'resolution',
+]);
+export type ThreadTouchType = z.infer<typeof ThreadTouchTypeSchema>;
+
+/**
+ * A single data point tracking thread status at a chapter position
+ */
+export const ThreadStatusPointSchema = z.object({
+  /** Structure ID (chapter or scene) */
+  structureId: IdSchema,
+  /** Content ID if available */
+  contentId: IdSchema.optional(),
+  /** Chapter/scene position in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Title of the chapter/scene */
+  title: z.string(),
+  /** Type of touch at this position */
+  touchType: ThreadTouchTypeSchema,
+});
+export type ThreadStatusPoint = z.infer<typeof ThreadStatusPointSchema>;
+
+/**
+ * Promise fulfillment tracking for a single promise
+ */
+export const PromiseTrackingSchema = z.object({
+  /** Promise ID */
+  promiseId: IdSchema,
+  /** Promise description */
+  description: z.string(),
+  /** Chapter position where promise was made */
+  madeAtPosition: z.number().int().positive().optional(),
+  /** Content ID where promise was made */
+  madeAtContentId: IdSchema.optional(),
+  /** Expected payoff timeframe */
+  expectedPayoff: z.enum(['immediate', 'short-term', 'medium-term', 'long-term', 'series-end']),
+  /** Current status */
+  status: z.enum(['pending', 'fulfilled', 'subverted', 'abandoned']),
+  /** Chapter position where fulfilled (if applicable) */
+  fulfilledAtPosition: z.number().int().positive().optional(),
+  /** Content ID where fulfilled (if applicable) */
+  fulfilledAtContentId: IdSchema.optional(),
+  /** Number of chapters between made and fulfilled (if fulfilled) */
+  chaptersToFulfillment: z.number().int().min(0).optional(),
+});
+export type PromiseTracking = z.infer<typeof PromiseTrackingSchema>;
+
+/**
+ * A dormant period where a thread had no touches
+ */
+export const DormantPeriodSchema = z.object({
+  /** Starting position (last touch before dormancy) */
+  startPosition: z.number().int().positive(),
+  /** Ending position (first touch after dormancy, or current if still dormant) */
+  endPosition: z.number().int().positive(),
+  /** Number of chapters in dormant period */
+  duration: z.number().int().min(1),
+});
+export type DormantPeriod = z.infer<typeof DormantPeriodSchema>;
+
+/**
+ * Complete plot thread tracking data for a single thread
+ */
+export const PlotThreadTrackingDataSchema = z.object({
+  /** Thread ID */
+  threadId: IdSchema,
+  /** Thread name */
+  threadName: z.string(),
+  /** Thread type */
+  threadType: z.enum([
+    'main-plot',
+    'subplot',
+    'mystery',
+    'romance',
+    'conflict',
+    'character-arc',
+    'worldbuilding',
+    'other',
+  ]),
+  /** Thread scope */
+  scope: z.enum(['scene', 'chapter', 'arc', 'book', 'series']),
+  /** Current thread status */
+  status: z.enum(['planned', 'active', 'dormant', 'resolved', 'abandoned']),
+  /** Thread priority (0-100) */
+  priority: z.number().int().min(0).max(100),
+  /** Introduction point if detected in content */
+  introduction: z
+    .object({
+      position: z.number().int().positive(),
+      contentId: IdSchema,
+    })
+    .optional(),
+  /** Resolution point if thread is resolved */
+  resolution: z
+    .object({
+      position: z.number().int().positive(),
+      contentId: IdSchema,
+    })
+    .optional(),
+  /** All status points (touches) in reading order */
+  statusPoints: z.array(ThreadStatusPointSchema),
+  /** Promise tracking data */
+  promises: z.array(PromiseTrackingSchema),
+  /** IDs of characters involved in this thread */
+  involvedCharacterIds: z.array(IdSchema),
+  /** Summary statistics */
+  summary: z.object({
+    /** Total number of touches */
+    totalTouches: z.number().int().min(0),
+    /** First touch position */
+    firstTouchPosition: z.number().int().positive().optional(),
+    /** Last touch position */
+    lastTouchPosition: z.number().int().positive().optional(),
+    /** Active duration (last - first touch positions) */
+    activeDuration: z.number().int().min(0).optional(),
+    /** Periods where thread went dormant */
+    dormantPeriods: z.array(DormantPeriodSchema),
+    /** Total chapters in dormant periods */
+    totalDormantChapters: z.number().int().min(0),
+    /** Total promises */
+    totalPromises: z.number().int().min(0),
+    /** Fulfilled promises */
+    fulfilledPromises: z.number().int().min(0),
+    /** Promise fulfillment rate (0-1) */
+    promiseFulfillmentRate: z.number().min(0).max(1),
+    /** Number of unfulfilled promises */
+    unfulfilledCount: z.number().int().min(0),
+    /** Average chapters to fulfill a promise */
+    averageChaptersToFulfillment: z.number().min(0).optional(),
+    /** Whether thread is completed (resolved or abandoned) */
+    isCompleted: z.boolean(),
+    /** Whether thread is dangling (active/dormant with no recent touches) */
+    isDangling: z.boolean(),
+    /** Touch density (touches / total chapters) */
+    touchDensity: z.number().min(0).max(1),
+  }),
+});
+export type PlotThreadTrackingData = z.infer<typeof PlotThreadTrackingDataSchema>;
+
+/**
+ * Plot thread activity heatmap for visualization
+ *
+ * Each row is a thread, each column is a chapter position.
+ * Value indicates touch type (0 = no touch, 1-5 = touch types)
+ */
+export const ThreadActivityHeatmapSchema = z.object({
+  /** Thread IDs in row order */
+  threadIds: z.array(IdSchema),
+  /** Thread names (parallel to threadIds) */
+  threadNames: z.array(z.string()),
+  /** Chapter positions (column headers) */
+  positions: z.array(z.number().int().positive()),
+  /** Chapter titles (parallel to positions) */
+  titles: z.array(z.string()),
+  /**
+   * Activity matrix: [threadIndex][positionIndex] = touch type
+   * 0 = no touch, 1 = introduction, 2 = development, 3 = complication, 4 = climax, 5 = resolution
+   */
+  matrix: z.array(z.array(z.number().int().min(0).max(5))),
+  /** When this data was generated */
+  generatedAt: TimestampSchema,
+});
+export type ThreadActivityHeatmap = z.infer<typeof ThreadActivityHeatmapSchema>;

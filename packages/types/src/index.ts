@@ -135,6 +135,12 @@ export {
   CharacterArcProgressSchema,
   CharacterTrackingDataSchema,
   CharacterPresenceHeatmapSchema,
+  ThreadTouchTypeSchema,
+  ThreadStatusPointSchema,
+  PromiseTrackingSchema,
+  DormantPeriodSchema,
+  PlotThreadTrackingDataSchema,
+  ThreadActivityHeatmapSchema,
   type ContinuityIssue,
   type ExplainedScore,
   type ContentAnalysis,
@@ -151,6 +157,12 @@ export {
   type CharacterArcProgress,
   type CharacterTrackingData,
   type CharacterPresenceHeatmap,
+  type ThreadTouchType,
+  type ThreadStatusPoint,
+  type PromiseTracking,
+  type DormantPeriod,
+  type PlotThreadTrackingData,
+  type ThreadActivityHeatmap,
 } from './analysis';
 
 // Review types

@@ -145,10 +145,10 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Arc progress
 
 ### 4.3 Plot thread tracking
-- [ ] Thread status tracking
-- [ ] Thread timeline
-- [ ] Dangling detection
-- [ ] Promise/payoff matching
+- [x] Thread status tracking
+- [x] Thread timeline
+- [x] Dangling detection
+- [x] Promise/payoff matching
 
 ### 4.4 Visualization components
 - [ ] Tension curve chart

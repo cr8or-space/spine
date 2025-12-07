@@ -52,6 +52,28 @@ export {
   type CharacterTrackingDependencies,
 } from './character-tracking';
 
+// Plot thread tracking (Phase 4.3)
+export {
+  generatePlotThreadTrackingData,
+  generateAllPlotThreadTracking,
+  generateThreadActivityHeatmap,
+  touchTypeToNumber,
+  numberToTouchType,
+  getThreadsWithDanglingPromises,
+  getThreadsMissingTouches,
+  getIncompleteThreads,
+  getDanglingThreads,
+  getThreadsByStatus,
+  getThreadsByType,
+  getTopThreadsByTouches,
+  getThreadsByPriority,
+  getPromiseFulfillmentSummary,
+  DEFAULT_DANGLING_CONFIG,
+  type PlotThreadTrackingInput,
+  type PlotThreadTrackingDependencies,
+  type DanglingDetectionConfig,
+} from './plot-thread-tracking';
+
 // Types
 export type {
   AnalysisConfig,
