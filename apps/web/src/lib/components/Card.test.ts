@@ -21,7 +21,7 @@ describe('Card', () => {
 			},
 		});
 		const card = container.querySelector('.card');
-		expect(card?.classList.contains('card-hover')).toBe(true);
+		expect(card?.classList.contains('hover')).toBe(true);
 	});
 
 	it('applies padding none class when padding is "none"', () => {

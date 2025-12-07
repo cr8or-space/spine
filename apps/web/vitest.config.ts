@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { playwright } from '@vitest/browser-playwright';
 import path from 'path';
 
 export default defineConfig({
@@ -11,16 +12,25 @@ export default defineConfig({
 		},
 	},
 	test: {
-		environment: 'jsdom',
 		globals: true,
-		setupFiles: ['./src/test-setup.ts'],
 		include: ['src/**/*.{test,spec}.{js,ts}'],
+		browser: {
+			enabled: true,
+			provider: playwright({
+				launch: {
+					args: ['--no-sandbox', '--disable-setuid-sandbox'],
+				},
+			}),
+			instances: [{ browser: 'chromium' }],
+		},
+		setupFiles: ['./src/test-setup-browser.ts'],
 		coverage: {
 			provider: 'v8',
 			reporter: ['text', 'json', 'html'],
 			exclude: [
 				'node_modules/',
 				'src/test-setup.ts',
+				'src/test-setup-browser.ts',
 				'**/*.spec.ts',
 				'**/*.test.ts',
 			],
