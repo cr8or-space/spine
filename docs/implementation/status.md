@@ -37,12 +37,12 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Cross-reference tracking
 
 ### 1.4 LLM interface
-- [ ] OpenAI-compatible client
-- [ ] Configuration management
-- [ ] Request/response types
-- [ ] Streaming support
-- [ ] Error handling
-- [ ] Token counting
+- [x] OpenAI-compatible client
+- [x] Configuration management
+- [x] Request/response types
+- [x] Streaming support
+- [x] Error handling
+- [x] Token counting
 
 ### 1.5 Minimal web UI
 - [ ] Project list page
