@@ -27,14 +27,14 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Auto-save implementation
 
 ### 1.3 Bible management
-- [ ] Character CRUD
-- [ ] Location CRUD
-- [ ] Faction CRUD
-- [ ] World rule CRUD
-- [ ] Plot thread CRUD
-- [ ] Timeline event CRUD
-- [ ] Relationship graph
-- [ ] Cross-reference tracking
+- [x] Character CRUD
+- [x] Location CRUD
+- [x] Faction CRUD
+- [x] World rule CRUD
+- [x] Plot thread CRUD
+- [x] Timeline event CRUD
+- [x] Relationship graph
+- [x] Cross-reference tracking
 
 ### 1.4 LLM interface
 - [ ] OpenAI-compatible client
