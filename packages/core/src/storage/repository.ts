@@ -2,7 +2,7 @@
  * Base repository pattern for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 import { nanoid } from 'nanoid';
 
 import type { Result } from '@repo/types';

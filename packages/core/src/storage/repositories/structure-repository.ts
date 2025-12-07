@@ -2,7 +2,7 @@
  * Structure repository for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { Beat, ChapterType, Hook, Structure, StructureType } from '@repo/types';
 

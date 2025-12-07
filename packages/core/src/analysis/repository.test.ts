@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import Database from 'libsql';
 
 import { createAnalysisRepository } from './repository';
 import type { ContentAnalysis, ContinuityIssue } from '@repo/types';

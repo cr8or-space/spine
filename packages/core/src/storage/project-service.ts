@@ -2,7 +2,7 @@
  * Project service - coordinates save/load operations across all repositories
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import {
   createDefaultSettings,

@@ -2,7 +2,7 @@
  * Plot thread repository for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { NarrativePromise, PlotThread, ThreadTouch } from '@repo/types';
 

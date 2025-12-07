@@ -2,7 +2,7 @@
  * Content repository for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { Content, ContentAnalysis, ContentStatus, ContentVersion, GenerationRecord, Review, VersionMetadata, VersionSource } from '@repo/types';
 

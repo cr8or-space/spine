@@ -2,7 +2,7 @@
  * Lock point repository for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { LockPoint } from '@repo/types';
 

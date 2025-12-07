@@ -5,7 +5,7 @@
  * bible entities for continuity checking and context assembly.
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { CrossReference, EntityRef } from '@repo/types';
 

@@ -28,7 +28,9 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts src/storage/index.ts src/bible/index.ts src/generation/index.ts src/analysis/index.ts --format esm --dts",
     "check-types": "tsc --noEmit",
@@ -39,13 +41,12 @@
   "dependencies": {
     "@repo/llm": "workspace:*",
     "@repo/types": "workspace:*",
-    "better-sqlite3": "^11.7.0",
+    "libsql": "^0.5.22",
     "nanoid": "^5.0.9"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/better-sqlite3": "^7.6.12",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^3.0.0"

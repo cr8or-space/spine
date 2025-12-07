@@ -1,8 +1,11 @@
 /**
  * Database connection and initialization
+ *
+ * Uses libsql, an ESM-compatible drop-in replacement for better-sqlite3.
+ * This resolves SSR compatibility issues in SvelteKit preview mode.
  */
 
-import Database from 'better-sqlite3';
+import Database from 'libsql';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
 
@@ -18,7 +21,7 @@ export interface DatabaseOptions {
 }
 
 export interface DatabaseConnection {
-  /** The underlying better-sqlite3 database instance */
+  /** The underlying libsql database instance */
   db: Database.Database;
   /** Close the database connection */
   close(): void;

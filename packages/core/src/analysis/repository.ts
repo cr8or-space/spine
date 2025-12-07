@@ -5,7 +5,7 @@
  * analysis history tracking and aggregation.
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 import { nanoid } from 'nanoid';
 import type { AggregatedAnalysis, ContentAnalysis, ContinuityIssue } from '@repo/types';
 

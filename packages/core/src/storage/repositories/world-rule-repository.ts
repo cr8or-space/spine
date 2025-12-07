@@ -2,7 +2,7 @@
  * World rule repository for database operations
  */
 
-import type Database from 'better-sqlite3';
+import type Database from 'libsql';
 
 import type { RuleException, WorldRule } from '@repo/types';
 

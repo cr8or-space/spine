@@ -42,7 +42,7 @@ This is a pure checklist file. No comments other than this one.
 ### 2.TI Integration Tests
 - [ ] Bible flow integration test
 - [ ] Project flow integration test
-- [ ] Fix better-sqlite3 ESM compatibility for SSR preview mode
+- [x] Fix better-sqlite3 ESM compatibility for SSR preview mode (migrated to libsql)
 - [ ] Fix Playwright test timeouts (UI element selectors outdated)
 
 ## Phase 3: Tailwind CSS v4 (TW)
