@@ -60,11 +60,11 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 2: Generation
 
 ### 2.1 Context assembly
-- [ ] Token budget allocation
-- [ ] Relevance scoring
-- [ ] Content summarization
-- [ ] Constraint extraction
-- [ ] Task-specific assembly
+- [x] Token budget allocation
+- [x] Relevance scoring
+- [x] Content summarization
+- [x] Constraint extraction
+- [x] Task-specific assembly
 
 ### 2.2 Structure management
 - [ ] Structure tree operations
