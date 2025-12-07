@@ -8,9 +8,9 @@
  * - Auto-save functionality
  * - Bible management (CRUD operations, relationships)
  * - Structure management (outline hierarchy, beats, hooks)
+ * - Generation pipeline (outline → beats → draft → review)
  *
  * Future packages will be added:
- * - Generation pipeline
  * - Analysis engine
  * - Continuity checking
  */
@@ -23,3 +23,6 @@ export * from './bible';
 
 // Re-export structure management
 export * from './structure';
+
+// Re-export generation pipeline
+export * from './generation';

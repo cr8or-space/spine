@@ -90,6 +90,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@repo/llm':
+        specifier: workspace:*
+        version: link:../llm
       '@repo/types':
         specifier: workspace:*
         version: link:../types

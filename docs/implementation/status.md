@@ -75,13 +75,13 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Reordering
 
 ### 2.3 Generation pipeline
-- [ ] Pipeline stage definitions
-- [ ] Outline generation
-- [ ] Beat expansion
-- [ ] Draft generation
-- [ ] Self-review pass
-- [ ] Stage retry
-- [ ] Generation history
+- [x] Pipeline stage definitions
+- [x] Outline generation
+- [x] Beat expansion
+- [x] Draft generation
+- [x] Self-review pass
+- [x] Stage retry
+- [x] Generation history
 
 ### 2.4 Basic analysis
 - [ ] Tension scoring
