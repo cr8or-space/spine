@@ -45,17 +45,17 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Token counting
 
 ### 1.5 Minimal web UI
-- [ ] Project list page
-- [ ] Project settings page
-- [ ] Bible editor layout
-- [ ] Character tab
-- [ ] Location tab
-- [ ] Faction tab
-- [ ] World rules tab
-- [ ] Plot threads tab
-- [ ] Timeline tab
-- [ ] Entity forms
-- [ ] Search and filter
+- [x] Project list page
+- [x] Project settings page
+- [x] Bible editor layout
+- [x] Character tab
+- [x] Location tab
+- [x] Faction tab
+- [x] World rules tab
+- [x] Plot threads tab
+- [x] Timeline tab
+- [x] Entity forms
+- [x] Search and filter
 
 ## Phase 2: Generation
 
