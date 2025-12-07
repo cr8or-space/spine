@@ -115,11 +115,11 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Published immutability
 
 ### 3.3 Revision cascade
-- [ ] Horizon configuration
-- [ ] Impact analysis
-- [ ] Lock point detection
-- [ ] Cascade execution
-- [ ] Cascade preview
+- [x] Horizon configuration
+- [x] Impact analysis
+- [x] Lock point detection
+- [x] Cascade execution
+- [x] Cascade preview
 
 ### 3.4 Review UI
 - [ ] Review queue page

@@ -33,3 +33,6 @@ export * from './version';
 
 // Re-export review workflow
 export * from './review';
+
+// Re-export revision cascade
+export * from './continuity';
