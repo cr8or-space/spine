@@ -4,19 +4,19 @@ This is a pure checklist file.  No comments other than this one.
 ## Phase 1: Foundation
 
 ### 1.1 Data models and types
-- [ ] Project interface
-- [ ] Bible interface
-- [ ] Structure interface
-- [ ] Content interface
-- [ ] Character type
-- [ ] Location type
-- [ ] Faction type
-- [ ] WorldRule type
-- [ ] PlotThread type
-- [ ] Timeline types
-- [ ] Analysis types
-- [ ] Review types
-- [ ] Zod schemas
+- [x] Project interface
+- [x] Bible interface
+- [x] Structure interface
+- [x] Content interface
+- [x] Character type
+- [x] Location type
+- [x] Faction type
+- [x] WorldRule type
+- [x] PlotThread type
+- [x] Timeline types
+- [x] Analysis types
+- [x] Review types
+- [x] Zod schemas
 
 ### 1.2 Storage layer
 - [ ] SQLite schema design
