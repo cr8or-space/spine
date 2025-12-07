@@ -174,10 +174,10 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Variety warnings
 
 ### 5.2 Cycle enforcement
-- [ ] Cycle configuration
-- [ ] Position targets
-- [ ] Phase detection
-- [ ] Rebalancing suggestions
+- [x] Cycle configuration
+- [x] Position targets
+- [x] Phase detection
+- [x] Rebalancing suggestions
 
 ### 5.3 Release planning
 - [ ] Schedule configuration
