@@ -12,6 +12,7 @@
 
   const navItems = $derived([
     { href: `/projects/${data.project.id}/bible`, label: 'Bible', icon: 'book' },
+    { href: `/projects/${data.project.id}/workspace`, label: 'Workspace', icon: 'edit' },
     { href: `/projects/${data.project.id}/settings`, label: 'Settings', icon: 'settings' },
   ]);
 
@@ -43,6 +44,11 @@
           {#if item.icon === 'book'}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          {:else if item.icon === 'edit'}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
           {:else if item.icon === 'settings'}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -91,12 +91,12 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Analysis storage
 
 ### 2.5 Writing workspace UI
-- [ ] Outline editor
-- [ ] Writing workspace layout
-- [ ] Generation controls
-- [ ] Analysis panel
-- [ ] Continuity warnings
-- [ ] Draft history
+- [x] Outline editor
+- [x] Writing workspace layout
+- [x] Generation controls
+- [x] Analysis panel
+- [x] Continuity warnings
+- [x] Draft history
 
 ## Phase 3: Review
 
