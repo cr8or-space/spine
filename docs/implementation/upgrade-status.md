@@ -92,7 +92,8 @@ This is a pure checklist file. No comments other than this one.
 - [x] Audit existing inline SVGs (see docs/implementation/svg-audit.md)
 
 ### 5.IC Migration
-- [ ] Replace inline SVGs with Lucide icons (~58 instances in ~19 files)
+- [x] Replace inline SVGs with Lucide icons (~58 instances in ~19 files)
+- [x] Add lucide-svelte to vitest optimizeDeps.include for test stability
 
 ## Phase 6: Architecture Preparation (AP)
 

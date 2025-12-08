@@ -2,6 +2,7 @@
   import type { PlotThread } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
+  import { Plus, Users, CheckCircle } from 'lucide-svelte';
 
   interface Props {
     plotThreads: PlotThread[];
@@ -142,9 +143,7 @@
       </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus size={16} />
       New Thread
     </Button>
   </div>
@@ -197,15 +196,11 @@
                   Priority: {thread.priority}/100
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  </svg>
+                  <Users size={14} />
                   {thread.involvedCharacters.length} characters
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                  </svg>
+                  <CheckCircle size={14} />
                   {thread.promises.filter(p => p.status === 'fulfilled').length}/{thread.promises.length} promises
                 </span>
               </div>

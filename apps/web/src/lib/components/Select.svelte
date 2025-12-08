@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
   import { Select } from 'bits-ui';
+  import { ChevronDown, Check } from 'lucide-svelte';
 
   interface Option {
     value: string;
@@ -75,17 +76,7 @@
       aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
     >
       <span class="select-value" class:placeholder={!value}>{selectedLabel}</span>
-      <svg
-        class="select-icon"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M6 9l6 6 6-6" />
-      </svg>
+      <ChevronDown class="select-icon" size={16} />
     </Select.Trigger>
     <Select.Portal>
       <Select.Content class="select-content">
@@ -95,17 +86,7 @@
               {#snippet children({ selected })}
                 <span class="select-item-text">{option.label}</span>
                 {#if selected}
-                  <svg
-                    class="select-check"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
+                  <Check class="select-check" size={16} />
                 {/if}
               {/snippet}
             </Select.Item>
@@ -188,13 +169,13 @@
     color: var(--color-text-tertiary);
   }
 
-  .select-icon {
+  :global(.select-trigger .select-icon) {
     flex-shrink: 0;
     color: var(--color-text-secondary);
     transition: transform var(--transition-fast);
   }
 
-  :global(.select-trigger[data-state='open']) .select-icon {
+  :global(.select-trigger[data-state='open'] .select-icon) {
     transform: rotate(180deg);
   }
 
@@ -255,7 +236,7 @@
     flex: 1;
   }
 
-  .select-check {
+  :global(.select-check) {
     flex-shrink: 0;
     color: var(--color-primary);
   }

@@ -62,6 +62,7 @@ describe('Tabs', () => {
 		const tabButtons = container.querySelectorAll('.tab');
 		expect(tabButtons[1].classList.contains('active')).toBe(true);
 		expect(tabButtons[0].classList.contains('active')).toBe(false);
+	});
 
 	it('supports horizontal orientation by default', async () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { page, userEvent } from 'vitest/browser';
+import { page } from 'vitest/browser';
 import CreateEntityDialog from './CreateEntityDialog.svelte';
 
 // Note: CreateEntityDialog uses Svelte 5 snippets for children.

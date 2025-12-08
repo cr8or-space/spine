@@ -2,6 +2,7 @@
   import type { Content, ContentVersion } from '@repo/types';
   import { Button, Badge, Dialog } from '$lib/components';
   import { invalidateAll } from '$app/navigation';
+  import { X, Clock } from 'lucide-svelte';
 
   interface Props {
     content?: Content;
@@ -99,19 +100,14 @@
   <header class="panel-header">
     <h3 class="panel-title">History</h3>
     <button class="close-btn" onclick={onClose} aria-label="Close panel">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M18 6L6 18M6 6l12 12" />
-      </svg>
+      <X size={16} />
     </button>
   </header>
 
   <div class="panel-content">
     {#if !content}
       <div class="no-content">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12,6 12,12 16,14" />
-        </svg>
+        <Clock size={32} strokeWidth={1.5} />
         <p>No content history yet</p>
         <p class="hint">Save some content to start tracking versions.</p>
       </div>
@@ -298,7 +294,7 @@
     color: var(--color-text-secondary);
   }
 
-  .no-content svg {
+  .no-content :global(svg) {
     margin-bottom: var(--space-3);
     color: var(--color-text-tertiary);
   }
