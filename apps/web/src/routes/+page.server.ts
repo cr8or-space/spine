@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import type { ProjectFormat, ProjectMetadata } from '@repo/types';
 
@@ -24,7 +25,7 @@ export const actions: Actions = {
 
     const project = locals.projectService.createProject(title.trim(), format || 'web-serial', metadata);
 
-    return { success: true, projectId: project.id };
+    redirect(303, `/projects/${project.id}/bible`);
   },
 
   delete: async ({ request, locals }) => {
