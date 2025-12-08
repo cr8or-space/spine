@@ -16,3 +16,5 @@ export { default as Select } from './Select.svelte';
 export { default as Tabs } from './Tabs.svelte';
 export { default as TextArea } from './TextArea.svelte';
 export { default as TextField } from './TextField.svelte';
+export { default as ValidationBadge } from './ValidationBadge.svelte';
+export { default as ValidationPanel } from './ValidationPanel.svelte';

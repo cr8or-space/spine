@@ -39,3 +39,6 @@ export * from './continuity';
 
 // Re-export release planning (Phase 5.3)
 export * from './release';
+
+// Re-export render pipeline (Phase 7.VR.4)
+export * from './render';
