@@ -28,11 +28,14 @@ describe('Tabs', () => {
 		expect(countBadges[1].textContent).toBe('3');
 	});
 
-	it('applies active class to the active tab', async () => {
-		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		const tabButtons = container.querySelectorAll('.tab');
-		expect(tabButtons[0].classList.contains('active')).toBe(true);
-		expect(tabButtons[1].classList.contains('active')).toBe(false);
+	it('marks the active tab with data-state attribute', async () => {
+		render(Tabs, { props: { tabs, active: 'tab1' } });
+
+		const tab1 = page.getByRole('tab', { name: /Tab 1/ });
+		const tab2 = page.getByRole('tab', { name: /Tab 2/ });
+
+		await expect.element(tab1).toHaveAttribute('data-state', 'active');
+		await expect.element(tab2).toHaveAttribute('data-state', 'inactive');
 	});
 
 	it('sets correct ARIA attributes for active tab', async () => {
@@ -59,5 +62,16 @@ describe('Tabs', () => {
 		const tabButtons = container.querySelectorAll('.tab');
 		expect(tabButtons[1].classList.contains('active')).toBe(true);
 		expect(tabButtons[0].classList.contains('active')).toBe(false);
+
+	it('supports horizontal orientation by default', async () => {
+		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
+		const tabsList = container.querySelector('.tabs-list');
+		expect(tabsList?.classList.contains('vertical')).toBe(false);
+	});
+
+	it('supports vertical orientation', async () => {
+		const { container } = render(Tabs, { props: { tabs, active: 'tab1', orientation: 'vertical' } });
+		const tabsList = container.querySelector('.tabs-list');
+		expect(tabsList?.classList.contains('vertical')).toBe(true);
 	});
 });

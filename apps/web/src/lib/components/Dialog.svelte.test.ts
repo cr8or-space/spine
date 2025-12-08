@@ -9,7 +9,7 @@ import Dialog from './Dialog.svelte';
 
 describe('Dialog', () => {
 	it('does not render when open is false', async () => {
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: false,
 				title: 'Test Dialog',
@@ -17,7 +17,8 @@ describe('Dialog', () => {
 				children: () => 'Content',
 			},
 		});
-		const backdrop = container.querySelector('.dialog-backdrop');
+		// Bits UI Dialog uses portal, so query the document body
+		const backdrop = document.querySelector('.dialog-backdrop');
 		expect(backdrop).toBeFalsy();
 	});
 
@@ -52,7 +53,7 @@ describe('Dialog', () => {
 	});
 
 	it('has correct ARIA attributes', async () => {
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test',
@@ -61,10 +62,42 @@ describe('Dialog', () => {
 			},
 		});
 
-		const dialog = container.querySelector('[role="dialog"]');
-		expect(dialog).toBeTruthy();
-		expect(dialog?.getAttribute('aria-modal')).toBe('true');
-		expect(dialog?.getAttribute('aria-labelledby')).toBe('dialog-title');
+		const dialog = page.getByRole('dialog');
+		await expect.element(dialog).toBeVisible();
+		await expect.element(dialog).toHaveAttribute('aria-modal', 'true');
+	});
+
+	it('renders description when provided', async () => {
+		render(Dialog, {
+			props: {
+				open: true,
+				title: 'Test',
+				description: 'This is a description',
+				onClose: () => {},
+				children: () => 'Content',
+			},
+		});
+
+		const description = page.getByText('This is a description');
+		await expect.element(description).toBeVisible();
+	});
+
+	it('renders footer element when footer snippet provided', async () => {
+		render(Dialog, {
+			props: {
+				open: true,
+				title: 'Test',
+				onClose: () => {},
+				children: () => 'Content',
+				footer: () => 'Footer Content',
+			},
+		});
+
+		// Wait for dialog to be visible
+		await expect.element(page.getByRole('dialog')).toBeVisible();
+		// The footer element should be rendered when footer prop is provided
+		const footerElement = document.querySelector('.dialog-footer');
+		expect(footerElement).toBeTruthy();
 	});
 
 	it('closes when escape key is pressed', async () => {
