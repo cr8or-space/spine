@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import Dialog from './Dialog.svelte';
 
 describe('Dialog', () => {
 	it('does not render when open is false', async () => {
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: false,
 				title: 'Test Dialog',
@@ -12,12 +13,13 @@ describe('Dialog', () => {
 				children: () => 'Content',
 			},
 		});
-		const backdrop = container.querySelector('.dialog-backdrop');
+		// Bits UI Dialog uses portal, so query the document body
+		const backdrop = document.querySelector('.dialog-backdrop');
 		expect(backdrop).toBeFalsy();
 	});
 
 	it('renders when open is true', async () => {
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test Dialog',
@@ -25,14 +27,14 @@ describe('Dialog', () => {
 				children: () => 'Content',
 			},
 		});
-		const title = container.querySelector('.dialog-title');
-		expect(title).toBeTruthy();
-		expect(title?.textContent).toBe('Test Dialog');
+		// Bits UI Dialog uses portal, so use page locators
+		const title = page.getByText('Test Dialog');
+		await expect.element(title).toBeVisible();
 	});
 
 	it('calls onClose when close button is clicked', async () => {
 		const handleClose = vi.fn();
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test',
@@ -41,14 +43,14 @@ describe('Dialog', () => {
 			},
 		});
 
-		const closeButton = container.querySelector('.dialog-close') as HTMLButtonElement;
-		expect(closeButton).toBeTruthy();
-		closeButton.click();
+		const closeButton = page.getByRole('button', { name: 'Close dialog' });
+		await expect.element(closeButton).toBeVisible();
+		await closeButton.click();
 		expect(handleClose).toHaveBeenCalledOnce();
 	});
 
 	it('has correct ARIA attributes', async () => {
-		const { container } = render(Dialog, {
+		render(Dialog, {
 			props: {
 				open: true,
 				title: 'Test',
@@ -57,9 +59,41 @@ describe('Dialog', () => {
 			},
 		});
 
-		const dialog = container.querySelector('[role="dialog"]');
-		expect(dialog).toBeTruthy();
-		expect(dialog?.getAttribute('aria-modal')).toBe('true');
-		expect(dialog?.getAttribute('aria-labelledby')).toBe('dialog-title');
+		const dialog = page.getByRole('dialog');
+		await expect.element(dialog).toBeVisible();
+		await expect.element(dialog).toHaveAttribute('aria-modal', 'true');
+	});
+
+	it('renders description when provided', async () => {
+		render(Dialog, {
+			props: {
+				open: true,
+				title: 'Test',
+				description: 'This is a description',
+				onClose: () => {},
+				children: () => 'Content',
+			},
+		});
+
+		const description = page.getByText('This is a description');
+		await expect.element(description).toBeVisible();
+	});
+
+	it('renders footer element when footer snippet provided', async () => {
+		render(Dialog, {
+			props: {
+				open: true,
+				title: 'Test',
+				onClose: () => {},
+				children: () => 'Content',
+				footer: () => 'Footer Content',
+			},
+		});
+
+		// Wait for dialog to be visible
+		await expect.element(page.getByRole('dialog')).toBeVisible();
+		// The footer element should be rendered when footer prop is provided
+		const footerElement = document.querySelector('.dialog-footer');
+		expect(footerElement).toBeTruthy();
 	});
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import Tabs from './Tabs.svelte';
 
 describe('Tabs', () => {
@@ -10,12 +11,11 @@ describe('Tabs', () => {
 	];
 
 	it('renders all tabs', async () => {
-		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		const tabElements = container.querySelectorAll('.tab');
-		expect(tabElements.length).toBe(3);
-		expect(tabElements[0].textContent).toContain('Tab 1');
-		expect(tabElements[1].textContent).toContain('Tab 2');
-		expect(tabElements[2].textContent).toContain('Tab 3');
+		render(Tabs, { props: { tabs, active: 'tab1' } });
+
+		await expect.element(page.getByRole('tab', { name: /Tab 1/ })).toBeVisible();
+		await expect.element(page.getByRole('tab', { name: /Tab 2/ })).toBeVisible();
+		await expect.element(page.getByRole('tab', { name: /Tab 3/ })).toBeVisible();
 	});
 
 	it('renders tab counts when provided', async () => {
@@ -27,17 +27,36 @@ describe('Tabs', () => {
 		expect(countBadges[1].textContent).toBe('3');
 	});
 
-	it('applies active class to the active tab', async () => {
-		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		const tabButtons = container.querySelectorAll('.tab');
-		expect(tabButtons[0].classList.contains('active')).toBe(true);
-		expect(tabButtons[1].classList.contains('active')).toBe(false);
+	it('marks the active tab with data-state attribute', async () => {
+		render(Tabs, { props: { tabs, active: 'tab1' } });
+
+		const tab1 = page.getByRole('tab', { name: /Tab 1/ });
+		const tab2 = page.getByRole('tab', { name: /Tab 2/ });
+
+		await expect.element(tab1).toHaveAttribute('data-state', 'active');
+		await expect.element(tab2).toHaveAttribute('data-state', 'inactive');
 	});
 
 	it('sets correct ARIA attributes', async () => {
+		render(Tabs, { props: { tabs, active: 'tab1' } });
+
+		const tabButtons = page.getByRole('tab');
+		const firstTab = tabButtons.first();
+		const secondTab = tabButtons.nth(1);
+
+		await expect.element(firstTab).toHaveAttribute('aria-selected', 'true');
+		await expect.element(secondTab).toHaveAttribute('aria-selected', 'false');
+	});
+
+	it('supports horizontal orientation by default', async () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		const tabButtons = container.querySelectorAll('[role="tab"]');
-		expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
-		expect(tabButtons[1].getAttribute('aria-selected')).toBe('false');
+		const tabsList = container.querySelector('.tabs-list');
+		expect(tabsList?.classList.contains('vertical')).toBe(false);
+	});
+
+	it('supports vertical orientation', async () => {
+		const { container } = render(Tabs, { props: { tabs, active: 'tab1', orientation: 'vertical' } });
+		const tabsList = container.querySelector('.tabs-list');
+		expect(tabsList?.classList.contains('vertical')).toBe(true);
 	});
 });

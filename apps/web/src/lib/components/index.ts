@@ -1,6 +1,3 @@
-export { default as AccessibleDialog } from './AccessibleDialog.svelte';
-export { default as AccessibleSelect } from './AccessibleSelect.svelte';
-export { default as AccessibleTabs } from './AccessibleTabs.svelte';
 export { default as Badge } from './Badge.svelte';
 export { default as Button } from './Button.svelte';
 export { default as Card } from './Card.svelte';
