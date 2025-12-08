@@ -11,9 +11,8 @@ describe('Button', () => {
 		});
 		const button = container.querySelector('button');
 		expect(button).toBeTruthy();
-		expect(button?.classList.contains('btn')).toBe(true);
-		expect(button?.classList.contains('btn-primary')).toBe(true);
-		expect(button?.classList.contains('btn-md')).toBe(true);
+		// Default variant is primary with bg-primary
+		expect(button?.classList.contains('bg-primary')).toBe(true);
 	});
 
 	it('renders with custom variant', () => {
@@ -24,7 +23,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-secondary')).toBe(true);
+		// Secondary variant has bg-bg-secondary
+		expect(button?.classList.contains('bg-bg-secondary')).toBe(true);
 	});
 
 	it('renders with custom size', () => {
@@ -35,7 +35,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-sm')).toBe(true);
+		// Small size has h-8
+		expect(button?.classList.contains('h-8')).toBe(true);
 	});
 
 	it('can be disabled', () => {
@@ -58,6 +59,7 @@ describe('Button', () => {
 		});
 		const button = container.querySelector('button');
 		expect(button?.disabled).toBe(true);
-		expect(container.querySelector('.spinner')).toBeTruthy();
+		// Loading spinner has animate-spin class
+		expect(container.querySelector('.animate-spin')).toBeTruthy();
 	});
 });

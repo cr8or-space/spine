@@ -156,7 +156,8 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		const newButton = container.querySelector('.btn-primary');
+		// Button has bg-primary class
+		const newButton = container.querySelector('.bg-primary');
 		expect(newButton?.textContent).toContain('New Character');
 	});
 
@@ -175,7 +176,7 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		const newButton = container.querySelector('.btn-primary') as HTMLButtonElement;
+		const newButton = container.querySelector('.bg-primary') as HTMLButtonElement;
 		newButton.click();
 		expect(handleCreate).toHaveBeenCalledOnce();
 	});
@@ -214,8 +215,8 @@ describe('EntityListPage', () => {
 			},
 		});
 
-		// Initially no Clear button
-		let clearButton = container.querySelector('.clear-filters');
+		// Initially no Clear button - it has underline class
+		let clearButton = container.querySelector('button.underline');
 		expect(clearButton).toBeFalsy();
 
 		// Select a filter value
@@ -227,7 +228,7 @@ describe('EntityListPage', () => {
 		await new Promise((r) => setTimeout(r, 50));
 
 		// Now Clear button should appear
-		clearButton = container.querySelector('.clear-filters');
+		clearButton = container.querySelector('button.underline');
 		expect(clearButton).toBeTruthy();
 	});
 
@@ -255,13 +256,13 @@ describe('EntityListPage', () => {
 		await new Promise((r) => setTimeout(r, 50));
 
 		// Click Clear
-		const clearButton = container.querySelector('.clear-filters') as HTMLButtonElement;
+		const clearButton = container.querySelector('button.underline') as HTMLButtonElement;
 		clearButton.click();
 
 		// Wait for reactivity
 		await new Promise((r) => setTimeout(r, 50));
 
 		// Filter should be reset - Clear button should disappear
-		expect(container.querySelector('.clear-filters')).toBeFalsy();
+		expect(container.querySelector('button.underline')).toBeFalsy();
 	});
 });

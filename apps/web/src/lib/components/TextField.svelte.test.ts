@@ -48,7 +48,8 @@ describe('TextField', () => {
 		const { container } = render(TextField, {
 			props: { label: 'Field', error: 'This field is required', value: '' },
 		});
-		const error = container.querySelector('.error-text');
+		// Error text now uses text-danger class
+		const error = container.querySelector('.text-danger');
 		expect(error).toBeTruthy();
 		expect(error?.textContent).toBe('This field is required');
 	});

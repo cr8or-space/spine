@@ -15,48 +15,24 @@
   const allOptions = $derived([{ value: '', label: allLabel }, ...options]);
 </script>
 
-<div class="filter-select">
-  <select class="select" bind:value>
+<div class="relative inline-flex">
+  <select
+    class="py-1 pl-2 pr-6 text-xs bg-bg border border-border rounded-md text-text appearance-none cursor-pointer transition-all duration-150 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-light"
+    bind:value
+  >
     {#each allOptions as option}
       <option value={option.value}>{option.label}</option>
     {/each}
   </select>
-  <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <svg
+    class="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
     <path d="M6 9l6 6 6-6" />
   </svg>
 </div>
-
-<style>
-  .filter-select {
-    position: relative;
-    display: inline-flex;
-  }
-
-  .select {
-    padding: var(--space-1) var(--space-6) var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text);
-    appearance: none;
-    cursor: pointer;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  }
-
-  .select:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px var(--color-primary-light);
-  }
-
-  .select-icon {
-    position: absolute;
-    right: var(--space-1);
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: var(--color-text-secondary);
-  }
-</style>

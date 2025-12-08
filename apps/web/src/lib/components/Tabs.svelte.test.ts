@@ -20,8 +20,8 @@ describe('Tabs', () => {
 
 	it('renders tab counts when provided', async () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		// Count badges are inside .tab-count elements
-		const countBadges = container.querySelectorAll('.tab-count');
+		// Count badges are spans inside tab triggers with rounded-full class
+		const countBadges = container.querySelectorAll('.rounded-full');
 		expect(countBadges.length).toBe(2);
 		expect(countBadges[0].textContent).toBe('5');
 		expect(countBadges[1].textContent).toBe('3');
@@ -50,13 +50,17 @@ describe('Tabs', () => {
 
 	it('supports horizontal orientation by default', async () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
-		const tabsList = container.querySelector('.tabs-list');
-		expect(tabsList?.classList.contains('vertical')).toBe(false);
+		// Horizontal tabs have border-b class
+		const tabsList = container.querySelector('[role="tablist"]');
+		expect(tabsList?.classList.contains('border-b')).toBe(true);
+		expect(tabsList?.classList.contains('border-r')).toBe(false);
 	});
 
 	it('supports vertical orientation', async () => {
 		const { container } = render(Tabs, { props: { tabs, active: 'tab1', orientation: 'vertical' } });
-		const tabsList = container.querySelector('.tabs-list');
-		expect(tabsList?.classList.contains('vertical')).toBe(true);
+		// Vertical tabs have border-r and flex-col classes
+		const tabsList = container.querySelector('[role="tablist"]');
+		expect(tabsList?.classList.contains('border-r')).toBe(true);
+		expect(tabsList?.classList.contains('flex-col')).toBe(true);
 	});
 });

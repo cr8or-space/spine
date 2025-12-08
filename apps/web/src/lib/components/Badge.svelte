@@ -1,67 +1,33 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Props {
     variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
     size?: 'sm' | 'md';
     children: Snippet;
+    class?: string;
   }
 
-  let { variant = 'default', size = 'md', children }: Props = $props();
+  let { variant = 'default', size = 'md', children, class: className }: Props = $props();
+
+  const baseClasses = 'inline-flex items-center font-medium rounded-full whitespace-nowrap';
+
+  const sizeClasses = {
+    sm: 'px-2 text-xs h-5',
+    md: 'px-3 py-1 text-xs h-6',
+  };
+
+  const variantClasses = {
+    default: 'bg-bg-tertiary text-text-secondary',
+    primary: 'bg-primary-light text-primary',
+    success: 'bg-success-light text-success',
+    warning: 'bg-warning-light text-warning',
+    danger: 'bg-danger-light text-danger',
+    info: 'bg-info-light text-info',
+  };
 </script>
 
-<span class="badge badge-{variant} badge-{size}">
+<span class={cn(baseClasses, sizeClasses[size], variantClasses[variant], className)}>
   {@render children()}
 </span>
-
-<style>
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    font-weight: 500;
-    border-radius: var(--radius-full);
-    white-space: nowrap;
-  }
-
-  .badge-sm {
-    padding: 0 var(--space-2);
-    font-size: var(--text-xs);
-    height: 20px;
-  }
-
-  .badge-md {
-    padding: var(--space-1) var(--space-3);
-    font-size: var(--text-xs);
-    height: 24px;
-  }
-
-  .badge-default {
-    background-color: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
-  }
-
-  .badge-primary {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-
-  .badge-success {
-    background-color: var(--color-success-light);
-    color: var(--color-success);
-  }
-
-  .badge-warning {
-    background-color: var(--color-warning-light);
-    color: var(--color-warning);
-  }
-
-  .badge-danger {
-    background-color: var(--color-danger-light);
-    color: var(--color-danger);
-  }
-
-  .badge-info {
-    background-color: var(--color-info-light);
-    color: var(--color-info);
-  }
-</style>

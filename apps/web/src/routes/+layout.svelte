@@ -9,14 +9,6 @@
   let { children }: Props = $props();
 </script>
 
-<div class="app-container">
+<div class="min-h-screen flex flex-col">
   {@render children()}
 </div>
-
-<style>
-  .app-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-</style>

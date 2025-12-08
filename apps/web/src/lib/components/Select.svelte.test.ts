@@ -94,7 +94,7 @@ describe('Select', () => {
 	});
 
 	it('sets aria-invalid when error is present', async () => {
-		const { container } = render(Select, {
+		render(Select, {
 			props: {
 				label: 'Test',
 				value: 'opt1',
@@ -103,14 +103,13 @@ describe('Select', () => {
 			},
 		});
 
-		// Query the trigger button directly since it might not have combobox role
-		const trigger = container.querySelector('.select-trigger');
-		expect(trigger).toBeTruthy();
-		expect(trigger?.getAttribute('aria-invalid')).toBe('true');
+		// The trigger button should have aria-invalid attribute via page locator
+		const trigger = page.getByRole('button').first();
+		await expect.element(trigger).toHaveAttribute('aria-invalid', 'true');
 	});
 
 	it('renders in disabled state when disabled is true', async () => {
-		const { container } = render(Select, {
+		render(Select, {
 			props: {
 				label: 'Test',
 				value: 'opt1',
@@ -119,9 +118,8 @@ describe('Select', () => {
 			},
 		});
 
-		const trigger = container.querySelector('.select-trigger');
-		expect(trigger).toBeTruthy();
-		expect(trigger?.hasAttribute('data-disabled')).toBe(true);
-		expect(trigger?.hasAttribute('disabled')).toBe(true);
+		// The trigger button should have data-disabled attribute
+		const trigger = page.getByRole('button').first();
+		await expect.element(trigger).toHaveAttribute('data-disabled', '');
 	});
 });

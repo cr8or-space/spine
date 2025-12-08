@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
+  import { cn } from '$lib/utils/cn';
 
   interface Props extends HTMLButtonAttributes {
     variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -19,117 +20,38 @@
     onclick,
     class: className,
   }: Props = $props();
+
+  const baseClasses =
+    'inline-flex items-center justify-center gap-2 font-medium border border-transparent rounded-md cursor-pointer transition-all duration-150 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed';
+
+  const variantClasses = {
+    primary: 'bg-primary text-primary-text hover:enabled:bg-primary-hover',
+    secondary:
+      'bg-bg-secondary border-border text-text hover:enabled:bg-bg-tertiary',
+    danger: 'bg-danger text-white hover:enabled:bg-[#dc2626]',
+    ghost:
+      'bg-transparent text-text-secondary hover:enabled:bg-surface-hover hover:enabled:text-text',
+  };
+
+  const sizeClasses = {
+    sm: 'px-3 py-1 text-sm h-8',
+    md: 'px-4 py-2 text-sm h-10',
+    lg: 'px-6 py-3 text-base h-12',
+  };
 </script>
 
 <button
-  class="btn btn-{variant} btn-{size} {className ?? ''}"
+  class={cn(baseClasses, variantClasses[variant], sizeClasses[size], className)}
   disabled={disabled || loading}
   {type}
   {onclick}
 >
   {#if loading}
-    <span class="spinner"></span>
+    <span
+      class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
+    ></span>
   {/if}
-  <span class="btn-content" class:loading>
+  <span class={cn(loading && 'opacity-70')}>
     {@render children()}
   </span>
 </button>
-
-<style>
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    font-family: inherit;
-    font-weight: 500;
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  /* Sizes */
-  .btn-sm {
-    padding: var(--space-1) var(--space-3);
-    font-size: var(--text-sm);
-    height: 32px;
-  }
-
-  .btn-md {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--text-sm);
-    height: 40px;
-  }
-
-  .btn-lg {
-    padding: var(--space-3) var(--space-6);
-    font-size: var(--text-base);
-    height: 48px;
-  }
-
-  /* Variants */
-  .btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-primary-text);
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-  }
-
-  .btn-secondary {
-    background-color: var(--color-bg-secondary);
-    border-color: var(--color-border);
-    color: var(--color-text);
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background-color: var(--color-bg-tertiary);
-  }
-
-  .btn-danger {
-    background-color: var(--color-danger);
-    color: white;
-  }
-
-  .btn-danger:hover:not(:disabled) {
-    background-color: #dc2626;
-  }
-
-  .btn-ghost {
-    background-color: transparent;
-    color: var(--color-text-secondary);
-  }
-
-  .btn-ghost:hover:not(:disabled) {
-    background-color: var(--color-surface-hover);
-    color: var(--color-text);
-  }
-
-  /* Loading */
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-
-  .btn-content.loading {
-    opacity: 0.7;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-</style>

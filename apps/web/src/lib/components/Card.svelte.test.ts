@@ -9,7 +9,8 @@ describe('Card', () => {
 				children: () => 'Card content',
 			},
 		});
-		const card = container.querySelector('.card');
+		// Card has bg-surface border border-border rounded-lg classes
+		const card = container.querySelector('.bg-surface');
 		expect(card).toBeTruthy();
 	});
 
@@ -20,8 +21,8 @@ describe('Card', () => {
 				children: () => '',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('hover')).toBe(true);
+		const card = container.querySelector('.cursor-pointer');
+		expect(card).toBeTruthy();
 	});
 
 	it('applies padding none class when padding is "none"', () => {
@@ -31,7 +32,7 @@ describe('Card', () => {
 				children: () => '',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('card-padding-none')).toBe(true);
+		const card = container.querySelector('.p-0');
+		expect(card).toBeTruthy();
 	});
 });

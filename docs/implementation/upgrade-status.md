@@ -55,17 +55,17 @@ This is a pure checklist file. No comments other than this one.
 - [x] Add Tailwind Prettier plugin
 
 ### 3.TW Component Migrations
-- [ ] Button component migration
-- [ ] Card component migration
-- [ ] Badge component migration
-- [ ] TextField component migration
-- [ ] TextArea component migration
-- [ ] Dialog component migration
-- [ ] Remaining components migration
+- [x] Button component migration
+- [x] Card component migration
+- [x] Badge component migration
+- [x] TextField component migration
+- [x] TextArea component migration
+- [x] Dialog component migration
+- [x] Remaining components migration
 
 ### 3.TW Layout Migrations
-- [ ] Layout components migration
-- [ ] Bible tab components migration
+- [x] Layout components migration
+- [x] Bible tab components migration
 
 ### 3.TW Cleanup
 - [ ] Remove legacy CSS

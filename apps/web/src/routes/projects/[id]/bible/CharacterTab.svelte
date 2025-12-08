@@ -104,20 +104,20 @@
   }
 </script>
 
-<div class="character-tab">
-  <div class="tab-toolbar">
-    <div class="toolbar-left">
-      <span class="count-label">
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm text-text-secondary">
         {filteredCharacters.length} {filteredCharacters.length === 1 ? 'character' : 'characters'}
         {#if searchQuery || hasActiveFilters}
           (filtered from {characters.length})
         {/if}
       </span>
-      <div class="filter-controls">
+      <div class="flex items-center gap-2">
         <FilterSelect bind:value={roleFilter} options={roleOptions} allLabel="All roles" />
         <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
         {#if hasActiveFilters}
-          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+          <button class="px-2 py-1 font-inherit text-xs text-text-secondary bg-transparent border-none cursor-pointer underline hover:text-text" onclick={clearFilters}>Clear</button>
         {/if}
       </div>
     </div>
@@ -146,14 +146,14 @@
       </EmptyState>
     {/if}
   {:else}
-    <div class="character-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4">
       {#each filteredCharacters as character (character.id)}
         <Card hover padding="none">
-          <a href="/projects/{projectId}/bible/character/{character.id}" class="character-link">
-            <div class="character-content">
-              <div class="character-header">
-                <h3 class="character-name">{character.name}</h3>
-                <div class="character-badges">
+          <a href="/projects/{projectId}/bible/character/{character.id}" class="block no-underline text-inherit">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-lg font-semibold m-0 text-text">{character.name}</h3>
+                <div class="flex gap-2 shrink-0">
                   <Badge variant={getRoleBadgeVariant(character.role)}>
                     {character.role}
                   </Badge>
@@ -164,32 +164,32 @@
               </div>
 
               {#if character.aliases.length > 0}
-                <div class="character-aliases">
-                  <span class="aliases-label">Also known as:</span>
+                <div class="text-sm text-text-secondary">
+                  <span class="italic mr-1">Also known as:</span>
                   {character.aliases.join(', ')}
                 </div>
               {/if}
 
-              <p class="character-description">
+              <p class="text-sm text-text-secondary leading-normal m-0">
                 {character.description.length > 200
                   ? character.description.substring(0, 200) + '...'
                   : character.description}
               </p>
 
-              <div class="character-meta">
-                <span class="meta-item">
+              <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
+                <span class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 14c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                   </svg>
                   {character.traits.length} traits
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                   {character.relationships.length} relationships
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
@@ -221,7 +221,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -264,7 +264,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>
@@ -274,138 +274,3 @@
   </form>
 </Dialog>
 
-<style>
-  .character-tab {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .tab-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .count-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .filter-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .clear-filters {
-    padding: var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .clear-filters:hover {
-    color: var(--color-text);
-  }
-
-  .character-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .character-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .character-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .character-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .character-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .character-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .character-aliases {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .aliases-label {
-    font-style: italic;
-    margin-right: var(--space-1);
-  }
-
-  .character-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .character-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

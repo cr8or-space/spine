@@ -11,66 +11,36 @@
   let { title, description, icon, action }: Props = $props();
 </script>
 
-<div class="empty-state">
+<div class="flex flex-col items-center justify-center text-center py-12 px-4">
   {#if icon}
-    <div class="icon">
+    <div class="mb-4">
       {@render icon()}
     </div>
   {:else}
-    <div class="icon default-icon">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <div class="mb-4 text-text-tertiary">
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         <circle cx="12" cy="12" r="10" />
       </svg>
     </div>
   {/if}
 
-  <h3 class="title">{title}</h3>
+  <h3 class="text-lg font-semibold text-text m-0">{title}</h3>
 
   {#if description}
-    <p class="description">{description}</p>
+    <p class="text-sm text-text-secondary mt-2 max-w-[400px] m-0">{description}</p>
   {/if}
 
   {#if action}
-    <div class="action">
+    <div class="mt-6">
       {@render action()}
     </div>
   {/if}
 </div>
-
-<style>
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-12) var(--space-4);
-  }
-
-  .icon {
-    margin-bottom: var(--space-4);
-  }
-
-  .default-icon {
-    color: var(--color-text-tertiary);
-  }
-
-  .title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 0;
-  }
-
-  .description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: var(--space-2) 0 0;
-    max-width: 400px;
-  }
-
-  .action {
-    margin-top: var(--space-6);
-  }
-</style>

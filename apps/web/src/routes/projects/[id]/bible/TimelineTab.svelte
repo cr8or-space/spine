@@ -124,20 +124,20 @@
   }
 </script>
 
-<div class="timeline-tab">
-  <div class="tab-toolbar">
-    <div class="toolbar-left">
-      <span class="count-label">
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm text-text-secondary">
         {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
         {#if searchQuery || hasActiveFilters}
           (filtered from {timelineEvents.length})
         {/if}
       </span>
-      <div class="filter-controls">
+      <div class="flex items-center gap-2">
         <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
         <FilterSelect bind:value={significanceFilter} options={significanceOptions} allLabel="All significance" />
         {#if hasActiveFilters}
-          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+          <button class="px-2 py-1 font-inherit text-xs text-text-secondary bg-transparent border-none cursor-pointer underline hover:text-text" onclick={clearFilters}>Clear</button>
         {/if}
       </div>
     </div>
@@ -166,14 +166,14 @@
       </EmptyState>
     {/if}
   {:else}
-    <div class="event-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4">
       {#each filteredEvents as event (event.id)}
         <Card hover padding="none">
-          <a href="/projects/{projectId}/bible/timeline/{event.id}" class="event-link">
-            <div class="event-content">
-              <div class="event-header">
-                <h3 class="event-name">{event.name}</h3>
-                <div class="event-badges">
+          <a href="/projects/{projectId}/bible/timeline/{event.id}" class="block no-underline text-inherit">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-lg font-semibold m-0 text-text">{event.name}</h3>
+                <div class="flex gap-2 shrink-0">
                   <Badge variant={getTypeBadgeVariant(event.type)}>
                     {event.type}
                   </Badge>
@@ -183,7 +183,7 @@
                 </div>
               </div>
 
-              <div class="event-time">
+              <div class="flex items-center gap-2 text-sm text-text-secondary font-medium">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 6v6l4 2" />
@@ -194,26 +194,26 @@
                 {/if}
               </div>
 
-              <p class="event-description">
+              <p class="text-sm text-text-secondary leading-normal m-0">
                 {event.description.length > 200
                   ? event.description.substring(0, 200) + '...'
                   : event.description}
               </p>
 
-              <div class="event-meta">
-                <span class="meta-item">
+              <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
+                <span class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                   </svg>
                   {event.involvedCharacters.length} characters
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   </svg>
                   {event.locations.length} locations
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   {event.revealed ? 'Revealed' : 'Hidden'}
                 </span>
               </div>
@@ -225,163 +225,6 @@
   {/if}
 </div>
 
-<style>
-  .timeline-tab {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .tab-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .count-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .filter-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .clear-filters {
-    padding: var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .clear-filters:hover {
-    color: var(--color-text);
-  }
-
-  .event-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .event-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .event-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .event-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .event-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .event-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .event-time {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    font-weight: 500;
-  }
-
-  .event-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .event-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .checkbox-group {
-    display: flex;
-    gap: var(--space-4);
-  }
-
-  .position-group {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>
 
 <!-- Create Timeline Event Dialog -->
 <Dialog
@@ -400,7 +243,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -422,7 +265,7 @@
         options={significanceOptions}
       />
 
-      <div class="position-group">
+      <div class="grid grid-cols-2 gap-4">
         <TextField
           label="Date (in-world)"
           name="date"
@@ -445,17 +288,17 @@
           hint="When this is revealed"
         />
 
-        <div class="checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" bind:checked={createForm.approximate} />
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" bind:checked={createForm.approximate} class="cursor-pointer" />
             Approximate time
           </label>
           <input type="hidden" name="approximate" value={createForm.approximate.toString()} />
         </div>
       </div>
 
-      <label class="checkbox-label">
-        <input type="checkbox" bind:checked={createForm.revealed} />
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" bind:checked={createForm.revealed} class="cursor-pointer" />
         Already revealed in story
       </label>
       <input type="hidden" name="revealed" value={createForm.revealed.toString()} />
@@ -468,7 +311,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>

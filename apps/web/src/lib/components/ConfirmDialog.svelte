@@ -26,7 +26,7 @@
 </script>
 
 <Dialog {open} {title} onClose={onCancel}>
-  <p class="message">{message}</p>
+  <p class="text-sm text-text-secondary m-0 leading-relaxed">{message}</p>
 
   {#snippet footer()}
     <Button variant="secondary" onclick={onCancel}>
@@ -37,12 +37,3 @@
     </Button>
   {/snippet}
 </Dialog>
-
-<style>
-  .message {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-    line-height: 1.6;
-  }
-</style>
