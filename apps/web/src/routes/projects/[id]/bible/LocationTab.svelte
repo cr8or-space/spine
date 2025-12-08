@@ -2,6 +2,7 @@
   import type { Location } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
+  import { Plus, MapPin, Users } from 'lucide-svelte';
 
   interface Props {
     locations: Location[];
@@ -131,9 +132,7 @@
       </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus size={16} />
       New Location
     </Button>
   </div>
@@ -187,16 +186,11 @@
 
               <div class="location-meta">
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
+                  <MapPin size={14} />
                   {location.features.length} features
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  </svg>
+                  <Users size={14} />
                   {location.associatedCharacters.length} characters
                 </span>
               </div>

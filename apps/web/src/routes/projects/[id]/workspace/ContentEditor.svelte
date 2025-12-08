@@ -2,6 +2,7 @@
   import type { Structure, Content, Bible } from '@repo/types';
   import { Button, Card, Badge, TextField, Dialog } from '$lib/components';
   import { invalidateAll } from '$app/navigation';
+  import { AlertTriangle, Info, Wand2 } from 'lucide-svelte';
 
   interface Props {
     structure: Structure;
@@ -126,11 +127,7 @@
     {#if continuityIssues.length > 0}
       <div class="continuity-warnings">
         <header class="warnings-header">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
+          <AlertTriangle size={16} />
           <span class="warnings-count">
             {continuityIssues.length} continuity {continuityIssues.length === 1 ? 'issue' : 'issues'}
           </span>
@@ -175,9 +172,7 @@
           onclick={() => (showGenerateDialog = true)}
           disabled={content?.locked}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-          </svg>
+          <Wand2 size={16} />
           Generate
         </Button>
       </div>
@@ -210,11 +205,7 @@
 
     {#if structure.beats.length === 0}
       <div class="generate-warning">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
+        <Info size={16} />
         <span>Consider adding story beats before generating for better results.</span>
       </div>
     {/if}
@@ -283,9 +274,7 @@
         alert('Generation not yet implemented - requires LLM endpoint configuration');
         showGenerateDialog = false;
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
+        <Wand2 size={16} />
         Generate Draft
       </Button>
     </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Structure } from '@repo/types';
   import OutlineTree from './OutlineTree.svelte';
+  import { ChevronRight, BookOpen, Library, FileText, File, Image, Plus } from 'lucide-svelte';
 
   interface Props {
     structure: Structure;
@@ -35,20 +36,20 @@
     onCreateChild(structure.id);
   }
 
-  function getTypeIcon(type: Structure['type']): string {
-    switch (type) {
+  const TypeIcon = $derived.by(() => {
+    switch (structure.type) {
       case 'book':
-        return 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253';
+        return BookOpen;
       case 'arc':
-        return 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V17H6.5a2.5 2.5 0 0 0-2.5 2.5zM4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H20v13H6.5a2.5 2.5 0 0 0-2.5 2.5z';
+        return Library;
       case 'chapter':
-        return 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8';
+        return FileText;
       case 'scene':
-        return 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6';
+        return File;
       default:
-        return '';
+        return File;
     }
-  }
+  });
 
   function canAddChildren(type: Structure['type']): boolean {
     return type !== 'scene';
@@ -74,34 +75,14 @@
         tabindex="0"
         aria-label={isExpanded ? 'Collapse' : 'Expand'}
       >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          class:expanded={isExpanded}
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+        <ChevronRight size={12} class={isExpanded ? 'expanded' : ''} />
       </span>
     {:else}
       <span class="expand-spacer"></span>
     {/if}
 
     <!-- Type Icon -->
-    <svg
-      class="type-icon"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-    >
-      <path d={getTypeIcon(structure.type)} />
-    </svg>
+    <TypeIcon class="type-icon" size={14} />
 
     <!-- Title -->
     <span class="tree-title">{structure.title}</span>
@@ -114,20 +95,7 @@
         </span>
       {/if}
       {#if structure.hook}
-        <svg
-          class="hook-indicator"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-label="Has hook"
-        >
-          <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
-          <path d="M14 3v6h6" />
-          <path d="m12 12 4 6H8l4-6Z" />
-        </svg>
+        <Image class="hook-indicator" size={12} aria-label="Has hook" />
       {/if}
       {#if structure.tensionTarget !== undefined}
         <span class="tension-indicator" title="Tension target: {structure.tensionTarget}">
@@ -146,9 +114,7 @@
         tabindex="0"
         aria-label="Add child"
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <Plus size={12} />
       </span>
     {/if}
   </div>
@@ -216,11 +182,11 @@
     flex-shrink: 0;
   }
 
-  .expand-toggle svg {
+  .expand-toggle :global(svg) {
     transition: transform var(--transition-fast);
   }
 
-  .expand-toggle svg.expanded {
+  .expand-toggle :global(.expanded) {
     transform: rotate(90deg);
   }
 
@@ -229,12 +195,12 @@
     flex-shrink: 0;
   }
 
-  .type-icon {
+  .tree-item :global(.type-icon) {
     flex-shrink: 0;
     color: var(--color-text-secondary);
   }
 
-  .tree-item.selected .type-icon {
+  .tree-item.selected :global(.type-icon) {
     color: var(--color-primary);
   }
 
@@ -260,7 +226,7 @@
     border-radius: var(--radius-sm);
   }
 
-  .hook-indicator {
+  .tree-indicators :global(.hook-indicator) {
     color: var(--color-success);
   }
 

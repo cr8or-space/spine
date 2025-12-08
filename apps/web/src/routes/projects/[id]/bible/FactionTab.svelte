@@ -2,6 +2,7 @@
   import type { Faction } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
+  import { Plus, Users, Layers } from 'lucide-svelte';
 
   interface Props {
     factions: Faction[];
@@ -149,9 +150,7 @@
       </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus size={16} />
       New Faction
     </Button>
   </div>
@@ -205,15 +204,11 @@
 
               <div class="faction-meta">
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
+                  <Users size={14} />
                   {faction.members.length} members
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                  </svg>
+                  <Layers size={14} />
                   {faction.ranks.length} ranks
                 </span>
                 <span class="meta-item">

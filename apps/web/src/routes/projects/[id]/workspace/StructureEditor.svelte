@@ -3,6 +3,7 @@
   import { Button, Card, TextField, TextArea, Select, Badge } from '$lib/components';
   import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
+  import { Check, X } from 'lucide-svelte';
 
   interface Props {
     structure: Structure;
@@ -211,9 +212,7 @@
               <input type="hidden" name="completed" value={(!beat.completed).toString()} />
               <button type="submit" class="beat-checkbox" aria-label={beat.completed ? 'Mark as incomplete' : 'Mark as complete'}>
                 {#if beat.completed}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <Check size={14} />
                 {/if}
               </button>
             </form>
@@ -230,9 +229,7 @@
               <input type="hidden" name="structureId" value={structure.id} />
               <input type="hidden" name="beatId" value={beat.id} />
               <button type="submit" class="beat-remove" aria-label="Remove beat">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
+                <X size={14} />
               </button>
             </form>
           </li>

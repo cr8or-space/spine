@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { ChevronDown } from 'lucide-svelte';
+
   interface Option {
     value: string;
     label: string;
@@ -21,9 +23,7 @@
       <option value={option.value}>{option.label}</option>
     {/each}
   </select>
-  <svg class="select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M6 9l6 6 6-6" />
-  </svg>
+  <ChevronDown class="select-icon" size={14} />
 </div>
 
 <style>
@@ -51,7 +51,7 @@
     box-shadow: 0 0 0 2px var(--color-primary-light);
   }
 
-  .select-icon {
+  .filter-select :global(.select-icon) {
     position: absolute;
     right: var(--space-1);
     top: 50%;

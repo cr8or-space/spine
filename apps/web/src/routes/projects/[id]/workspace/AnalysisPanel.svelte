@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Structure, Content } from '@repo/types';
   import { Button, Badge } from '$lib/components';
+  import { X, BarChart3, CheckCircle } from 'lucide-svelte';
 
   interface Props {
     structure: Structure;
@@ -47,9 +48,7 @@
   <header class="panel-header">
     <h3 class="panel-title">Analysis</h3>
     <button class="close-btn" onclick={onClose} aria-label="Close panel">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M18 6L6 18M6 6l12 12" />
-      </svg>
+      <X size={16} />
     </button>
   </header>
 
@@ -61,10 +60,7 @@
       </div>
     {:else if !hasAnalysis}
       <div class="no-analysis">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 3v18h18" />
-          <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
-        </svg>
+        <BarChart3 size={32} strokeWidth={1.5} />
         <p>No analysis available</p>
         <p class="hint">Analysis runs automatically after content is generated or saved.</p>
         <Button size="sm" variant="secondary" disabled>
@@ -220,10 +216,7 @@
         </div>
       {:else}
         <div class="no-issues">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
+          <CheckCircle size={20} />
           <span>No continuity issues detected</span>
         </div>
       {/if}
@@ -315,7 +308,7 @@
     margin-top: var(--space-1);
   }
 
-  .no-analysis svg {
+  .no-analysis :global(svg) {
     margin-bottom: var(--space-3);
     color: var(--color-text-tertiary);
   }

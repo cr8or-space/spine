@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { HTMLSelectAttributes } from 'svelte/elements';
+  import { ChevronDown } from 'lucide-svelte';
 
   interface Option {
     value: string;
@@ -39,9 +40,7 @@
         <option value={option.value}>{option.label}</option>
       {/each}
     </select>
-    <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M6 9l6 6 6-6" />
-    </svg>
+    <ChevronDown class="select-icon" size={16} />
   </div>
 
   {#if error}
@@ -88,7 +87,7 @@
     box-shadow: 0 0 0 3px var(--color-primary-light);
   }
 
-  .select-icon {
+  .select-wrapper :global(.select-icon) {
     position: absolute;
     right: var(--space-3);
     top: 50%;

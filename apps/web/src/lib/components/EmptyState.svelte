@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { PlusCircle } from 'lucide-svelte';
 
   interface Props {
     title: string;
@@ -18,10 +19,7 @@
     </div>
   {:else}
     <div class="icon default-icon">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        <circle cx="12" cy="12" r="10" />
-      </svg>
+      <PlusCircle size={48} strokeWidth={1.5} />
     </div>
   {/if}
 

@@ -2,6 +2,7 @@
   import type { WorldRule } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
+  import { Plus, Info } from 'lucide-svelte';
 
   interface Props {
     worldRules: WorldRule[];
@@ -118,9 +119,7 @@
       </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus size={16} />
       New Rule
     </Button>
   </div>
@@ -180,9 +179,7 @@
                   Priority: {rule.priority}/100
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                  </svg>
+                  <Info size={14} />
                   {rule.exceptions.length} exceptions
                 </span>
                 <span class="meta-item">

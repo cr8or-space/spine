@@ -3,6 +3,7 @@
   import type { PageData, ActionData } from './$types';
   import type { ProjectFormat } from '@repo/types';
   import { Button, Card, Dialog, TextField, Select, TextArea, EmptyState, ConfirmDialog } from '$lib/components';
+  import { Plus, BookOpen, Type, Settings, Trash2 } from 'lucide-svelte';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -92,9 +93,7 @@
     <div class="toolbar">
       <h2 class="section-title">Projects</h2>
       <Button onclick={openCreateDialog}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <Plus size={16} />
         New Project
       </Button>
     </div>
@@ -121,15 +120,11 @@
 
                 <div class="project-stats">
                   <span class="stat">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                    <BookOpen size={14} />
                     {project.chapterCount} chapters
                   </span>
                   <span class="stat">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 7V4h16v3M9 20h6M12 4v16" />
-                    </svg>
+                    <Type size={14} />
                     {formatWordCount(project.wordCount)} words
                   </span>
                 </div>
@@ -143,19 +138,14 @@
             </a>
             <div class="project-actions">
               <a href="/projects/{project.id}/settings" class="action-btn" title="Settings">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
+                <Settings size={16} />
               </a>
               <button
                 class="action-btn danger"
                 title="Delete"
                 onclick={() => openDeleteConfirm(project.id, project.title)}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
+                <Trash2 size={16} />
               </button>
             </div>
           </Card>

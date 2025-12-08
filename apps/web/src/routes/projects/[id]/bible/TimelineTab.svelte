@@ -2,6 +2,7 @@
   import type { TimelineEvent } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
+  import { Plus, Clock, Users, MapPin } from 'lucide-svelte';
 
   interface Props {
     timelineEvents: TimelineEvent[];
@@ -142,9 +143,7 @@
       </div>
     </div>
     <Button onclick={() => (showCreateDialog = true)}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
+      <Plus size={16} />
       New Event
     </Button>
   </div>
@@ -184,10 +183,7 @@
               </div>
 
               <div class="event-time">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
-                </svg>
+                <Clock size={14} />
                 {formatTimelinePosition(event)}
                 {#if event.position.approximate}
                   <Badge size="sm" variant="warning">~</Badge>
@@ -202,15 +198,11 @@
 
               <div class="event-meta">
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  </svg>
+                  <Users size={14} />
                   {event.involvedCharacters.length} characters
                 </span>
                 <span class="meta-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  </svg>
+                  <MapPin size={14} />
                   {event.locations.length} locations
                 </span>
                 <span class="meta-item">

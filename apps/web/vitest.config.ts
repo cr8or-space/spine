@@ -11,6 +11,9 @@ export default defineConfig({
 			$app: path.resolve('./.svelte-kit/runtime/app'),
 		},
 	},
+	optimizeDeps: {
+		include: ['lucide-svelte'],
+	},
 	test: {
 		globals: true,
 		include: ['src/**/*.{test,spec}.ts', 'src/**/*.svelte.{test,spec}.ts'],
