@@ -76,9 +76,9 @@ This is a pure checklist file. No comments other than this one.
 - [x] Install Bits UI
 
 ### 4.UA New Components
-- [ ] AccessibleDialog component
-- [ ] AccessibleTabs component
-- [ ] AccessibleSelect component
+- [x] AccessibleDialog component
+- [x] AccessibleTabs component
+- [x] AccessibleSelect component
 
 ### 4.UA Migrations
 - [ ] Migrate Dialog usage
