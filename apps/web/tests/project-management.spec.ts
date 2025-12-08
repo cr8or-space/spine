@@ -133,8 +133,8 @@ test.describe('Project Management', () => {
 		await expect(projectCard).toBeVisible();
 
 		// Find and click delete button for our specific project
-		// The Card component uses class="card" and contains the project link and actions
-		const cardContainer = page.locator('.card').filter({ hasText: uniqueName });
+		// The Card component has bg-surface class, so use that
+		const cardContainer = page.locator('.bg-surface').filter({ hasText: uniqueName });
 		const deleteBtn = cardContainer.locator('button.action-btn.danger');
 		await deleteBtn.click();
 
@@ -143,8 +143,8 @@ test.describe('Project Management', () => {
 		await expect(dialog).toBeVisible();
 		await expect(dialog.getByText('Delete Project')).toBeVisible();
 
-		// Click the Delete button inside the dialog (found in footer)
-		await dialog.locator('.dialog-footer').getByRole('button', { name: 'Delete' }).click();
+		// Click the Delete button inside the dialog (found in footer element)
+		await dialog.locator('footer').getByRole('button', { name: 'Delete' }).click();
 
 		// Wait for dialog to close
 		await expect(dialog).not.toBeVisible();

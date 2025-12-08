@@ -10,6 +10,7 @@
    * Future @spine/ui candidate.
    */
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Props {
     children?: Snippet;
@@ -21,51 +22,27 @@
   let { children, left, right, class: className = '' }: Props = $props();
 </script>
 
-<footer class="status-bar {className}">
+<footer
+  class={cn(
+    'flex items-center justify-between gap-4 px-4 h-7 bg-surface border-t border-border text-xs text-text-secondary',
+    className
+  )}
+>
   {#if left}
-    <div class="status-left">
+    <div class="flex items-center gap-3">
       {@render left()}
     </div>
   {/if}
 
   {#if children}
-    <div class="status-center">
+    <div class="flex-1 flex items-center justify-center">
       {@render children()}
     </div>
   {/if}
 
   {#if right}
-    <div class="status-right">
+    <div class="flex items-center gap-3">
       {@render right()}
     </div>
   {/if}
 </footer>
-
-<style>
-  .status-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: 0 var(--space-4);
-    height: var(--status-bar-height, 28px);
-    background-color: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-  }
-
-  .status-left,
-  .status-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .status-center {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>

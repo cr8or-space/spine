@@ -101,20 +101,20 @@
   }
 </script>
 
-<div class="world-rule-tab">
-  <div class="tab-toolbar">
-    <div class="toolbar-left">
-      <span class="count-label">
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm text-text-secondary">
         {filteredRules.length} {filteredRules.length === 1 ? 'rule' : 'rules'}
         {#if searchQuery || hasActiveFilters}
           (filtered from {worldRules.length})
         {/if}
       </span>
-      <div class="filter-controls">
+      <div class="flex items-center gap-2">
         <FilterSelect bind:value={categoryFilter} options={categoryOptions} allLabel="All categories" />
         <FilterSelect bind:value={establishedFilter} options={establishedOptions} allLabel="All states" />
         {#if hasActiveFilters}
-          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+          <button class="px-2 py-1 font-inherit text-xs text-text-secondary bg-transparent border-none cursor-pointer underline hover:text-text" onclick={clearFilters}>Clear</button>
         {/if}
       </div>
     </div>
@@ -141,14 +141,14 @@
       </EmptyState>
     {/if}
   {:else}
-    <div class="rule-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4">
       {#each filteredRules as rule (rule.id)}
         <Card hover padding="none">
-          <a href="/projects/{projectId}/bible/world-rule/{rule.id}" class="rule-link">
-            <div class="rule-content">
-              <div class="rule-header">
-                <h3 class="rule-name">{rule.name}</h3>
-                <div class="rule-badges">
+          <a href="/projects/{projectId}/bible/world-rule/{rule.id}" class="block no-underline text-inherit">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-lg font-semibold m-0 text-text">{rule.name}</h3>
+                <div class="flex gap-2 shrink-0">
                   <Badge variant={getCategoryBadgeVariant(rule.category)}>
                     {rule.category}
                   </Badge>
@@ -160,29 +160,29 @@
                 </div>
               </div>
 
-              <div class="rule-statement">
+              <div class="text-sm text-text font-medium leading-normal py-2 px-3 bg-bg-secondary border-l-3 border-primary rounded-sm">
                 {rule.rule.length > 150
                   ? rule.rule.substring(0, 150) + '...'
                   : rule.rule}
               </div>
 
               {#if rule.description}
-                <p class="rule-description">
+                <p class="text-sm text-text-secondary leading-normal m-0">
                   {rule.description.length > 100
                     ? rule.description.substring(0, 100) + '...'
                     : rule.description}
                 </p>
               {/if}
 
-              <div class="rule-meta">
-                <span class="meta-item">
+              <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
+                <span class="flex items-center gap-1">
                   Priority: {rule.priority}/100
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <Info size={14} />
                   {rule.exceptions.length} exceptions
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   {rule.publicKnowledge ? 'Public' : 'Secret'}
                 </span>
               </div>
@@ -194,159 +194,6 @@
   {/if}
 </div>
 
-<style>
-  .world-rule-tab {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .tab-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .count-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .filter-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .clear-filters {
-    padding: var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .clear-filters:hover {
-    color: var(--color-text);
-  }
-
-  .rule-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .rule-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .rule-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .rule-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .rule-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .rule-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .rule-statement {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    font-weight: 500;
-    line-height: 1.5;
-    padding: var(--space-2) var(--space-3);
-    background-color: var(--color-bg-secondary);
-    border-left: 3px solid var(--color-primary);
-    border-radius: var(--radius-sm);
-  }
-
-  .rule-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .rule-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .checkbox-group {
-    display: flex;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>
 
 <!-- Create World Rule Dialog -->
 <Dialog
@@ -365,7 +212,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -408,21 +255,21 @@
         hint="Higher priority rules take precedence"
       />
 
-      <div class="checkbox-group">
-        <label class="checkbox-label">
-          <input type="checkbox" name="established" bind:checked={createForm.established} />
+      <div class="flex gap-4">
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" name="established" bind:checked={createForm.established} class="cursor-pointer" />
           Established in story
         </label>
         <input type="hidden" name="established" value={createForm.established.toString()} />
 
-        <label class="checkbox-label">
-          <input type="checkbox" name="publicKnowledge" bind:checked={createForm.publicKnowledge} />
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" name="publicKnowledge" bind:checked={createForm.publicKnowledge} class="cursor-pointer" />
           Public knowledge
         </label>
         <input type="hidden" name="publicKnowledge" value={createForm.publicKnowledge.toString()} />
       </div>
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>

@@ -10,6 +10,7 @@
 <script lang="ts">
   import { Tabs } from 'bits-ui';
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Tab {
     id: string;
@@ -33,18 +34,41 @@
     }
   });
 
-  let tabsListClass = $derived(
-    orientation === 'vertical' ? 'tabs-list vertical' : 'tabs-list'
-  );
+  const listBaseClasses = 'flex gap-1 overflow-x-auto';
+  const listHorizontalClasses = 'border-b border-border px-4';
+  const listVerticalClasses = 'flex-col border-r border-border py-4';
+
+  const tabBaseClasses =
+    'flex items-center gap-2 px-4 py-3 text-sm font-medium text-text-secondary bg-transparent border-none border-b-2 border-transparent -mb-px cursor-pointer transition-all duration-150 whitespace-nowrap hover:text-text focus-visible:outline-2 focus-visible:outline-primary focus-visible:-outline-offset-2 focus-visible:rounded-sm data-[state=active]:text-primary data-[state=active]:border-b-primary';
+
+  const tabVerticalClasses =
+    'border-b-0 border-r-2 !-mb-0 -mr-px justify-start data-[state=active]:border-b-transparent data-[state=active]:border-r-primary';
+
+  const countBaseClasses =
+    'inline-flex items-center justify-center min-w-5 h-5 px-2 text-xs bg-bg-tertiary rounded-full';
+
+  const countActiveClasses = 'bg-primary-light text-primary';
 </script>
 
-<Tabs.Root bind:value={active} {orientation} class="tabs-root">
-  <Tabs.List class={tabsListClass}>
+<Tabs.Root bind:value={active} {orientation} class="flex flex-col w-full">
+  <Tabs.List
+    class={cn(
+      listBaseClasses,
+      orientation === 'vertical' ? listVerticalClasses : listHorizontalClasses
+    )}
+  >
     {#each tabs as tab (tab.id)}
-      <Tabs.Trigger value={tab.id} class="tab">
+      <Tabs.Trigger
+        value={tab.id}
+        class={cn(tabBaseClasses, orientation === 'vertical' && tabVerticalClasses)}
+      >
         {tab.label}
         {#if tab.count !== undefined}
-          <span class="tab-count">{tab.count}</span>
+          <span
+            class={cn(countBaseClasses, active === tab.id && countActiveClasses)}
+          >
+            {tab.count}
+          </span>
         {/if}
       </Tabs.Trigger>
     {/each}
@@ -52,103 +76,9 @@
 
   {#if children}
     {#each tabs as tab (tab.id)}
-      <Tabs.Content value={tab.id} class="tab-content">
+      <Tabs.Content value={tab.id} class="p-4 data-[state=inactive]:hidden">
         {@render children(tab.id)}
       </Tabs.Content>
     {/each}
   {/if}
 </Tabs.Root>
-
-<style>
-  :global(.tabs-root) {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  :global(.tabs-list) {
-    display: flex;
-    gap: var(--space-1);
-    border-bottom: 1px solid var(--color-border);
-    padding: 0 var(--space-4);
-    overflow-x: auto;
-  }
-
-  :global(.tabs-list.vertical) {
-    flex-direction: column;
-    border-bottom: none;
-    border-right: 1px solid var(--color-border);
-    padding: var(--space-4) 0;
-  }
-
-  :global(.tab) {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-  }
-
-  :global(.tabs-list.vertical .tab) {
-    border-bottom: none;
-    border-right: 2px solid transparent;
-    margin-bottom: 0;
-    margin-right: -1px;
-    justify-content: flex-start;
-  }
-
-  :global(.tab:hover) {
-    color: var(--color-text);
-  }
-
-  :global(.tab:focus-visible) {
-    outline: 2px solid var(--color-primary);
-    outline-offset: -2px;
-    border-radius: var(--radius-sm);
-  }
-
-  :global(.tab[data-state='active']) {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
-  }
-
-  :global(.tabs-list.vertical .tab[data-state='active']) {
-    border-bottom-color: transparent;
-    border-right-color: var(--color-primary);
-  }
-
-  :global(.tab-count) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 var(--space-2);
-    font-size: var(--text-xs);
-    background-color: var(--color-bg-tertiary);
-    border-radius: var(--radius-full);
-  }
-
-  :global(.tab[data-state='active'] .tab-count) {
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-  }
-
-  :global(.tab-content) {
-    padding: var(--space-4);
-  }
-
-  :global(.tab-content[data-state='inactive']) {
-    display: none;
-  }
-</style>

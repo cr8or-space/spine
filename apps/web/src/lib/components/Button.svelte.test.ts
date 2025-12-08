@@ -15,9 +15,8 @@ describe('Button', () => {
 		});
 		const button = container.querySelector('button');
 		expect(button).toBeTruthy();
-		expect(button?.classList.contains('btn')).toBe(true);
-		expect(button?.classList.contains('btn-primary')).toBe(true);
-		expect(button?.classList.contains('btn-md')).toBe(true);
+		// Default variant is primary with bg-primary
+		expect(button?.classList.contains('bg-primary')).toBe(true);
 	});
 
 	it('renders with secondary variant', async () => {
@@ -28,7 +27,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-secondary')).toBe(true);
+		// Secondary variant has bg-bg-secondary
+		expect(button?.classList.contains('bg-bg-secondary')).toBe(true);
 	});
 
 	it('renders with danger variant', async () => {
@@ -39,7 +39,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-danger')).toBe(true);
+		// Danger variant has bg-danger
+		expect(button?.classList.contains('bg-danger')).toBe(true);
 	});
 
 	it('renders with ghost variant', async () => {
@@ -50,7 +51,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-ghost')).toBe(true);
+		// Ghost variant has bg-transparent
+		expect(button?.classList.contains('bg-transparent')).toBe(true);
 	});
 
 	it('renders with small size', async () => {
@@ -61,7 +63,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-sm')).toBe(true);
+		// Small size has h-8
+		expect(button?.classList.contains('h-8')).toBe(true);
 	});
 
 	it('renders with large size', async () => {
@@ -72,7 +75,8 @@ describe('Button', () => {
 			},
 		});
 		const button = container.querySelector('button');
-		expect(button?.classList.contains('btn-lg')).toBe(true);
+		// Large size has h-12
+		expect(button?.classList.contains('h-12')).toBe(true);
 	});
 
 	it('can be disabled', async () => {
@@ -95,6 +99,7 @@ describe('Button', () => {
 		});
 		const button = container.querySelector('button') as HTMLButtonElement;
 		expect(button?.disabled).toBe(true);
-		expect(container.querySelector('.spinner')).toBeTruthy();
+		// Loading spinner has animate-spin class
+		expect(container.querySelector('.animate-spin')).toBeTruthy();
 	});
 });

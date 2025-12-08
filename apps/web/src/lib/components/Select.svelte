@@ -10,6 +10,7 @@
 <script lang="ts">
   import { Select } from 'bits-ui';
   import { ChevronDown, Check } from 'lucide-svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Option {
     value: string;
@@ -44,7 +45,9 @@
 
   const inputId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
 
-  let selectedLabel = $derived(options.find((opt) => opt.value === value)?.label ?? placeholder);
+  let selectedLabel = $derived(
+    options.find((opt) => opt.value === value)?.label ?? placeholder
+  );
 
   // Transform options for Bits UI
   let items = $derived(options.map((opt) => ({ value: opt.value, label: opt.label })));
@@ -54,11 +57,19 @@
       value = newValue;
     }
   }
+
+  const triggerClasses = cn(
+    'flex items-center justify-between w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text cursor-pointer transition-all duration-150',
+    'hover:border-text-tertiary',
+    'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
+    'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+    error && 'border-danger focus:ring-danger-light'
+  );
 </script>
 
-<div class="select-field" class:has-error={error}>
+<div class="flex flex-col gap-1">
   {#if label}
-    <label for={inputId} class="label">{label}</label>
+    <label for={inputId} class="text-sm font-medium text-text">{label}</label>
   {/if}
 
   <Select.Root
@@ -71,22 +82,35 @@
   >
     <Select.Trigger
       id={inputId}
-      class="select-trigger"
+      class={triggerClasses}
       aria-invalid={error ? 'true' : undefined}
       aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
     >
-      <span class="select-value" class:placeholder={!value}>{selectedLabel}</span>
-      <ChevronDown class="select-icon" size={16} />
+      <span
+        class={cn(
+          'flex-1 text-left overflow-hidden text-ellipsis whitespace-nowrap',
+          !value && 'text-text-tertiary'
+        )}
+      >
+        {selectedLabel}
+      </span>
+      <ChevronDown class="shrink-0 text-text-secondary transition-transform duration-150 [[data-state=open]_&]:rotate-180" size={16} />
     </Select.Trigger>
     <Select.Portal>
-      <Select.Content class="select-content">
-        <Select.Viewport class="select-viewport">
+      <Select.Content
+        class="bg-surface border border-border rounded-md shadow-lg z-[1002] overflow-hidden animate-[selectIn_0.15s_ease-out]"
+      >
+        <Select.Viewport class="p-1 max-h-[300px] overflow-y-auto">
           {#each options as option (option.value)}
-            <Select.Item value={option.value} label={option.label} class="select-item">
+            <Select.Item
+              value={option.value}
+              label={option.label}
+              class="flex items-center justify-between px-3 py-2 text-sm text-text rounded-sm cursor-pointer transition-colors duration-150 hover:bg-surface-hover data-[highlighted]:bg-surface-hover data-[state=checked]:text-primary focus-visible:outline-none focus-visible:bg-surface-hover"
+            >
               {#snippet children({ selected })}
-                <span class="select-item-text">{option.label}</span>
+                <span class="flex-1">{option.label}</span>
                 {#if selected}
-                  <Check class="select-check" size={16} />
+                  <Check class="shrink-0 text-primary" size={16} />
                 {/if}
               {/snippet}
             </Select.Item>
@@ -97,98 +121,13 @@
   </Select.Root>
 
   {#if error}
-    <p id="{inputId}-error" class="error-text">{error}</p>
+    <p id="{inputId}-error" class="text-xs text-danger m-0">{error}</p>
   {:else if hint}
-    <p id="{inputId}-hint" class="hint-text">{hint}</p>
+    <p id="{inputId}-hint" class="text-xs text-text-secondary m-0">{hint}</p>
   {/if}
 </div>
 
 <style>
-  .select-field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .label {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  :global(.select-trigger) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: var(--space-2) var(--space-3);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text);
-    cursor: pointer;
-    transition:
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
-  }
-
-  :global(.select-trigger:hover) {
-    border-color: var(--color-text-tertiary);
-  }
-
-  :global(.select-trigger:focus) {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
-  }
-
-  :global(.select-trigger[data-disabled]) {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .has-error :global(.select-trigger) {
-    border-color: var(--color-danger);
-  }
-
-  .has-error :global(.select-trigger:focus) {
-    box-shadow: 0 0 0 3px var(--color-danger-light);
-  }
-
-  .select-value {
-    flex: 1;
-    text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .select-value.placeholder {
-    color: var(--color-text-tertiary);
-  }
-
-  :global(.select-trigger .select-icon) {
-    flex-shrink: 0;
-    color: var(--color-text-secondary);
-    transition: transform var(--transition-fast);
-  }
-
-  :global(.select-trigger[data-state='open'] .select-icon) {
-    transform: rotate(180deg);
-  }
-
-  :global(.select-content) {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    z-index: 1002;
-    animation: selectIn 0.15s ease-out;
-    overflow: hidden;
-  }
-
   @keyframes selectIn {
     from {
       opacity: 0;
@@ -198,58 +137,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  :global(.select-viewport) {
-    padding: var(--space-1);
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  :global(.select-item) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background-color var(--transition-fast);
-  }
-
-  :global(.select-item:hover),
-  :global(.select-item[data-highlighted]) {
-    background-color: var(--color-surface-hover);
-  }
-
-  :global(.select-item[data-state='checked']) {
-    color: var(--color-primary);
-  }
-
-  :global(.select-item:focus-visible) {
-    outline: none;
-    background-color: var(--color-surface-hover);
-  }
-
-  .select-item-text {
-    flex: 1;
-  }
-
-  :global(.select-check) {
-    flex-shrink: 0;
-    color: var(--color-primary);
-  }
-
-  .error-text {
-    font-size: var(--text-xs);
-    color: var(--color-danger);
-    margin: 0;
-  }
-
-  .hint-text {
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    margin: 0;
   }
 </style>

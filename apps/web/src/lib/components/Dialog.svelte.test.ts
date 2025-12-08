@@ -95,8 +95,8 @@ describe('Dialog', () => {
 
 		// Wait for dialog to be visible
 		await expect.element(page.getByRole('dialog')).toBeVisible();
-		// The footer element should be rendered when footer prop is provided
-		const footerElement = document.querySelector('.dialog-footer');
+		// The footer element is rendered with flex classes - query by tag
+		const footerElement = document.querySelector('footer');
 		expect(footerElement).toBeTruthy();
 	});
 
@@ -131,10 +131,5 @@ describe('Dialog', () => {
 		// Dialog should be visible
 		const dialog = page.getByRole('dialog');
 		await expect.element(dialog).toBeVisible();
-
-		// Verify the dialog content has the correct interactOutsideBehavior
-		// by checking it rendered with our props (the behavior is determined at render time)
-		const dialogContent = document.querySelector('.dialog');
-		expect(dialogContent).toBeTruthy();
 	});
 });

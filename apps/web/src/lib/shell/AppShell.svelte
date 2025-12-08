@@ -9,6 +9,7 @@
    * Future @spine/ui candidate.
    */
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Props {
     children: Snippet;
@@ -18,14 +19,6 @@
   let { children, class: className = '' }: Props = $props();
 </script>
 
-<div class="app-shell {className}">
+<div class={cn('min-h-screen flex flex-col', className)}>
   {@render children()}
 </div>
-
-<style>
-  .app-shell {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-</style>

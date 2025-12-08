@@ -61,12 +61,12 @@ test.describe('Bible Management', () => {
 	});
 
 	test('should show tab counts', async ({ page }) => {
-		// All tabs should show count of 0 initially (count is shown in a span inside the tab button)
+		// All tabs should show count of 0 initially (count badge is a span with rounded-full class)
 		const characterTab = page.getByRole('tab', { name: /Characters/ });
-		await expect(characterTab.locator('.tab-count')).toHaveText('0');
+		await expect(characterTab.locator('.rounded-full')).toHaveText('0');
 
 		const locationTab = page.getByRole('tab', { name: /Locations/ });
-		await expect(locationTab.locator('.tab-count')).toHaveText('0');
+		await expect(locationTab.locator('.rounded-full')).toHaveText('0');
 	});
 
 	test('should filter entities with search', async ({ page }) => {

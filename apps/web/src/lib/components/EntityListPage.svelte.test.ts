@@ -226,8 +226,8 @@ describe('EntityListPage', () => {
 			},
 		});
 
-		// Initially no Clear button
-		const clearButton = container.querySelector('.clear-filters');
+		// Initially no Clear button - it has underline class
+		const clearButton = container.querySelector('button.underline');
 		expect(clearButton).toBeFalsy();
 
 		// Select a filter value
@@ -264,6 +264,6 @@ describe('EntityListPage', () => {
 
 		// Filter should be reset - Clear button should disappear
 		await new Promise((r) => setTimeout(r, 50));
-		expect(container.querySelector('.clear-filters')).toBeFalsy();
+		expect(container.querySelector('button.underline')).toBeFalsy();
 	});
 });

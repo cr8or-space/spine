@@ -9,6 +9,7 @@
    * Future @spine/ui candidate.
    */
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Props {
     children: Snippet;
@@ -36,62 +37,26 @@
 </script>
 
 <aside
-  class="sidebar sidebar-{position} {className}"
-  class:collapsed
-  style="--sidebar-width: {currentWidth}"
+  class={cn(
+    'h-full flex flex-col bg-surface overflow-hidden transition-[width] duration-200',
+    position === 'left' ? 'border-r border-border' : 'border-l border-border',
+    className
+  )}
+  style="width: {currentWidth}"
 >
   {#if header}
-    <div class="sidebar-header">
+    <div class={cn('p-4 border-b border-border', collapsed && 'p-2')}>
       {@render header()}
     </div>
   {/if}
 
-  <nav class="sidebar-content">
+  <nav class="flex-1 overflow-y-auto p-2">
     {@render children()}
   </nav>
 
   {#if footer}
-    <div class="sidebar-footer">
+    <div class={cn('p-4 border-t border-border', collapsed && 'p-2')}>
       {@render footer()}
     </div>
   {/if}
 </aside>
-
-<style>
-  .sidebar {
-    width: var(--sidebar-width);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-surface);
-    border-right: 1px solid var(--color-border);
-    transition: width var(--transition-normal);
-    overflow: hidden;
-  }
-
-  .sidebar-right {
-    border-right: none;
-    border-left: 1px solid var(--color-border);
-  }
-
-  .sidebar-header {
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--space-2);
-  }
-
-  .sidebar-footer {
-    padding: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .sidebar.collapsed .sidebar-header,
-  .sidebar.collapsed .sidebar-footer {
-    padding: var(--space-2);
-  }
-</style>

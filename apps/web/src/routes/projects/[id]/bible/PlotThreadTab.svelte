@@ -124,21 +124,21 @@
   }
 </script>
 
-<div class="plot-thread-tab">
-  <div class="tab-toolbar">
-    <div class="toolbar-left">
-      <span class="count-label">
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm text-text-secondary">
         {filteredThreads.length} {filteredThreads.length === 1 ? 'thread' : 'threads'}
         {#if searchQuery || hasActiveFilters}
           (filtered from {plotThreads.length})
         {/if}
       </span>
-      <div class="filter-controls">
+      <div class="flex items-center gap-2">
         <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
         <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
         <FilterSelect bind:value={scopeFilter} options={scopeOptions} allLabel="All scopes" />
         {#if hasActiveFilters}
-          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+          <button class="px-2 py-1 font-inherit text-xs text-text-secondary bg-transparent border-none cursor-pointer underline hover:text-text" onclick={clearFilters}>Clear</button>
         {/if}
       </div>
     </div>
@@ -165,14 +165,14 @@
       </EmptyState>
     {/if}
   {:else}
-    <div class="thread-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4">
       {#each filteredThreads as thread (thread.id)}
         <Card hover padding="none">
-          <a href="/projects/{projectId}/bible/plot-thread/{thread.id}" class="thread-link">
-            <div class="thread-content">
-              <div class="thread-header">
-                <h3 class="thread-name">{thread.name}</h3>
-                <div class="thread-badges">
+          <a href="/projects/{projectId}/bible/plot-thread/{thread.id}" class="block no-underline text-inherit">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-lg font-semibold m-0 text-text">{thread.name}</h3>
+                <div class="flex gap-2 shrink-0">
                   <Badge variant={getTypeBadgeVariant(thread.type)}>
                     {thread.type}
                   </Badge>
@@ -182,24 +182,24 @@
                 </div>
               </div>
 
-              <p class="thread-description">
+              <p class="text-sm text-text-secondary leading-normal m-0">
                 {thread.description.length > 200
                   ? thread.description.substring(0, 200) + '...'
                   : thread.description}
               </p>
 
-              <div class="thread-meta">
-                <span class="meta-item">
+              <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
+                <span class="flex items-center gap-1">
                   Scope: {thread.scope}
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   Priority: {thread.priority}/100
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <Users size={14} />
                   {thread.involvedCharacters.length} characters
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <CheckCircle size={14} />
                   {thread.promises.filter(p => p.status === 'fulfilled').length}/{thread.promises.length} promises
                 </span>
@@ -212,131 +212,6 @@
   {/if}
 </div>
 
-<style>
-  .plot-thread-tab {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .tab-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .count-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .filter-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .clear-filters {
-    padding: var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .clear-filters:hover {
-    color: var(--color-text);
-  }
-
-  .thread-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .thread-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .thread-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .thread-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .thread-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .thread-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .thread-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .thread-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>
 
 <!-- Create Plot Thread Dialog -->
 <Dialog
@@ -355,7 +230,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -403,7 +278,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>

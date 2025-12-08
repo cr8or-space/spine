@@ -114,20 +114,20 @@
   }
 </script>
 
-<div class="location-tab">
-  <div class="tab-toolbar">
-    <div class="toolbar-left">
-      <span class="count-label">
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm text-text-secondary">
         {filteredLocations.length} {filteredLocations.length === 1 ? 'location' : 'locations'}
         {#if searchQuery || hasActiveFilters}
           (filtered from {locations.length})
         {/if}
       </span>
-      <div class="filter-controls">
+      <div class="flex items-center gap-2">
         <FilterSelect bind:value={typeFilter} options={typeOptions} allLabel="All types" />
         <FilterSelect bind:value={statusFilter} options={statusOptions} allLabel="All statuses" />
         {#if hasActiveFilters}
-          <button class="clear-filters" onclick={clearFilters}>Clear</button>
+          <button class="px-2 py-1 font-inherit text-xs text-text-secondary bg-transparent border-none cursor-pointer underline hover:text-text" onclick={clearFilters}>Clear</button>
         {/if}
       </div>
     </div>
@@ -154,14 +154,14 @@
       </EmptyState>
     {/if}
   {:else}
-    <div class="location-grid">
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-4">
       {#each filteredLocations as location (location.id)}
         <Card hover padding="none">
-          <a href="/projects/{projectId}/bible/location/{location.id}" class="location-link">
-            <div class="location-content">
-              <div class="location-header">
-                <h3 class="location-name">{location.name}</h3>
-                <div class="location-badges">
+          <a href="/projects/{projectId}/bible/location/{location.id}" class="block no-underline text-inherit">
+            <div class="p-4 flex flex-col gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-lg font-semibold m-0 text-text">{location.name}</h3>
+                <div class="flex gap-2 shrink-0">
                   <Badge variant={getTypeBadgeVariant(location.type)}>
                     {location.type}
                   </Badge>
@@ -172,24 +172,24 @@
               </div>
 
               {#if location.aliases.length > 0}
-                <div class="location-aliases">
-                  <span class="aliases-label">Also known as:</span>
+                <div class="text-sm text-text-secondary">
+                  <span class="italic mr-1">Also known as:</span>
                   {location.aliases.join(', ')}
                 </div>
               {/if}
 
-              <p class="location-description">
+              <p class="text-sm text-text-secondary leading-normal m-0">
                 {location.description.length > 200
                   ? location.description.substring(0, 200) + '...'
                   : location.description}
               </p>
 
-              <div class="location-meta">
-                <span class="meta-item">
+              <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
+                <span class="flex items-center gap-1">
                   <MapPin size={14} />
                   {location.features.length} features
                 </span>
-                <span class="meta-item">
+                <span class="flex items-center gap-1">
                   <Users size={14} />
                   {location.associatedCharacters.length} characters
                 </span>
@@ -219,7 +219,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -262,7 +262,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>
@@ -272,138 +272,3 @@
   </form>
 </Dialog>
 
-<style>
-  .location-tab {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .tab-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-
-  .count-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .filter-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .clear-filters {
-    padding: var(--space-1) var(--space-2);
-    font-family: inherit;
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .clear-filters:hover {
-    color: var(--color-text);
-  }
-
-  .location-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .location-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .location-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .location-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .location-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .location-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .location-aliases {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .aliases-label {
-    font-style: italic;
-    margin-right: var(--space-1);
-  }
-
-  .location-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .location-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

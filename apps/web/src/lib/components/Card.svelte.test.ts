@@ -13,9 +13,11 @@ describe('Card', () => {
 				children: () => 'Card content',
 			},
 		});
-		const card = container.querySelector('.card');
+		// Card has bg-surface border border-border rounded-lg classes
+		const card = container.querySelector('.bg-surface');
 		expect(card).toBeTruthy();
-		expect(card?.classList.contains('card-padding-md')).toBe(true);
+		// Default padding is md which is p-4
+		expect(card?.classList.contains('p-4')).toBe(true);
 	});
 
 	it('applies hover class when hover prop is true', async () => {
@@ -25,8 +27,8 @@ describe('Card', () => {
 				children: () => 'Hoverable card',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('hover')).toBe(true);
+		const card = container.querySelector('.cursor-pointer');
+		expect(card).toBeTruthy();
 	});
 
 	it('applies small padding class when padding is "sm"', async () => {
@@ -36,8 +38,9 @@ describe('Card', () => {
 				children: () => 'Small padding',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('card-padding-sm')).toBe(true);
+		// Small padding is p-3
+		const card = container.querySelector('.p-3');
+		expect(card).toBeTruthy();
 	});
 
 	it('applies large padding class when padding is "lg"', async () => {
@@ -47,8 +50,9 @@ describe('Card', () => {
 				children: () => 'Large padding',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('card-padding-lg')).toBe(true);
+		// Large padding is p-6
+		const card = container.querySelector('.p-6');
+		expect(card).toBeTruthy();
 	});
 
 	it('applies no padding class when padding is "none"', async () => {
@@ -58,7 +62,7 @@ describe('Card', () => {
 				children: () => 'No padding',
 			},
 		});
-		const card = container.querySelector('.card');
-		expect(card?.classList.contains('card-padding-none')).toBe(true);
+		const card = container.querySelector('.p-0');
+		expect(card).toBeTruthy();
 	});
 });

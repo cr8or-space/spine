@@ -1,49 +1,30 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils/cn';
 
   interface Props {
     padding?: 'none' | 'sm' | 'md' | 'lg';
     hover?: boolean;
     children: Snippet;
+    class?: string;
   }
 
-  let { padding = 'md', hover = false, children }: Props = $props();
+  let { padding = 'md', hover = false, children, class: className }: Props = $props();
+
+  const baseClasses = 'bg-surface border border-border rounded-lg';
+
+  const paddingClasses = {
+    none: 'p-0',
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-6',
+  };
+
+  const hoverClasses = hover
+    ? 'cursor-pointer transition-all duration-150 hover:border-primary hover:shadow-md'
+    : '';
 </script>
 
-<div class="card card-padding-{padding}" class:hover>
+<div class={cn(baseClasses, paddingClasses[padding], hoverClasses, className)}>
   {@render children()}
 </div>
-
-<style>
-  .card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-  }
-
-  .card.hover {
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .card.hover:hover {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-md);
-  }
-
-  .card-padding-none {
-    padding: 0;
-  }
-
-  .card-padding-sm {
-    padding: var(--space-3);
-  }
-
-  .card-padding-md {
-    padding: var(--space-4);
-  }
-
-  .card-padding-lg {
-    padding: var(--space-6);
-  }
-</style>
