@@ -114,9 +114,9 @@ This is a pure checklist file. No comments other than this one.
 ## Phase 7: Validation & Rendering (VR)
 
 ### 7.VR Components
-- [ ] ValidationPanel component
-- [ ] ValidationBadge component
+- [x] ValidationPanel component
+- [x] ValidationBadge component
 
 ### 7.VR Interfaces
-- [ ] ReferenceExtractor interface
-- [ ] ContentRenderer interface
+- [x] ReferenceExtractor interface
+- [x] ContentRenderer interface

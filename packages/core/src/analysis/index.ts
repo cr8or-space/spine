@@ -155,3 +155,14 @@ export {
   type CycleViolation,
   type RebalancingSuggestion,
 } from './cycle-enforcement';
+
+// Reference extraction (Phase 7.VR.3)
+export {
+  ProseReferenceExtractor,
+  CompositeReferenceExtractor,
+  DEFAULT_PROSE_EXTRACTOR_CONFIG,
+  type ReferenceExtractor,
+  type EntityRegistry,
+  type EntityInfo,
+  type ProseExtractorConfig,
+} from './reference-extractor';
