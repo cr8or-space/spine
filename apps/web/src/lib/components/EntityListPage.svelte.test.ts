@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page, userEvent } from 'vitest/browser';
 import EntityListPage from './EntityListPage.svelte';
 
 const mockItems = [
@@ -21,7 +22,7 @@ const mockFilters = [
 
 describe('EntityListPage', () => {
 	it('renders items count correctly', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: mockFilters,
@@ -34,11 +35,12 @@ describe('EntityListPage', () => {
 				renderCard: (item: (typeof mockItems)[0]) => `Card: ${item.name}`,
 			},
 		});
-		expect(container.textContent).toContain('3 items');
+		const count = page.getByText('3 items');
+		await expect.element(count).toBeInTheDocument();
 	});
 
 	it('renders singular form for one item', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: [mockItems[0]],
 				filters: [],
@@ -51,11 +53,12 @@ describe('EntityListPage', () => {
 				renderCard: (item: (typeof mockItems)[0]) => `Card: ${item.name}`,
 			},
 		});
-		expect(container.textContent).toContain('1 item');
+		const count = page.getByText('1 item');
+		await expect.element(count).toBeInTheDocument();
 	});
 
 	it('renders empty state when no items', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: [],
 				filters: [],
@@ -68,12 +71,14 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		expect(container.textContent).toContain('No items yet');
-		expect(container.textContent).toContain('Create your first item to get started');
+		const title = page.getByText('No items yet');
+		const description = page.getByText('Create your first item to get started');
+		await expect.element(title).toBeInTheDocument();
+		await expect.element(description).toBeInTheDocument();
 	});
 
 	it('renders filtered empty state when search yields no results', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -86,12 +91,14 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		expect(container.textContent).toContain('No items found');
-		expect(container.textContent).toContain('Try adjusting your search query or filters.');
+		const title = page.getByText('No items found');
+		const description = page.getByText('Try adjusting your search query or filters.');
+		await expect.element(title).toBeInTheDocument();
+		await expect.element(description).toBeInTheDocument();
 	});
 
 	it('filters items by search query on name', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -104,12 +111,14 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		expect(container.textContent).toContain('1 item');
-		expect(container.textContent).toContain('(filtered from 3)');
+		const count = page.getByText(/1 item/);
+		await expect.element(count).toBeInTheDocument();
+		const filtered = page.getByText(/\(filtered from 3\)/);
+		await expect.element(filtered).toBeInTheDocument();
 	});
 
 	it('filters items by search query on description', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -122,11 +131,12 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		expect(container.textContent).toContain('1 item');
+		const count = page.getByText(/1 item/);
+		await expect.element(count).toBeInTheDocument();
 	});
 
 	it('filters items by search query on aliases', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -139,11 +149,12 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		expect(container.textContent).toContain('1 item');
+		const count = page.getByText(/1 item/);
+		await expect.element(count).toBeInTheDocument();
 	});
 
 	it('renders New button with entity name', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -156,13 +167,13 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		const newButton = container.querySelector('.btn-primary');
-		expect(newButton?.textContent).toContain('New Character');
+		const newButton = page.getByRole('button', { name: /New Character/i });
+		await expect.element(newButton).toBeInTheDocument();
 	});
 
 	it('calls onCreateClick when New button clicked', async () => {
 		const handleCreate = vi.fn();
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: [],
@@ -175,13 +186,13 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		const newButton = container.querySelector('.btn-primary') as HTMLButtonElement;
-		newButton.click();
+		const newButton = page.getByRole('button', { name: /New Item/i });
+		await userEvent.click(newButton);
 		expect(handleCreate).toHaveBeenCalledOnce();
 	});
 
 	it('renders filter controls', async () => {
-		const { container } = render(EntityListPage, {
+		render(EntityListPage, {
 			props: {
 				items: mockItems,
 				filters: mockFilters,
@@ -194,9 +205,10 @@ describe('EntityListPage', () => {
 				renderCard: () => '',
 			},
 		});
-		const selects = container.querySelectorAll('select');
-		expect(selects.length).toBe(1);
-		expect(container.textContent).toContain('All roles');
+		const filterSelect = page.getByRole('combobox');
+		await expect.element(filterSelect).toBeInTheDocument();
+		const allRoles = page.getByText('All roles');
+		await expect.element(allRoles).toBeInTheDocument();
 	});
 
 	it('shows Clear button when filters are active', async () => {
@@ -215,20 +227,16 @@ describe('EntityListPage', () => {
 		});
 
 		// Initially no Clear button
-		let clearButton = container.querySelector('.clear-filters');
+		const clearButton = container.querySelector('.clear-filters');
 		expect(clearButton).toBeFalsy();
 
 		// Select a filter value
-		const select = container.querySelector('select') as HTMLSelectElement;
-		select.value = 'major';
-		select.dispatchEvent(new Event('change', { bubbles: true }));
-
-		// Wait for reactivity
-		await new Promise((r) => setTimeout(r, 50));
+		const select = page.getByRole('combobox');
+		await userEvent.selectOptions(select, 'major');
 
 		// Now Clear button should appear
-		clearButton = container.querySelector('.clear-filters');
-		expect(clearButton).toBeTruthy();
+		const clearText = page.getByText('Clear');
+		await expect.element(clearText).toBeInTheDocument();
 	});
 
 	it('clears filters when Clear button clicked', async () => {
@@ -247,21 +255,15 @@ describe('EntityListPage', () => {
 		});
 
 		// Select a filter value
-		const select = container.querySelector('select') as HTMLSelectElement;
-		select.value = 'major';
-		select.dispatchEvent(new Event('change', { bubbles: true }));
-
-		// Wait for reactivity
-		await new Promise((r) => setTimeout(r, 50));
+		const select = page.getByRole('combobox');
+		await userEvent.selectOptions(select, 'major');
 
 		// Click Clear
-		const clearButton = container.querySelector('.clear-filters') as HTMLButtonElement;
-		clearButton.click();
-
-		// Wait for reactivity
-		await new Promise((r) => setTimeout(r, 50));
+		const clearButton = page.getByText('Clear');
+		await userEvent.click(clearButton);
 
 		// Filter should be reset - Clear button should disappear
+		await new Promise((r) => setTimeout(r, 50));
 		expect(container.querySelector('.clear-filters')).toBeFalsy();
 	});
 });

@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { page, userEvent } from 'vitest/browser';
 import CreateEntityDialog from './CreateEntityDialog.svelte';
+
+// Note: CreateEntityDialog uses Svelte 5 snippets for children.
+// vitest-browser-svelte has limitations with snippet props, so we focus
+// on testing dialog structure and behavior rather than children content.
 
 describe('CreateEntityDialog', () => {
 	it('does not render when open is false', async () => {
@@ -17,7 +22,7 @@ describe('CreateEntityDialog', () => {
 	});
 
 	it('renders when open is true', async () => {
-		const { container } = render(CreateEntityDialog, {
+		render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Character',
@@ -25,11 +30,12 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		expect(container.textContent).toContain('Create Character');
+		const title = page.getByRole('heading', { name: 'Create Character' });
+		await expect.element(title).toBeInTheDocument();
 	});
 
 	it('renders Cancel and Submit buttons', async () => {
-		const { container } = render(CreateEntityDialog, {
+		render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Item',
@@ -37,16 +43,16 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		const cancelButton = container.querySelector('button.btn-secondary');
-		expect(cancelButton).toBeTruthy();
-		expect(cancelButton?.textContent).toContain('Cancel');
+		const cancelButton = page.getByRole('button', { name: 'Cancel' });
+		await expect.element(cancelButton).toBeInTheDocument();
+
 		// Submit button text matches title by default
-		const submitButton = container.querySelector('button[type="submit"]');
-		expect(submitButton?.textContent).toContain('Create Item');
+		const submitButton = page.getByRole('button', { name: 'Create Item' });
+		await expect.element(submitButton).toBeInTheDocument();
 	});
 
 	it('uses custom submitLabel when provided', async () => {
-		const { container } = render(CreateEntityDialog, {
+		render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Item',
@@ -55,15 +61,17 @@ describe('CreateEntityDialog', () => {
 				submitLabel: 'Save Character',
 			},
 		});
-		const submitButton = container.querySelector('button[type="submit"]');
-		expect(submitButton?.textContent).toContain('Save Character');
+		const submitButton = page.getByRole('button', { name: 'Save Character' });
+		await expect.element(submitButton).toBeInTheDocument();
+
 		// Title still shows in dialog header
-		expect(container.textContent).toContain('Create Item');
+		const title = page.getByRole('heading', { name: 'Create Item' });
+		await expect.element(title).toBeInTheDocument();
 	});
 
 	it('calls onClose when Cancel clicked', async () => {
 		const handleClose = vi.fn();
-		const { container } = render(CreateEntityDialog, {
+		render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Item',
@@ -71,8 +79,8 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		const cancelButton = container.querySelector('button.btn-secondary') as HTMLButtonElement;
-		cancelButton.click();
+		const cancelButton = page.getByRole('button', { name: 'Cancel' });
+		await userEvent.click(cancelButton);
 		expect(handleClose).toHaveBeenCalledOnce();
 	});
 
