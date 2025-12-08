@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SpinePositionSchema } from './base/entity';
 import { IdSchema, TimestampSchema } from './common';
 
 /**
@@ -79,10 +80,23 @@ export const AppearanceRefSchema = z.object({
 export type AppearanceRef = z.infer<typeof AppearanceRefSchema>;
 
 /**
- * Character entity in the story bible
+ * Character entity in the story bible.
+ *
+ * Extends BaseEntity with spine-aware lifecycle fields:
+ * - introducedAt: Position in the spine where the character was introduced
+ * - retiredAt: Position in the spine where the character was retired (e.g., death)
  */
 export const CharacterSchema = z.object({
+  // BaseEntity fields
   id: IdSchema,
+  /** Entity type discriminator for BaseEntity compatibility */
+  type: z.literal('character').default('character'),
+  /** Position in the spine where this character was introduced */
+  introducedAt: SpinePositionSchema.optional(),
+  /** Position in the spine where this character was retired (e.g., character death) */
+  retiredAt: SpinePositionSchema.optional(),
+
+  // Character-specific fields
   name: z.string().min(1),
   aliases: z.array(z.string()),
   description: z.string(),

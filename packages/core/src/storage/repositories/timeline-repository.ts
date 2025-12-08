@@ -35,6 +35,7 @@ interface TimelineEventRow {
 function rowToTimelineEvent(row: TimelineEventRow): TimelineEvent {
   return {
     id: row.id,
+    entityType: 'timeline-event',
     name: row.name,
     description: row.description,
     position: parseJson<TimelinePosition>(row.position_json, { approximate: false }),
@@ -254,6 +255,7 @@ interface TimelineSpanRow {
 function rowToTimelineSpan(row: TimelineSpanRow): TimelineSpan {
   return {
     id: row.id,
+    entityType: 'timeline-span',
     name: row.name,
     description: row.description,
     start: parseJson<TimelinePosition>(row.start_json, { approximate: false }),

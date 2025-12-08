@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SpinePositionSchema } from './base/entity';
 import { IdSchema, TimestampSchema } from './common';
 
 /**
@@ -38,26 +39,48 @@ export const ThreadTouchSchema = z.object({
 export type ThreadTouch = z.infer<typeof ThreadTouchSchema>;
 
 /**
- * Plot thread entity in the story bible
+ * Plot thread type discriminator
+ */
+export const PlotThreadTypeSchema = z.enum([
+  'main-plot',
+  'subplot',
+  'mystery',
+  'romance',
+  'conflict',
+  'character-arc',
+  'worldbuilding',
+  'other',
+]);
+export type PlotThreadType = z.infer<typeof PlotThreadTypeSchema>;
+
+/**
+ * Plot thread entity in the story bible.
  *
  * Plot threads are narrative throughlines that span multiple chapters/arcs.
  * They represent ongoing storylines, mysteries, conflicts, or character arcs.
+ *
+ * Extends BaseEntity with spine-aware lifecycle fields:
+ * - spineIntroducedAt: Position in the spine where the thread was introduced
+ * - spineRetiredAt: Position in the spine where the thread was retired (e.g., resolved)
+ *
+ * Note: PlotThread has its own introducedAt/resolvedAt fields for content-based tracking,
+ * while spineIntroducedAt/spineRetiredAt are for spine-based positioning.
  */
 export const PlotThreadSchema = z.object({
+  // BaseEntity fields
   id: IdSchema,
+  /** Entity type discriminator for BaseEntity compatibility */
+  entityType: z.literal('plot-thread').default('plot-thread'),
+  /** Position in the spine where this thread was introduced (spine-based tracking) */
+  spineIntroducedAt: SpinePositionSchema.optional(),
+  /** Position in the spine where this thread was retired (spine-based tracking) */
+  spineRetiredAt: SpinePositionSchema.optional(),
+
+  // PlotThread-specific fields
   name: z.string().min(1),
   description: z.string(),
   /** Type of plot thread */
-  type: z.enum([
-    'main-plot',
-    'subplot',
-    'mystery',
-    'romance',
-    'conflict',
-    'character-arc',
-    'worldbuilding',
-    'other',
-  ]),
+  type: PlotThreadTypeSchema,
   /** Current status */
   status: z.enum(['planned', 'active', 'dormant', 'resolved', 'abandoned']),
   /** Expected scope */
@@ -76,14 +99,14 @@ export const PlotThreadSchema = z.object({
   parentThreadId: IdSchema.optional(),
   /** Child threads */
   childThreads: z.array(IdSchema),
-  /** When this thread was introduced */
+  /** When this thread was introduced (content-based tracking) */
   introducedAt: z
     .object({
       contentId: IdSchema,
       chapterNumber: z.number().int().positive().optional(),
     })
     .optional(),
-  /** When this thread was resolved (if resolved) */
+  /** When this thread was resolved (content-based tracking) */
   resolvedAt: z
     .object({
       contentId: IdSchema,

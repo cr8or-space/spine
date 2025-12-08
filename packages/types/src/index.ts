@@ -20,6 +20,14 @@ export {
   BaseContentSchema,
   ValidationPhaseSchema,
   ValidationResultSchema,
+  // Content status transitions
+  validTransitions,
+  canTransition,
+  getValidNextStatuses,
+  isTerminalStatus,
+  canModify,
+  getPreviousStatus,
+  getNextStatus,
   type SpinePosition,
   type BaseEntity,
   type BaseContentStatus,
@@ -54,10 +62,12 @@ export {
 export {
   LocationRelationSchema,
   LocationFeatureSchema,
+  LocationTypeSchema,
   LocationSchema,
   LocationSummarySchema,
   type LocationRelation,
   type LocationFeature,
+  type LocationType,
   type Location,
   type LocationSummary,
 } from './location';
@@ -67,11 +77,13 @@ export {
   FactionRankSchema,
   FactionRelationSchema,
   FactionMemberSchema,
+  FactionTypeSchema,
   FactionSchema,
   FactionSummarySchema,
   type FactionRank,
   type FactionRelation,
   type FactionMember,
+  type FactionType,
   type Faction,
   type FactionSummary,
 } from './faction';
@@ -79,9 +91,11 @@ export {
 // World rule types
 export {
   RuleExceptionSchema,
+  WorldRuleCategorySchema,
   WorldRuleSchema,
   WorldRuleSummarySchema,
   type RuleException,
+  type WorldRuleCategory,
   type WorldRule,
   type WorldRuleSummary,
 } from './world-rule';
@@ -90,10 +104,12 @@ export {
 export {
   NarrativePromiseSchema,
   ThreadTouchSchema,
+  PlotThreadTypeSchema,
   PlotThreadSchema,
   PlotThreadSummarySchema,
   type NarrativePromise,
   type ThreadTouch,
+  type PlotThreadType,
   type PlotThread,
   type PlotThreadSummary,
 } from './plot-thread';
@@ -102,11 +118,13 @@ export {
 export {
   TimelinePositionSchema,
   CausalLinkSchema,
+  TimelineEventTypeSchema,
   TimelineEventSchema,
   TimelineEventSummarySchema,
   TimelineSpanSchema,
   type TimelinePosition,
   type CausalLink,
+  type TimelineEventType,
   type TimelineEvent,
   type TimelineEventSummary,
   type TimelineSpan,

@@ -103,12 +103,12 @@ This is a pure checklist file. No comments other than this one.
 - [x] Validator interface
 
 ### 6.AP Type Extensions
-- [ ] Extend Character type from BaseEntity
-- [ ] Extend all Bible types from BaseEntity
+- [x] Extend Character type from BaseEntity
+- [x] Extend all Bible types from BaseEntity
 
 ### 6.AP Infrastructure
-- [ ] Content status transitions
-- [ ] Generic EntityRepository interface
+- [x] Content status transitions
+- [x] Generic EntityRepository interface
 - [x] Separate Shell from Workspace in UI
 
 ## Phase 7: Validation & Rendering (VR)

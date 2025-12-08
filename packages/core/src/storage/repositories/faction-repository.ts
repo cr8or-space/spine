@@ -33,6 +33,7 @@ interface FactionRow {
 function rowToFaction(row: FactionRow): Faction {
   return {
     id: row.id,
+    entityType: 'faction',
     name: row.name,
     aliases: parseJson<string[]>(row.aliases_json, []),
     description: row.description,

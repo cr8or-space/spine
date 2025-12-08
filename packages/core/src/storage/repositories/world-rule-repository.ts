@@ -32,6 +32,7 @@ interface WorldRuleRow {
 function rowToWorldRule(row: WorldRuleRow): WorldRule {
   return {
     id: row.id,
+    type: 'world-rule',
     name: row.name,
     description: row.description,
     category: row.category,

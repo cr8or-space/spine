@@ -40,6 +40,7 @@ interface PlotThreadRow {
 function rowToPlotThread(row: PlotThreadRow): PlotThread {
   return {
     id: row.id,
+    entityType: 'plot-thread',
     name: row.name,
     description: row.description,
     type: row.type,

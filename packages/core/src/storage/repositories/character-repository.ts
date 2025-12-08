@@ -40,6 +40,7 @@ interface CharacterRow {
 function rowToCharacter(row: CharacterRow): Character {
   return {
     id: row.id,
+    type: 'character',
     name: row.name,
     aliases: parseJson<string[]>(row.aliases_json, []),
     description: row.description,
