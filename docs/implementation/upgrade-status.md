@@ -68,7 +68,8 @@ This is a pure checklist file. No comments other than this one.
 - [x] Bible tab components migration
 
 ### 3.TW Cleanup
-- [ ] Remove legacy CSS
+- [x] Remove legacy CSS (partial - removed unused vars, kept vars needed by unmigrated components)
+- [ ] Complete legacy CSS removal (blocked: requires workspace component migration)
 
 ## Phase 4: UI Accessibility (UA)
 
