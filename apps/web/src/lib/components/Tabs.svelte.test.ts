@@ -53,15 +53,15 @@ describe('Tabs', () => {
 	});
 
 	it('allows clicking tabs to change selection', async () => {
-		const { container } = render(Tabs, { props: { tabs, active: 'tab1' } });
+		render(Tabs, { props: { tabs, active: 'tab1' } });
+		const tab1 = page.getByRole('tab', { name: /Tab 1/i });
 		const tab2 = page.getByRole('tab', { name: /Tab 2/i });
 
 		await userEvent.click(tab2);
 
-		// After click, tab2 should be active
-		const tabButtons = container.querySelectorAll('.tab');
-		expect(tabButtons[1].classList.contains('active')).toBe(true);
-		expect(tabButtons[0].classList.contains('active')).toBe(false);
+		// After click, tab2 should be active (Bits UI uses data-state attribute)
+		await expect.element(tab2).toHaveAttribute('data-state', 'active');
+		await expect.element(tab1).toHaveAttribute('data-state', 'inactive');
 	});
 
 	it('supports horizontal orientation by default', async () => {

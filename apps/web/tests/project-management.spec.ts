@@ -30,7 +30,9 @@ test.describe('Project Management', () => {
 
 		// Fill in project form
 		await page.getByLabel('Project Title').fill('My Test Project');
-		await page.getByLabel('Format').selectOption('web-serial');
+		// Select uses Bits UI, so click trigger then select option
+		await page.getByLabel('Format').click();
+		await page.getByRole('option', { name: 'Web Serial' }).click();
 		await page.getByLabel('Author').fill('Test Author');
 		await page.getByLabel('Description').fill('A test project description');
 
@@ -113,10 +115,11 @@ test.describe('Project Management', () => {
 	});
 
 	test('should delete a project with confirmation', async ({ page }) => {
-		// Create a project to delete
+		// Create a project with a unique name to delete
+		const uniqueName = `Delete Test ${Date.now()}`;
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
-		await page.getByLabel('Project Title').fill('Project to Delete');
+		await page.getByLabel('Project Title').fill(uniqueName);
 		await page.getByRole('button', { name: 'Create Project' }).click();
 
 		// Wait for navigation
@@ -125,11 +128,14 @@ test.describe('Project Management', () => {
 		// Go back to home
 		await page.goto('/');
 
-		// Get initial count of projects
-		const initialCount = await page.locator('a.project-link').count();
+		// Verify our project exists
+		const projectCard = page.locator('a.project-link').filter({ hasText: uniqueName });
+		await expect(projectCard).toBeVisible();
 
-		// Find and click delete button on first project
-		const deleteBtn = page.locator('button.action-btn.danger').first();
+		// Find and click delete button for our specific project
+		// The Card component uses class="card" and contains the project link and actions
+		const cardContainer = page.locator('.card').filter({ hasText: uniqueName });
+		const deleteBtn = cardContainer.locator('button.action-btn.danger');
 		await deleteBtn.click();
 
 		// Wait for confirmation dialog to appear
@@ -140,12 +146,11 @@ test.describe('Project Management', () => {
 		// Click the Delete button inside the dialog (found in footer)
 		await dialog.locator('.dialog-footer').getByRole('button', { name: 'Delete' }).click();
 
-		// Wait for project to be removed
-		await page.waitForTimeout(500); // Brief wait for DOM update
+		// Wait for dialog to close
+		await expect(dialog).not.toBeVisible();
 
-		// Verify project count decreased
-		const newCount = await page.locator('a.project-link').count();
-		expect(newCount).toBeLessThan(initialCount);
+		// Wait for our specific project to be removed
+		await expect(projectCard).not.toBeVisible();
 	});
 
 	test('should cancel project creation', async ({ page }) => {
