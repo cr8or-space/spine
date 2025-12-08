@@ -167,14 +167,7 @@
 
 <!-- Create Project Dialog -->
 <Dialog open={showCreateDialog} title="Create New Project" onClose={closeCreateDialog}>
-  <form method="POST" action="?/create" use:enhance={() => {
-    return async ({ result, update }) => {
-      if (result.type === 'success') {
-        closeCreateDialog();
-      }
-      await update();
-    };
-  }}>
+  <form method="POST" action="?/create" use:enhance>
     <div class="form-fields">
       <TextField
         label="Project Title"

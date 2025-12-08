@@ -5,52 +5,57 @@ test.describe('Navigation', () => {
 		// Create a test project
 		await page.goto('/');
 
-		// Create project if needed
-		const newProjectBtn = page.getByRole('button', { name: 'New Project' });
-		const isVisible = await newProjectBtn.isVisible();
+		// Click New Project button
+		await page.getByRole('button', { name: 'New Project' }).click();
 
-		if (isVisible) {
-			await newProjectBtn.click();
-			await page.getByLabel('Project Title').fill('Navigation Test Project');
-			await page.getByRole('button', { name: 'Create Project' }).click();
-			await page.waitForURL(/\/projects\/[^/]+\/bible/);
-		}
+		// Wait for dialog
+		await expect(page.getByRole('dialog')).toBeVisible();
+
+		// Fill and submit form
+		await page.getByLabel('Project Title').fill('Navigation Test Project');
+		await page.getByRole('button', { name: 'Create Project' }).click();
+
+		// Wait for navigation to bible page
+		await page.waitForURL(/\/projects\/[^/]+\/bible/);
+
+		// Wait for page to load (use heading to be specific)
+		await expect(page.getByRole('heading', { name: 'Story Bible' })).toBeVisible();
 	});
 
 	test('should navigate between Bible and Settings', async ({ page }) => {
 		// Start at Bible page
 		await expect(page).toHaveURL(/\/bible$/);
 
-		// Click Settings
-		await page.getByRole('link', { name: 'Settings' }).click();
+		// Click Settings (using nav-item class selector as it's not a standard link role)
+		await page.locator('.nav-item').filter({ hasText: 'Settings' }).click();
 		await expect(page).toHaveURL(/\/settings$/);
-		await expect(page.getByText('Project Settings')).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Project Settings' })).toBeVisible();
 
 		// Click Bible
-		await page.getByRole('link', { name: 'Bible' }).click();
+		await page.locator('.nav-item').filter({ hasText: 'Bible' }).click();
 		await expect(page).toHaveURL(/\/bible$/);
-		await expect(page.getByText('Story Bible')).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Story Bible' })).toBeVisible();
 	});
 
 	test('should return to project list from project pages', async ({ page }) => {
-		// Click back button
-		await page.locator('.back-link').click();
+		// Click back button (it's an anchor with class back-link)
+		await page.locator('a.back-link').click();
 
 		// Should be on home page
 		await expect(page).toHaveURL('/');
-		await expect(page.getByText('NovelGen')).toBeVisible();
+		await expect(page.locator('.logo')).toHaveText('NovelGen');
 	});
 
 	test('should show correct active nav item', async ({ page }) => {
 		// On Bible page, Bible should be active
-		const bibleLink = page.getByRole('link', { name: 'Bible' });
+		const bibleLink = page.locator('.nav-item').filter({ hasText: 'Bible' });
 		await expect(bibleLink).toHaveClass(/active/);
 
 		// Navigate to Settings
-		await page.getByRole('link', { name: 'Settings' }).click();
+		await page.locator('.nav-item').filter({ hasText: 'Settings' }).click();
 
 		// Settings should now be active
-		const settingsLink = page.getByRole('link', { name: 'Settings' });
+		const settingsLink = page.locator('.nav-item').filter({ hasText: 'Settings' });
 		await expect(settingsLink).toHaveClass(/active/);
 
 		// Bible should not be active
@@ -59,18 +64,19 @@ test.describe('Navigation', () => {
 
 	test('should maintain project context across pages', async ({ page }) => {
 		const projectTitle = await page.locator('.project-title').textContent();
+		expect(projectTitle).toBeTruthy();
 
 		// Navigate to Settings
-		await page.getByRole('link', { name: 'Settings' }).click();
+		await page.locator('.nav-item').filter({ hasText: 'Settings' }).click();
 
 		// Project title should still be visible
-		await expect(page.locator('.project-title')).toContainText(projectTitle || '');
+		await expect(page.locator('.project-title')).toHaveText(projectTitle!);
 
 		// Navigate back to Bible
-		await page.getByRole('link', { name: 'Bible' }).click();
+		await page.locator('.nav-item').filter({ hasText: 'Bible' }).click();
 
 		// Project title should still match
-		await expect(page.locator('.project-title')).toContainText(projectTitle || '');
+		await expect(page.locator('.project-title')).toHaveText(projectTitle!);
 	});
 
 	test('should display project title in browser tab', async ({ page }) => {
@@ -78,7 +84,7 @@ test.describe('Navigation', () => {
 		await expect(page).toHaveTitle(/Navigation Test Project/);
 
 		// Navigate to settings
-		await page.getByRole('link', { name: 'Settings' }).click();
+		await page.locator('.nav-item').filter({ hasText: 'Settings' }).click();
 
 		// Title should still include project name
 		await expect(page).toHaveTitle(/Navigation Test Project/);
