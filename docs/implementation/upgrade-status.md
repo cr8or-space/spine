@@ -51,8 +51,8 @@ This is a pure checklist file. No comments other than this one.
 - [x] Install Tailwind CSS v4
 - [x] Configure Tailwind v4 with Vite
 - [x] Create Tailwind theme from existing design tokens
-- [ ] Create cn utility helper
-- [ ] Add Tailwind Prettier plugin
+- [x] Create cn utility helper
+- [x] Add Tailwind Prettier plugin
 
 ### 3.TW Component Migrations
 - [ ] Button component migration
