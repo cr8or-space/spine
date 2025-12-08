@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --host bastion",
 		"build": "svelte-kit sync && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",

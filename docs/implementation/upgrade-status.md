@@ -9,12 +9,12 @@ This is a pure checklist file. No comments other than this one.
 - [x] CreateEntityDialog component
 
 ### 1.CR Tab Refactors
-- [ ] CharacterTab refactor
-- [ ] LocationTab refactor
-- [ ] FactionTab refactor
-- [ ] WorldRuleTab refactor
-- [ ] PlotThreadTab refactor
-- [ ] TimelineTab refactor
+- [x] CharacterTab refactor
+- [x] LocationTab refactor
+- [x] FactionTab refactor
+- [x] WorldRuleTab refactor
+- [x] PlotThreadTab refactor
+- [x] TimelineTab refactor
 
 ### 1.CR Exports
 - [x] Update component exports
