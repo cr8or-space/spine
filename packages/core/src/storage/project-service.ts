@@ -148,6 +148,9 @@ export function createProjectService(db: Database.Database): ProjectService {
     // Insert new entities
     for (const char of bible.characters) {
       repos.characters.create(projectId, {
+        type: 'character',
+        introducedAt: char.introducedAt,
+        retiredAt: char.retiredAt,
         name: char.name,
         aliases: char.aliases,
         description: char.description,
@@ -163,6 +166,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const loc of bible.locations) {
       repos.locations.create(projectId, {
+        entityType: 'location',
+        introducedAt: loc.introducedAt,
+        retiredAt: loc.retiredAt,
         name: loc.name,
         aliases: loc.aliases,
         description: loc.description,
@@ -178,6 +184,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const faction of bible.factions) {
       repos.factions.create(projectId, {
+        entityType: 'faction',
+        introducedAt: faction.introducedAt,
+        retiredAt: faction.retiredAt,
         name: faction.name,
         aliases: faction.aliases,
         description: faction.description,
@@ -195,6 +204,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const rule of bible.worldRules) {
       repos.worldRules.create(projectId, {
+        type: 'world-rule',
+        introducedAt: rule.introducedAt,
+        retiredAt: rule.retiredAt,
         name: rule.name,
         description: rule.description,
         category: rule.category,
@@ -211,6 +223,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const thread of bible.plotThreads) {
       repos.plotThreads.create(projectId, {
+        entityType: 'plot-thread',
+        spineIntroducedAt: thread.spineIntroducedAt,
+        spineRetiredAt: thread.spineRetiredAt,
         name: thread.name,
         description: thread.description,
         type: thread.type,
@@ -230,6 +245,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const event of bible.timelineEvents) {
       repos.timelineEvents.create(projectId, {
+        entityType: 'timeline-event',
+        spineIntroducedAt: event.spineIntroducedAt,
+        spineRetiredAt: event.spineRetiredAt,
         name: event.name,
         description: event.description,
         position: event.position,
@@ -248,6 +266,9 @@ export function createProjectService(db: Database.Database): ProjectService {
 
     for (const span of bible.timelineSpans) {
       repos.timelineSpans.create(projectId, {
+        entityType: 'timeline-span',
+        spineIntroducedAt: span.spineIntroducedAt,
+        spineRetiredAt: span.spineRetiredAt,
         name: span.name,
         description: span.description,
         start: span.start,

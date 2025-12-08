@@ -16,6 +16,17 @@ export {
   type BaseContent,
 } from './content';
 
+// Content status transitions
+export {
+  validTransitions,
+  canTransition,
+  getValidNextStatuses,
+  isTerminalStatus,
+  canModify,
+  getPreviousStatus,
+  getNextStatus,
+} from './content-status';
+
 // Spine interfaces
 export type { Spine, TreeSpine, MutableSpine } from './spine';
 

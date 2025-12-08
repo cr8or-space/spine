@@ -2,6 +2,15 @@
  * All repositories for database operations
  */
 
+// Base repository interfaces (Spine framework preparation)
+export type {
+  EntityRepository,
+  ExtendedEntityRepository,
+  BulkEntityRepository,
+  BulkOperationOptions,
+  BulkOperationResult,
+} from './base';
+
 // Bible entity repositories
 export {
   createCharacterRepository,

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SpinePositionSchema } from './base/entity';
 import { IdSchema, TimestampSchema } from './common';
 
 /**
@@ -25,27 +26,46 @@ export const LocationFeatureSchema = z.object({
 export type LocationFeature = z.infer<typeof LocationFeatureSchema>;
 
 /**
- * Location entity in the story bible
+ * Location type discriminator for nested location types
+ */
+export const LocationTypeSchema = z.enum([
+  'world',
+  'continent',
+  'country',
+  'region',
+  'city',
+  'district',
+  'building',
+  'room',
+  'natural',
+  'virtual',
+  'other',
+]);
+export type LocationType = z.infer<typeof LocationTypeSchema>;
+
+/**
+ * Location entity in the story bible.
+ *
+ * Extends BaseEntity with spine-aware lifecycle fields:
+ * - introducedAt: Position in the spine where the location was introduced
+ * - retiredAt: Position in the spine where the location was retired (e.g., destruction)
  */
 export const LocationSchema = z.object({
+  // BaseEntity fields
   id: IdSchema,
+  /** Entity type discriminator for BaseEntity compatibility */
+  entityType: z.literal('location').default('location'),
+  /** Position in the spine where this location was introduced */
+  introducedAt: SpinePositionSchema.optional(),
+  /** Position in the spine where this location was retired (e.g., destruction) */
+  retiredAt: SpinePositionSchema.optional(),
+
+  // Location-specific fields
   name: z.string().min(1),
   aliases: z.array(z.string()),
   description: z.string(),
   /** Type of location */
-  type: z.enum([
-    'world',
-    'continent',
-    'country',
-    'region',
-    'city',
-    'district',
-    'building',
-    'room',
-    'natural',
-    'virtual',
-    'other',
-  ]),
+  type: LocationTypeSchema,
   /** Parent location ID if nested */
   parentId: IdSchema.optional(),
   /** Relationships to other locations */

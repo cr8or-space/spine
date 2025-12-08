@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SpinePositionSchema } from './base/entity';
 import { IdSchema, TimestampSchema } from './common';
 
 /**
@@ -14,27 +15,46 @@ export const RuleExceptionSchema = z.object({
 export type RuleException = z.infer<typeof RuleExceptionSchema>;
 
 /**
- * World rule entity in the story bible
+ * World rule category discriminator
+ */
+export const WorldRuleCategorySchema = z.enum([
+  'magic',
+  'technology',
+  'physics',
+  'social',
+  'biological',
+  'economic',
+  'political',
+  'metaphysical',
+  'other',
+]);
+export type WorldRuleCategory = z.infer<typeof WorldRuleCategorySchema>;
+
+/**
+ * World rule entity in the story bible.
  *
  * World rules define how the story world works: magic systems,
  * technology limits, social norms, physics alterations, etc.
+ *
+ * Extends BaseEntity with spine-aware lifecycle fields:
+ * - introducedAt: Position in the spine where the rule was introduced
+ * - retiredAt: Position in the spine where the rule was retired (e.g., invalidated)
  */
 export const WorldRuleSchema = z.object({
+  // BaseEntity fields
   id: IdSchema,
+  /** Entity type discriminator for BaseEntity compatibility */
+  type: z.literal('world-rule').default('world-rule'),
+  /** Position in the spine where this rule was introduced */
+  introducedAt: SpinePositionSchema.optional(),
+  /** Position in the spine where this rule was retired (e.g., invalidated) */
+  retiredAt: SpinePositionSchema.optional(),
+
+  // WorldRule-specific fields
   name: z.string().min(1),
   description: z.string(),
   /** Category of rule */
-  category: z.enum([
-    'magic',
-    'technology',
-    'physics',
-    'social',
-    'biological',
-    'economic',
-    'political',
-    'metaphysical',
-    'other',
-  ]),
+  category: WorldRuleCategorySchema,
   /** The rule statement itself */
   rule: z.string(),
   /** Why this rule exists (in-universe or narrative reason) */

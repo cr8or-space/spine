@@ -34,6 +34,7 @@ interface LocationRow {
 function rowToLocation(row: LocationRow): Location {
   return {
     id: row.id,
+    entityType: 'location',
     name: row.name,
     aliases: parseJson<string[]>(row.aliases_json, []),
     description: row.description,

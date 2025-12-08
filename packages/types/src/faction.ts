@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SpinePositionSchema } from './base/entity';
 import { IdSchema, TimestampSchema } from './common';
 
 /**
@@ -38,26 +39,45 @@ export const FactionMemberSchema = z.object({
 export type FactionMember = z.infer<typeof FactionMemberSchema>;
 
 /**
- * Faction entity in the story bible
+ * Faction type discriminator for organization types
+ */
+export const FactionTypeSchema = z.enum([
+  'government',
+  'military',
+  'religious',
+  'criminal',
+  'corporate',
+  'secret-society',
+  'guild',
+  'family',
+  'informal',
+  'other',
+]);
+export type FactionType = z.infer<typeof FactionTypeSchema>;
+
+/**
+ * Faction entity in the story bible.
+ *
+ * Extends BaseEntity with spine-aware lifecycle fields:
+ * - introducedAt: Position in the spine where the faction was introduced
+ * - retiredAt: Position in the spine where the faction was retired (e.g., disbanded)
  */
 export const FactionSchema = z.object({
+  // BaseEntity fields
   id: IdSchema,
+  /** Entity type discriminator for BaseEntity compatibility */
+  entityType: z.literal('faction').default('faction'),
+  /** Position in the spine where this faction was introduced */
+  introducedAt: SpinePositionSchema.optional(),
+  /** Position in the spine where this faction was retired (e.g., disbanded) */
+  retiredAt: SpinePositionSchema.optional(),
+
+  // Faction-specific fields
   name: z.string().min(1),
   aliases: z.array(z.string()),
   description: z.string(),
   /** Type of organization */
-  type: z.enum([
-    'government',
-    'military',
-    'religious',
-    'criminal',
-    'corporate',
-    'secret-society',
-    'guild',
-    'family',
-    'informal',
-    'other',
-  ]),
+  type: FactionTypeSchema,
   /** Core beliefs or mission */
   ideology: z.string().optional(),
   /** Primary goals */
