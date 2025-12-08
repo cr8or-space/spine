@@ -40,8 +40,8 @@ This is a pure checklist file. No comments other than this one.
 - [x] CreateEntityDialog tests
 
 ### 2.TI Integration Tests
-- [ ] Bible flow integration test
-- [ ] Project flow integration test
+- [x] Bible flow integration test
+- [x] Project flow integration test
 - [x] Fix better-sqlite3 ESM compatibility for SSR preview mode (migrated to libsql)
 - [ ] Fix Playwright test timeouts (UI element selectors outdated)
 

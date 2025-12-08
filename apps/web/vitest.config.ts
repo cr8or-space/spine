@@ -16,6 +16,7 @@ export default defineConfig({
 		include: ['src/**/*.{test,spec}.ts', 'src/**/*.svelte.{test,spec}.ts'],
 		browser: {
 			enabled: true,
+			headless: true,
 			provider: playwright({
 				launch: {
 					args: ['--no-sandbox', '--disable-setuid-sandbox'],
