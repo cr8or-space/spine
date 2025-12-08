@@ -13,7 +13,7 @@ export default defineConfig({
 	},
 	test: {
 		globals: true,
-		include: ['src/**/*.{test,spec}.{js,ts}'],
+		include: ['src/**/*.{test,spec}.ts', 'src/**/*.svelte.{test,spec}.ts'],
 		browser: {
 			enabled: true,
 			provider: playwright({

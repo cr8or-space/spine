@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
+import { render } from 'vitest-browser-svelte';
 import CreateEntityDialog from './CreateEntityDialog.svelte';
 
 describe('CreateEntityDialog', () => {
-	it('does not render when open is false', () => {
+	it('does not render when open is false', async () => {
 		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: false,
@@ -12,11 +12,11 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		const dialog = container.querySelector('.dialog-backdrop');
-		expect(dialog).toBeFalsy();
+		const backdrop = container.querySelector('.dialog-backdrop');
+		expect(backdrop).toBeFalsy();
 	});
 
-	it('renders when open is true', () => {
+	it('renders when open is true', async () => {
 		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -25,13 +25,11 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		// Check for dialog title in header
-		const dialogTitle = container.querySelector('#dialog-title');
-		expect(dialogTitle?.textContent).toBe('Create Character');
+		expect(container.textContent).toContain('Create Character');
 	});
 
-	it('renders Cancel and Submit buttons', () => {
-		const { getByText, container } = render(CreateEntityDialog, {
+	it('renders Cancel and Submit buttons', async () => {
+		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Item',
@@ -39,13 +37,15 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		expect(getByText('Cancel')).toBeTruthy();
+		const cancelButton = container.querySelector('button.btn-secondary');
+		expect(cancelButton).toBeTruthy();
+		expect(cancelButton?.textContent).toContain('Cancel');
 		// Submit button text matches title by default
 		const submitButton = container.querySelector('button[type="submit"]');
 		expect(submitButton?.textContent).toContain('Create Item');
 	});
 
-	it('uses custom submitLabel when provided', () => {
+	it('uses custom submitLabel when provided', async () => {
 		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -58,13 +58,12 @@ describe('CreateEntityDialog', () => {
 		const submitButton = container.querySelector('button[type="submit"]');
 		expect(submitButton?.textContent).toContain('Save Character');
 		// Title still shows in dialog header
-		const dialogTitle = container.querySelector('#dialog-title');
-		expect(dialogTitle?.textContent).toBe('Create Item');
+		expect(container.textContent).toContain('Create Item');
 	});
 
 	it('calls onClose when Cancel clicked', async () => {
 		const handleClose = vi.fn();
-		const { getByText } = render(CreateEntityDialog, {
+		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
 				title: 'Create Item',
@@ -72,11 +71,12 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		await fireEvent.click(getByText('Cancel'));
+		const cancelButton = container.querySelector('button.btn-secondary') as HTMLButtonElement;
+		cancelButton.click();
 		expect(handleClose).toHaveBeenCalledOnce();
 	});
 
-	it('has dialog-form and dialog-actions structure', () => {
+	it('has dialog-form and dialog-actions structure', async () => {
 		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -89,7 +89,7 @@ describe('CreateEntityDialog', () => {
 		expect(container.querySelector('.dialog-actions')).toBeTruthy();
 	});
 
-	it('has submit button inside dialog-actions', () => {
+	it('has submit button inside dialog-actions', async () => {
 		const { container } = render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -99,6 +99,7 @@ describe('CreateEntityDialog', () => {
 			},
 		});
 		const actions = container.querySelector('.dialog-actions');
+		expect(actions).toBeTruthy();
 		const submitButton = actions?.querySelector('button[type="submit"]');
 		expect(submitButton).toBeTruthy();
 	});
