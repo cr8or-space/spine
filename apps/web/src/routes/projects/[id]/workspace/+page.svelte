@@ -91,12 +91,12 @@
   <title>Workspace - {data.project.title} - NovelGen</title>
 </svelte:head>
 
-<div class="workspace-page">
-  <div class="workspace-layout">
+<div class="flex flex-1 flex-col overflow-hidden">
+  <div class="flex flex-1 overflow-hidden">
     <!-- Outline Panel (Left) -->
-    <aside class="outline-panel">
-      <header class="panel-header">
-        <h2 class="panel-title">Outline</h2>
+    <aside class="flex w-[280px] min-w-[280px] flex-col border-r border-border bg-surface">
+      <header class="flex items-center justify-between border-b border-border px-4 py-3">
+        <h2 class="m-0 text-sm font-semibold uppercase tracking-wide text-text-secondary">Outline</h2>
         <Button size="sm" onclick={() => openCreateDialog(null)}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14M5 12h14" />
@@ -104,7 +104,7 @@
         </Button>
       </header>
 
-      <div class="outline-content">
+      <div class="flex-1 overflow-auto p-2">
         {#if data.structureTree}
           <OutlineTree
             structure={data.structureTree}
@@ -125,34 +125,34 @@
       </div>
 
       {#if data.stats.bookCount > 0}
-        <footer class="outline-stats">
-          <div class="stat">
-            <span class="stat-value">{data.stats.chapterCount}</span>
-            <span class="stat-label">Chapters</span>
+        <footer class="flex justify-around border-t border-border bg-bg px-4 py-3">
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-lg font-semibold">{data.stats.chapterCount}</span>
+            <span class="text-xs text-text-tertiary">Chapters</span>
           </div>
-          <div class="stat">
-            <span class="stat-value">{data.stats.totalBeats}</span>
-            <span class="stat-label">Beats</span>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-lg font-semibold">{data.stats.totalBeats}</span>
+            <span class="text-xs text-text-tertiary">Beats</span>
           </div>
-          <div class="stat">
-            <span class="stat-value">{data.stats.completedBeats}</span>
-            <span class="stat-label">Done</span>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-lg font-semibold">{data.stats.completedBeats}</span>
+            <span class="text-xs text-text-tertiary">Done</span>
           </div>
         </footer>
       {/if}
     </aside>
 
     <!-- Main Content Area -->
-    <main class="main-panel">
+    <main class="flex flex-1 flex-col overflow-hidden bg-bg">
       {#if data.selectedStructure}
-        <header class="editor-header">
-          <div class="editor-header-left">
+        <header class="flex items-center justify-between border-b border-border bg-surface px-6 py-3">
+          <div class="flex items-center gap-3">
             <Badge variant={data.selectedStructure.type === 'chapter' ? 'primary' : 'default'}>
               {data.selectedStructure.type}
             </Badge>
-            <h1 class="editor-title">{data.selectedStructure.title}</h1>
+            <h1 class="m-0 text-lg font-semibold">{data.selectedStructure.title}</h1>
           </div>
-          <div class="editor-header-actions">
+          <div class="flex gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -178,8 +178,8 @@
           </div>
         </header>
 
-        <div class="editor-content">
-          <div class="editor-main">
+        <div class="flex flex-1 overflow-hidden">
+          <div class="flex flex-1 flex-col gap-6 overflow-auto p-6">
             <!-- Structure Editor for metadata, beats, hooks -->
             <StructureEditor
               structure={data.selectedStructure}
@@ -197,7 +197,7 @@
 
           <!-- Side Panels -->
           {#if showAnalysisPanel}
-            <aside class="side-panel analysis-panel">
+            <aside class="w-80 min-w-80 overflow-auto border-l border-border bg-surface">
               <AnalysisPanel
                 structure={data.selectedStructure}
                 content={data.selectedContent}
@@ -207,7 +207,7 @@
           {/if}
 
           {#if showHistoryPanel}
-            <aside class="side-panel history-panel">
+            <aside class="w-80 min-w-80 overflow-auto border-l border-border bg-surface">
               <DraftHistory
                 content={data.selectedContent}
                 onClose={() => (showHistoryPanel = false)}
@@ -216,7 +216,7 @@
           {/if}
         </div>
       {:else}
-        <div class="no-selection">
+        <div class="flex flex-1 items-center justify-center p-8">
           <EmptyState
             title="Select a structure"
             description="Choose a book, chapter, or scene from the outline to start writing."
@@ -254,7 +254,7 @@
       }
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <input type="hidden" name="parentId" value={createForm.parentId || ''} />
 
       <Select
@@ -279,7 +279,7 @@
         hint="Brief description of this section"
       />
 
-      <div class="dialog-actions">
+      <div class="mt-2 flex justify-end gap-3 border-t border-border pt-4">
         <Button type="button" variant="secondary" onclick={() => (showCreateDialog = false)}>
           Cancel
         </Button>
@@ -288,160 +288,3 @@
     </div>
   </form>
 </Dialog>
-
-<style>
-  .workspace-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .workspace-layout {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-  }
-
-  /* Outline Panel */
-  .outline-panel {
-    width: 280px;
-    min-width: 280px;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-surface);
-    border-right: 1px solid var(--color-border);
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .panel-title {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
-  }
-
-  .outline-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-2);
-  }
-
-  .outline-stats {
-    display: flex;
-    justify-content: space-around;
-    padding: var(--space-3) var(--space-4);
-    border-top: 1px solid var(--color-border);
-    background-color: var(--color-bg);
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .stat-value {
-    font-size: var(--text-lg);
-    font-weight: 600;
-  }
-
-  .stat-label {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-  }
-
-  /* Main Panel */
-  .main-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background-color: var(--color-bg);
-  }
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3) var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .editor-header-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .editor-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .editor-header-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .editor-content {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-  }
-
-  .editor-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    padding: var(--space-6);
-    gap: var(--space-6);
-  }
-
-  /* Side Panels */
-  .side-panel {
-    width: 320px;
-    min-width: 320px;
-    border-left: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-    overflow: auto;
-  }
-
-  /* No Selection State */
-  .no-selection {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-8);
-  }
-
-  /* Dialog Form */
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

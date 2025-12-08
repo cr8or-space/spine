@@ -8,8 +8,15 @@
  * The :root block provides CSS variables for non-migrated components using var()
  *
  * TODO: Remove :root block when all components are migrated to Tailwind utilities
- * Remaining components using CSS vars: workspace/*, ValidationPanel, ValidationBadge,
- * EntityCard, CreateEntityDialog, bible detail pages, routes
+ * Remaining components using CSS vars (14 files):
+ * - ValidationPanel.svelte, ValidationBadge.svelte
+ * - EntityCard.svelte, CreateEntityDialog.svelte
+ * - Bible detail pages: character, faction, location, plot-thread, timeline, world-rule
+ * - Route pages: +page.svelte, projects/[id]/+layout.svelte, projects/[id]/bible/+page.svelte,
+ *   projects/[id]/settings/+page.svelte
+ *
+ * MIGRATED (3.TW.14): workspace/+page.svelte, OutlineTree.svelte, StructureEditor.svelte,
+ * ContentEditor.svelte, AnalysisPanel.svelte, DraftHistory.svelte
  */
 @import 'tailwindcss';
 

@@ -80,10 +80,10 @@
 </script>
 
 <Card>
-  <div class="structure-editor">
+  <div class="flex flex-col gap-4">
     <!-- Header -->
-    <header class="editor-section-header">
-      <h3 class="section-title">Structure Details</h3>
+    <header class="flex items-center justify-between gap-2">
+      <h3 class="m-0 text-base font-semibold">Structure Details</h3>
       {#if !isEditing}
         <Button variant="ghost" size="sm" onclick={() => (isEditing = true)}>Edit</Button>
       {/if}
@@ -100,7 +100,7 @@
       }}>
         <input type="hidden" name="structureId" value={structure.id} />
 
-        <div class="form-grid">
+        <div class="flex flex-col gap-4">
           <TextField
             label="Title"
             name="title"
@@ -124,7 +124,7 @@
             />
           {/if}
 
-          <div class="form-row">
+          <div class="grid grid-cols-2 gap-4">
             <TextField
               label="Tension Target (0-100)"
               name="tensionTarget"
@@ -150,7 +150,7 @@
           />
         </div>
 
-        <div class="form-actions">
+        <div class="mt-2 flex justify-end gap-3 border-t border-border pt-3">
           <Button type="button" variant="secondary" onclick={() => (isEditing = false)}>
             Cancel
           </Button>
@@ -159,14 +159,14 @@
       </form>
     {:else}
       <!-- Display Mode -->
-      <div class="structure-details">
+      <div class="flex flex-col gap-3">
         {#if structure.summary}
-          <p class="detail-text">{structure.summary}</p>
+          <p class="m-0 text-sm leading-relaxed text-text-secondary">{structure.summary}</p>
         {:else}
-          <p class="detail-text empty">No summary</p>
+          <p class="m-0 text-sm italic text-text-tertiary">No summary</p>
         {/if}
 
-        <div class="detail-badges">
+        <div class="flex flex-wrap gap-2">
           {#if structure.chapterType}
             <Badge>{structure.chapterType}</Badge>
           {/if}
@@ -179,9 +179,9 @@
         </div>
 
         {#if structure.notes}
-          <div class="notes-section">
-            <span class="notes-label">Notes:</span>
-            <p class="notes-text">{structure.notes}</p>
+          <div class="rounded-sm bg-bg p-3">
+            <span class="text-xs font-medium uppercase tracking-wide text-text-tertiary">Notes:</span>
+            <p class="m-0 mt-1 text-sm leading-relaxed text-text-secondary">{structure.notes}</p>
           </div>
         {/if}
       </div>
@@ -191,25 +191,25 @@
 
 <!-- Beats Section -->
 <Card>
-  <div class="beats-editor">
-    <header class="editor-section-header">
-      <h3 class="section-title">Story Beats</h3>
-      <span class="beat-count">
+  <div class="flex flex-col gap-4">
+    <header class="flex items-center justify-between gap-2">
+      <h3 class="m-0 text-base font-semibold">Story Beats</h3>
+      <span class="text-sm text-text-secondary">
         {sortedBeats.filter(b => b.completed).length}/{sortedBeats.length} completed
       </span>
     </header>
 
     {#if sortedBeats.length > 0}
-      <ul class="beats-list">
+      <ul class="m-0 flex list-none flex-col gap-2 p-0">
         {#each sortedBeats as beat (beat.id)}
-          <li class="beat-item" class:completed={beat.completed}>
+          <li class="group flex items-center gap-2 rounded-sm bg-bg p-2 text-sm">
             <form method="POST" action="?/toggleBeatCompleted" use:enhance={() => {
               return async () => invalidateAll();
             }}>
               <input type="hidden" name="structureId" value={structure.id} />
               <input type="hidden" name="beatId" value={beat.id} />
               <input type="hidden" name="completed" value={(!beat.completed).toString()} />
-              <button type="submit" class="beat-checkbox" aria-label={beat.completed ? 'Mark as incomplete' : 'Mark as complete'}>
+              <button type="submit" class="flex h-[18px] w-[18px] shrink-0 cursor-pointer items-center justify-center rounded-sm border-2 p-0 {beat.completed ? 'border-primary bg-primary text-white' : 'border-border bg-transparent text-primary'}" aria-label={beat.completed ? 'Mark as incomplete' : 'Mark as complete'}>
                 {#if beat.completed}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20 6 9 17 4 12" />
@@ -218,10 +218,10 @@
               </button>
             </form>
 
-            <span class="beat-description">{beat.description}</span>
+            <span class="flex-1 {beat.completed ? 'text-text-tertiary line-through' : ''}">{beat.description}</span>
 
             {#if beat.targetWordCount}
-              <span class="beat-word-count">~{beat.targetWordCount}w</span>
+              <span class="shrink-0 text-xs text-text-tertiary">~{beat.targetWordCount}w</span>
             {/if}
 
             <form method="POST" action="?/removeBeat" use:enhance={() => {
@@ -229,7 +229,7 @@
             }}>
               <input type="hidden" name="structureId" value={structure.id} />
               <input type="hidden" name="beatId" value={beat.id} />
-              <button type="submit" class="beat-remove" aria-label="Remove beat">
+              <button type="submit" class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-0 text-text-tertiary opacity-0 transition-opacity duration-150 hover:bg-danger-light hover:text-danger group-hover:opacity-100" aria-label="Remove beat">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
@@ -239,11 +239,11 @@
         {/each}
       </ul>
     {:else}
-      <p class="no-beats">No beats defined yet</p>
+      <p class="m-0 rounded-sm bg-bg p-3 text-center text-sm italic text-text-tertiary">No beats defined yet</p>
     {/if}
 
     <!-- Add Beat Form -->
-    <form method="POST" action="?/addBeat" class="add-beat-form" use:enhance={() => {
+    <form method="POST" action="?/addBeat" class="border-t border-border pt-3" use:enhance={() => {
       return async ({ result }) => {
         if (result.type === 'success') {
           newBeatDescription = '';
@@ -254,13 +254,13 @@
     }}>
       <input type="hidden" name="structureId" value={structure.id} />
 
-      <div class="add-beat-inputs">
+      <div class="flex gap-2">
         <input
           type="text"
           name="description"
           bind:value={newBeatDescription}
           placeholder="Add a beat..."
-          class="beat-input"
+          class="flex-1 rounded-md border border-border bg-surface px-3 py-2 font-sans text-sm focus:border-primary focus:outline-none"
           required
         />
         <input
@@ -268,7 +268,7 @@
           name="targetWordCount"
           bind:value={newBeatWordCount}
           placeholder="Words"
-          class="beat-word-input"
+          class="w-20 rounded-md border border-border bg-surface px-3 py-2 font-sans text-sm focus:border-primary focus:outline-none"
         />
         <Button type="submit" size="sm">Add</Button>
       </div>
@@ -279,9 +279,9 @@
 <!-- Hook Section (for chapters) -->
 {#if structure.type === 'chapter'}
   <Card>
-    <div class="hook-editor">
-      <header class="editor-section-header">
-        <h3 class="section-title">Chapter Hook</h3>
+    <div class="flex flex-col gap-4">
+      <header class="flex items-center justify-between gap-2">
+        <h3 class="m-0 text-base font-semibold">Chapter Hook</h3>
         {#if structure.hook}
           <Badge variant="success">Defined</Badge>
         {/if}
@@ -292,7 +292,7 @@
       }}>
         <input type="hidden" name="structureId" value={structure.id} />
 
-        <div class="form-grid">
+        <div class="flex flex-col gap-4">
           <Select
             label="Hook Type"
             name="hookType"
@@ -319,239 +319,10 @@
           {/if}
         </div>
 
-        <div class="form-actions">
+        <div class="mt-2 flex justify-end gap-3 border-t border-border pt-3">
           <Button type="submit" size="sm">Save Hook</Button>
         </div>
       </form>
     </div>
   </Card>
 {/if}
-
-<style>
-  .structure-editor,
-  .beats-editor,
-  .hook-editor {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .editor-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .section-title {
-    font-size: var(--text-base);
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .beat-count {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  /* Form Styles */
-  .form-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-
-  /* Detail Display */
-  .structure-details {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .detail-text {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  .detail-text.empty {
-    font-style: italic;
-    color: var(--color-text-tertiary);
-  }
-
-  .detail-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .notes-section {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-sm);
-  }
-
-  .notes-label {
-    font-size: var(--text-xs);
-    font-weight: 500;
-    color: var(--color-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .notes-text {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: var(--space-1) 0 0;
-    line-height: 1.5;
-  }
-
-  /* Beats List */
-  .beats-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .beat-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-  }
-
-  .beat-item.completed .beat-description {
-    text-decoration: line-through;
-    color: var(--color-text-tertiary);
-  }
-
-  .beat-checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background: none;
-    cursor: pointer;
-    flex-shrink: 0;
-    color: var(--color-primary);
-  }
-
-  .beat-item.completed .beat-checkbox {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: white;
-  }
-
-  .beat-description {
-    flex: 1;
-  }
-
-  .beat-word-count {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    flex-shrink: 0;
-  }
-
-  .beat-remove {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--color-text-tertiary);
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-  }
-
-  .beat-item:hover .beat-remove {
-    opacity: 1;
-  }
-
-  .beat-remove:hover {
-    color: var(--color-danger);
-    background-color: var(--color-danger-light);
-  }
-
-  .no-beats {
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
-    font-style: italic;
-    margin: 0;
-    padding: var(--space-3);
-    text-align: center;
-    background-color: var(--color-bg);
-    border-radius: var(--radius-sm);
-  }
-
-  /* Add Beat Form */
-  .add-beat-form {
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .add-beat-inputs {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .beat-input {
-    flex: 1;
-    padding: var(--space-2) var(--space-3);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-  }
-
-  .beat-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-  }
-
-  .beat-word-input {
-    width: 80px;
-    padding: var(--space-2) var(--space-3);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-  }
-
-  .beat-word-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-  }
-</style>
