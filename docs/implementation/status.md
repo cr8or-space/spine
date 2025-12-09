@@ -283,6 +283,14 @@ The `drizzleDb` parameter (BetterSQLite3Database) is used for:
 
 ### Web App Integration
 - [x] `hooks.server.ts` updated to pass both `db` and `drizzle` to `createProjectService()`
+- [x] `app.d.ts` updated to include `drizzle: DrizzleDB` in `App.Locals`
+- [x] `hooks.server.ts` updated to set `event.locals.drizzle`
+- [x] All Bible routes updated to pass `locals.drizzle` to `createBibleService()`
+- [x] Workspace routes updated to pass `locals.drizzle` to repository factories
+- [x] ESLint config updated to ignore `playwright-report/*` and `test-results/*`
 
 ### Turborepo Configuration
 - [x] Added `test` task to `turbo.json` for running tests across packages
+
+### Known Issues (Pending)
+- [ ] Integration tests (Playwright): SSR compatibility issues with `better-sqlite3` (CommonJS `__filename` in ESM context) and outdated UI selectors causing timeouts

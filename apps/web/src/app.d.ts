@@ -1,7 +1,7 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 
-import type { ProjectService } from '@repo/core';
+import type { ProjectService, DrizzleDB } from '@repo/core';
 import type Database from 'libsql';
 
 declare global {
@@ -10,6 +10,7 @@ declare global {
 		interface Locals {
 			projectService: ProjectService;
 			db: Database.Database;
+			drizzle: DrizzleDB;
 		}
 		// interface PageData {}
 		// interface Platform {}

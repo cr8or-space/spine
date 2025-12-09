@@ -34,6 +34,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Add project service and database to locals for access in load functions
   event.locals.projectService = projectService;
   event.locals.db = dbConnection.db;
+  event.locals.drizzle = dbConnection.drizzle;
 
   return resolve(event);
 };
