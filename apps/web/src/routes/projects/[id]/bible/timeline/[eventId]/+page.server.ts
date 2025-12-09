@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     throw error(404, 'Project not found');
   }
 
-  const bibleService = createBibleService(locals.db, params.id);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
   const event = bibleService.timeline.getEvent(params.eventId);
 
   if (!event) {
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   update: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Partial<TimelineEvent> = {
@@ -70,7 +70,7 @@ export const actions: Actions = {
   },
 
   delete: async ({ params, locals }) => {
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const deleted = bibleService.timeline.deleteEvent(params.eventId);
 
     if (!deleted) {

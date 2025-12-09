@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     throw error(404, 'Project not found');
   }
 
-  const bibleService = createBibleService(locals.db, params.id);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
   const character = bibleService.characters.get(params.characterId);
 
   if (!character) {
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   update: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Partial<Character> = {
@@ -58,7 +58,7 @@ export const actions: Actions = {
   },
 
   delete: async ({ params, locals }) => {
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const deleted = bibleService.characters.delete(params.characterId);
 
     if (!deleted) {
@@ -70,7 +70,7 @@ export const actions: Actions = {
 
   addTrait: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const trait: Trait = {
@@ -93,7 +93,7 @@ export const actions: Actions = {
 
   removeTrait: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const traitName = formData.get('traitName') as string;
 
     const updated = bibleService.characters.removeTrait(params.characterId, traitName);
@@ -107,7 +107,7 @@ export const actions: Actions = {
 
   addRelationship: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     // Import Relationship type inline to avoid unused import warning
     type Relationship = Character['relationships'][number];
 
@@ -134,7 +134,7 @@ export const actions: Actions = {
 
   removeRelationship: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const targetId = formData.get('targetId') as string;
 
     const updated = bibleService.characters.removeRelationship(params.characterId, targetId);

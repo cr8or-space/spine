@@ -13,10 +13,10 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   }
 
   // Get services
-  const bibleService = createBibleService(locals.db, params.id);
-  const structureRepo = createStructureRepository(locals.db);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
+  const structureRepo = createStructureRepository(locals.db, locals.drizzle);
   const structureService = createStructureService(params.id, structureRepo);
-  const contentRepo = createContentRepository(locals.db);
+  const contentRepo = createContentRepository(locals.db, locals.drizzle);
 
   // Get the full structure tree
   const structureTree = structureService.getFullTree();
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 export const actions: Actions = {
   createStructure: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -84,7 +84,7 @@ export const actions: Actions = {
 
   updateStructure: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -114,7 +114,7 @@ export const actions: Actions = {
 
   deleteStructure: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -131,7 +131,7 @@ export const actions: Actions = {
 
   setHook: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -159,7 +159,7 @@ export const actions: Actions = {
 
   addBeat: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -182,7 +182,7 @@ export const actions: Actions = {
 
   removeBeat: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -200,7 +200,7 @@ export const actions: Actions = {
 
   toggleBeatCompleted: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const structureRepo = createStructureRepository(locals.db);
+    const structureRepo = createStructureRepository(locals.db, locals.drizzle);
     const structureService = createStructureService(params.id, structureRepo);
 
     try {
@@ -219,7 +219,7 @@ export const actions: Actions = {
 
   saveContent: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const contentRepo = createContentRepository(locals.db);
+    const contentRepo = createContentRepository(locals.db, locals.drizzle);
 
     try {
       const structureId = formData.get('structureId') as string;
@@ -252,7 +252,7 @@ export const actions: Actions = {
 
   rollbackContent: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const contentRepo = createContentRepository(locals.db);
+    const contentRepo = createContentRepository(locals.db, locals.drizzle);
 
     try {
       const contentId = formData.get('contentId') as string;

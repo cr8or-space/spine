@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     throw error(404, 'Project not found');
   }
 
-  const bibleService = createBibleService(locals.db, params.id);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
   const faction = bibleService.factions.get(params.factionId);
 
   if (!faction) {
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   update: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Partial<Faction> = {
@@ -68,7 +68,7 @@ export const actions: Actions = {
   },
 
   delete: async ({ params, locals }) => {
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const deleted = bibleService.factions.delete(params.factionId);
 
     if (!deleted) {
@@ -80,7 +80,7 @@ export const actions: Actions = {
 
   addRank: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     type FactionRank = Faction['ranks'][number];
 
     try {
@@ -105,7 +105,7 @@ export const actions: Actions = {
 
   removeRank: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const rankName = formData.get('rankName') as string;
 
     const updated = bibleService.factions.removeRank(params.factionId, rankName);
@@ -119,7 +119,7 @@ export const actions: Actions = {
 
   addMember: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     type FactionMember = Faction['members'][number];
 
     try {
@@ -145,7 +145,7 @@ export const actions: Actions = {
 
   removeMember: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const characterId = formData.get('characterId') as string;
 
     const updated = bibleService.factions.removeMember(params.factionId, characterId);
@@ -159,7 +159,7 @@ export const actions: Actions = {
 
   addRelation: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     type FactionRelation = Faction['relations'][number];
 
     try {
@@ -184,7 +184,7 @@ export const actions: Actions = {
 
   removeRelation: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const targetId = formData.get('targetId') as string;
 
     const updated = bibleService.factions.removeRelation(params.factionId, targetId);
@@ -198,7 +198,7 @@ export const actions: Actions = {
 
   addGoal: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const goal = formData.get('goal') as string;
 
     const updated = bibleService.factions.addGoal(params.factionId, goal);
@@ -212,7 +212,7 @@ export const actions: Actions = {
 
   removeGoal: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const goalIndex = parseInt(formData.get('goalIndex') as string);
 
     const updated = bibleService.factions.removeGoal(params.factionId, goalIndex);
@@ -226,7 +226,7 @@ export const actions: Actions = {
 
   addLocation: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const locationId = formData.get('locationId') as string;
 
     const updated = bibleService.factions.addLocation(params.factionId, locationId);
@@ -240,7 +240,7 @@ export const actions: Actions = {
 
   removeLocation: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const locationId = formData.get('locationId') as string;
 
     const updated = bibleService.factions.removeLocation(params.factionId, locationId);

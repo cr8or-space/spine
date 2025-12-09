@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     throw error(404, 'Project not found');
   }
 
-  const bibleService = createBibleService(locals.db, params.id);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
   const worldRule = bibleService.worldRules.get(params.ruleId);
 
   if (!worldRule) {
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   update: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Partial<WorldRule> = {
@@ -63,7 +63,7 @@ export const actions: Actions = {
   },
 
   delete: async ({ params, locals }) => {
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const deleted = bibleService.worldRules.delete(params.ruleId);
 
     if (!deleted) {
@@ -75,7 +75,7 @@ export const actions: Actions = {
 
   addException: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const exception: RuleException = {
@@ -98,7 +98,7 @@ export const actions: Actions = {
 
   removeException: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const exceptionIndex = parseInt(formData.get('exceptionIndex') as string);
 
     const updated = bibleService.worldRules.removeException(params.ruleId, exceptionIndex);
@@ -112,7 +112,7 @@ export const actions: Actions = {
 
   addRelatedRule: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const relatedRuleId = formData.get('relatedRuleId') as string;
 
     const updated = bibleService.worldRules.addRelatedRule(params.ruleId, relatedRuleId);
@@ -126,7 +126,7 @@ export const actions: Actions = {
 
   removeRelatedRule: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
     const relatedRuleId = formData.get('relatedRuleId') as string;
 
     const updated = bibleService.worldRules.removeRelatedRule(params.ruleId, relatedRuleId);

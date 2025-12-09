@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   // Get bible service for this project
-  const bibleService = createBibleService(locals.db, params.id);
+  const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
   // Get the complete bible
   const bible = bibleService.getBible();
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
   createCharacter: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<Character, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -55,7 +55,7 @@ export const actions: Actions = {
 
   createLocation: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<Location, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -81,7 +81,7 @@ export const actions: Actions = {
 
   createFaction: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<Faction, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -111,7 +111,7 @@ export const actions: Actions = {
 
   createWorldRule: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<WorldRule, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -138,7 +138,7 @@ export const actions: Actions = {
 
   createPlotThread: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<PlotThread, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -167,7 +167,7 @@ export const actions: Actions = {
 
   createTimelineEvent: async ({ request, params, locals }) => {
     const formData = await request.formData();
-    const bibleService = createBibleService(locals.db, params.id);
+    const bibleService = createBibleService(locals.db, locals.drizzle, params.id);
 
     try {
       const data: Omit<TimelineEvent, 'id' | 'createdAt' | 'updatedAt'> = {
