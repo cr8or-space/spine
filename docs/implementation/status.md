@@ -253,7 +253,7 @@ Migration from raw SQL to Drizzle ORM for type-safe queries.
 
 #### Completed
 - [x] Drizzle ORM dependency installed (`drizzle-orm`)
-- [x] Better-sqlite3 dependency installed (for drizzle-orm/better-sqlite3 driver)
+- [x] libsql dependency (better-sqlite3-compatible API with ESM support)
 - [x] Drizzle schema definitions created (`drizzle-schema.ts`)
 - [x] Database connection exports DrizzleDB instance (BetterSQLite3Database type)
 - [x] Character repository migrated to Drizzle
@@ -277,9 +277,9 @@ The `db` parameter (libsql Database) is used for:
 - FTS5 search operations (Drizzle doesn't support virtual tables)
 - Transaction wrappers using db.transaction()
 
-The `drizzleDb` parameter (BetterSQLite3Database) is used for:
+The `drizzleDb` parameter (BetterSQLite3Database type) is used for:
 - Type-safe CRUD operations via drizzle-orm/better-sqlite3 driver
-- The libsql package is API-compatible with better-sqlite3
+- The libsql package provides a better-sqlite3-compatible API
 
 ### Web App Integration
 - [x] `hooks.server.ts` updated to pass both `db` and `drizzle` to `createProjectService()`
@@ -292,5 +292,11 @@ The `drizzleDb` parameter (BetterSQLite3Database) is used for:
 ### Turborepo Configuration
 - [x] Added `test` task to `turbo.json` for running tests across packages
 
-### Known Issues (Pending)
-- [ ] Integration tests (Playwright): SSR compatibility issues with `better-sqlite3` (CommonJS `__filename` in ESM context) and outdated UI selectors causing timeouts
+### libsql Migration (Complete)
+Removed `better-sqlite3` dependency and fixed Playwright integration tests.
+
+- [x] Removed `better-sqlite3` dependency from `packages/core/package.json`
+- [x] Updated code comments to reference libsql instead of better-sqlite3
+- [x] Fixed Playwright integration test selectors (added `.nav-item`, `.project-link`, `.project-title`, `.back-link`, `.action-btn`, `.logo` classes to UI components)
+- [x] All 23 Playwright integration tests now pass
+- [x] All 933 tests pass (669 core, 143 llm, 111 web unit, types)

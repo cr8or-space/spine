@@ -84,7 +84,7 @@
 <div class="min-h-screen flex flex-col">
   <header class="bg-surface border-b border-border py-8 px-4">
     <div class="max-w-7xl mx-auto text-center">
-      <h1 class="text-3xl font-bold text-primary m-0">Spine</h1>
+      <h1 class="logo text-3xl font-bold text-primary m-0">Spine</h1>
       <p class="text-base text-text-secondary mt-2">AI-assisted web serial creation</p>
     </div>
   </header>
@@ -111,16 +111,16 @@
       <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {#each data.projects as project}
           <Card hover padding="none">
-            <a href="/projects/{project.id}/bible" class="block no-underline text-inherit">
+            <a href="/projects/{project.id}/bible" class="project-link block no-underline text-inherit">
               <div class="p-4">
                 <div class="flex items-start justify-between gap-2 mb-3">
-                  <h3 class="text-lg font-semibold m-0 text-text">{project.title}</h3>
+                  <h3 class="project-title text-lg font-semibold m-0 text-text">{project.title}</h3>
                   <span class="text-xs text-text-secondary bg-bg-tertiary py-1 px-2 rounded-sm whitespace-nowrap">
                     {getFormatLabel(project.format)}
                   </span>
                 </div>
 
-                <div class="flex gap-4 mb-3">
+                <div class="project-stats flex gap-4 mb-3">
                   <span class="flex items-center gap-1 text-sm text-text-secondary">
                     <BookOpen size={14} />
                     {project.chapterCount} chapters
@@ -139,13 +139,13 @@
             <div class="flex gap-1 py-2 px-4 border-t border-border-light bg-bg-secondary">
               <a
                 href="/projects/{project.id}/settings"
-                class="flex items-center justify-center w-8 h-8 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
+                class="action-btn flex items-center justify-center w-8 h-8 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
                 title="Settings"
               >
                 <Settings size={16} />
               </a>
               <button
-                class="flex items-center justify-center w-8 h-8 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light hover:text-danger transition-all duration-150"
+                class="action-btn danger flex items-center justify-center w-8 h-8 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light hover:text-danger transition-all duration-150"
                 title="Delete"
                 onclick={() => openDeleteConfirm(project.id, project.title)}
               >

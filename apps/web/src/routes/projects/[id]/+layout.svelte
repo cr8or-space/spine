@@ -28,13 +28,13 @@
     <div class="flex items-center gap-3">
       <a
         href="/"
-        class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary transition-all duration-150 hover:bg-surface-hover hover:text-text"
+        class="back-link flex items-center justify-center w-9 h-9 rounded-md text-text-secondary transition-all duration-150 hover:bg-surface-hover hover:text-text"
         title="Back to projects"
       >
         <ArrowLeft size={20} />
       </a>
       <div class="flex items-center gap-2">
-        <h1 class="text-lg font-semibold m-0">{data.project.title}</h1>
+        <h1 class="project-title text-lg font-semibold m-0">{data.project.title}</h1>
       </div>
     </div>
 
@@ -43,9 +43,9 @@
         <a
           href={item.href}
           class={cn(
-            'flex items-center gap-2 py-2 px-4 text-sm font-medium text-text-secondary no-underline rounded-md transition-all duration-150',
+            'nav-item flex items-center gap-2 py-2 px-4 text-sm font-medium text-text-secondary no-underline rounded-md transition-all duration-150',
             'hover:bg-surface-hover hover:text-text',
-            isActive(item.href) && 'bg-primary-light text-primary'
+            isActive(item.href) && 'active bg-primary-light text-primary'
           )}
         >
           {#if item.icon === 'book'}
