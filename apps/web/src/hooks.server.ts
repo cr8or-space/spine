@@ -21,7 +21,7 @@ const DB_PATH = path.join(DATA_DIR, 'spine.db');
 // Initialize database and project service (singleton)
 const dbConnection = openDatabase({ path: DB_PATH });
 dbConnection.initialize(); // Ensure schema is initialized
-const projectService = createProjectService(dbConnection.db);
+const projectService = createProjectService(dbConnection.db, dbConnection.drizzle);
 
 // Make project service available to request handlers
 declare global {
