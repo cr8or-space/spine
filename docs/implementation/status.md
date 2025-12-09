@@ -296,7 +296,7 @@ The `drizzleDb` parameter is used for:
 Migrated to libsql for SQLite access with ESM support.
 
 - [x] Added `libsql` dependency to `packages/core/package.json`
-- [x] Added `better-sqlite3` as dependency (required by drizzle-orm driver)
+- [x] Added `better-sqlite3` as devDependency (required by drizzle-orm driver for type compatibility)
 - [x] Updated all database code to use libsql
 - [x] Clarified relationship between libsql and better-sqlite3 in documentation
 - [x] Added comprehensive comments explaining the dual-package setup
