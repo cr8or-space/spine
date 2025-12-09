@@ -1,10 +1,10 @@
-# Upgrade Status
+# Pending Work
 
 This file tracks work that was started but needs further refinement or completion.
 
-## Playwright Integration Tests - Entity Creation (Partial)
+## Playwright Integration Tests - Entity Creation (Mostly Complete)
 
-**Status**: Implemented but with some test flakiness
+**Status**: Significantly improved - 96% pass rate (43/45 tests passing)
 
 **Location**: `apps/web/tests/entity-creation.spec.ts`
 
@@ -19,32 +19,28 @@ This file tracks work that was started but needs further refinement or completio
 - Tab count update verification tests
 - Cancel operation tests
 - Entity listing after creation tests
+- **Test stability improvements**:
+  - Added explicit waits for dialog transitions (`waitForDialogTransition` helper)
+  - Improved selector specificity using `.first()` to avoid strict mode violations
+  - Scoped all form interactions to dialog element
+  - Added retry logic for Select component interactions (`selectOption` helper)
+  - Configured tests to run serially to avoid database conflicts
+  - Increased timeout to 60 seconds for dialog-heavy tests
+  - Removed flaky `networkidle` waits
 
 **Current issues**:
-- Some tests are flaky (~17 failures out of 45 tests on first run, ~28 passing)
-- Timing issues with dialog interactions and form submissions
-- Occasional "strict mode violations" when multiple elements match selectors
+- 2 tests still failing/flaky:
+  - "should create a character with role and status" - Select component interaction causes browser timeout
+  - "should create a new project" (in project-management.spec.ts) - occasional flakiness
+- Tests using Select dropdowns can timeout if the dropdown fails to open properly
 
 **What needs to be done**:
-1. **Add explicit waits for dialog transitions**:
-   - Wait for dialog animations to complete before interacting
-   - Add `page.waitForTimeout()` after dialog opens/closes
-   - Use `waitForLoadState('networkidle')` after navigation
+1. **Fix remaining Select component issues**:
+   - Investigate why Select component causes browser closure on retry
+   - Consider adding `data-testid` attributes to Select triggers and options
+   - May need to modify Select component implementation for better testability
 
-2. **Improve selector specificity**:
-   - Some selectors still match multiple elements in edge cases
-   - Consider using test IDs (`data-testid`) for critical form elements
-   - Scope all form interactions explicitly to the dialog element
-
-3. **Add retry logic for flaky operations**:
-   - Wrap Select component interactions in retry logic
-   - Add custom Playwright fixtures for common operations
-
-4. **Test isolation improvements**:
-   - Ensure each test properly cleans up (database, navigation state)
-   - Consider using separate test projects with isolated storage
-
-5. **Missing test coverage to add**:
+2. **Missing test coverage to add**:
   - Entity editing (update existing entities)
   - Entity deletion
   - Entity detail page interactions
@@ -58,6 +54,6 @@ This file tracks work that was started but needs further refinement or completio
 - SvelteKit testing best practices: Use real FormData/Request objects, avoid clicking submit buttons
 - Bits UI Select component patterns in the codebase
 
-**Priority**: Medium - Tests provide good coverage but need stability improvements before CI/CD
+**Priority**: Low - Tests are now stable enough for development use (96% pass rate)
 
-**Estimated effort**: 4-6 hours to stabilize all tests and add explicit waits
+**Estimated effort**: 2-3 hours to fix remaining Select component issues

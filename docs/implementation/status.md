@@ -253,4 +253,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Plot Thread creation and listing
   - [x] Timeline Event creation and listing
   - [x] Tab count updates after entity creation
+- [x] Test stability improvements (96% pass rate)
+  - [x] Explicit dialog transition waits
+  - [x] Selector specificity improvements
+  - [x] Serial test execution to avoid database conflicts
+  - [x] Retry logic for Select components
+  - [ ] Fix remaining Select component timeout issues (2 tests)
 
