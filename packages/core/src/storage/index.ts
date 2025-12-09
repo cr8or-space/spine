@@ -10,10 +10,13 @@
  */
 
 // Database
-export { openDatabase, createTestDatabase, type DatabaseConnection, type DatabaseOptions } from './database';
+export { openDatabase, createTestDatabase, type DatabaseConnection, type DatabaseOptions, type DrizzleDB } from './database';
 
-// Schema
+// Schema (raw SQL for migrations and FTS5)
 export { SCHEMA_VERSION, CREATE_TABLES_SQL, DROP_TABLES_SQL } from './schema';
+
+// Drizzle schema (type-safe ORM)
+export * as drizzleSchema from './drizzle-schema';
 
 // Repository utilities
 export { generateId, nowTimestamp, parseJson, boolToInt, intToBool, wrapResult } from './repository';

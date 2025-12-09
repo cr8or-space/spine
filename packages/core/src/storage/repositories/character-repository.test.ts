@@ -27,7 +27,7 @@ describe('CharacterRepository', () => {
       )
       .run(projectId);
 
-    repo = createCharacterRepository(db.db);
+    repo = createCharacterRepository(db.db, db.drizzle);
   });
 
   afterEach(() => {

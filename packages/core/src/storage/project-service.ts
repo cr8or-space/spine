@@ -17,6 +17,7 @@ import {
   type Structure,
 } from '@repo/types';
 
+import type { DrizzleDB } from './database';
 import { nowTimestamp } from './repository';
 import {
   createCharacterRepository,
@@ -98,19 +99,19 @@ export interface ProjectService {
 /**
  * Create project service
  */
-export function createProjectService(db: Database.Database): ProjectService {
+export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB): ProjectService {
   // Create all repositories
   const repos: ProjectRepositories = {
-    projects: createProjectRepository(db),
-    characters: createCharacterRepository(db),
-    locations: createLocationRepository(db),
-    factions: createFactionRepository(db),
-    worldRules: createWorldRuleRepository(db),
-    plotThreads: createPlotThreadRepository(db),
-    timelineEvents: createTimelineEventRepository(db),
-    timelineSpans: createTimelineSpanRepository(db),
-    structures: createStructureRepository(db),
-    contents: createContentRepository(db),
+    projects: createProjectRepository(db, drizzleDb),
+    characters: createCharacterRepository(db, drizzleDb),
+    locations: createLocationRepository(db, drizzleDb),
+    factions: createFactionRepository(db, drizzleDb),
+    worldRules: createWorldRuleRepository(db, drizzleDb),
+    plotThreads: createPlotThreadRepository(db, drizzleDb),
+    timelineEvents: createTimelineEventRepository(db, drizzleDb),
+    timelineSpans: createTimelineSpanRepository(db, drizzleDb),
+    structures: createStructureRepository(db, drizzleDb),
+    contents: createContentRepository(db, drizzleDb),
   };
 
   /**

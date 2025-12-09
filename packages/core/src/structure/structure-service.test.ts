@@ -29,7 +29,7 @@ describe('StructureService', () => {
       )
       .run(projectId);
 
-    repo = createStructureRepository(db.db);
+    repo = createStructureRepository(db.db, db.drizzle);
     service = createStructureService(projectId, repo);
   });
 

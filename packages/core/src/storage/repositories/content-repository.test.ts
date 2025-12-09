@@ -27,8 +27,8 @@ describe('ContentRepository', () => {
       )
       .run(projectId);
 
-    structureRepo = createStructureRepository(db.db);
-    contentRepo = createContentRepository(db.db);
+    structureRepo = createStructureRepository(db.db, db.drizzle);
+    contentRepo = createContentRepository(db.db, db.drizzle);
 
     // Create a test structure to attach content to
     const structure = structureRepo.create(projectId, {

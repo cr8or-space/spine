@@ -1,34 +1,28 @@
 /**
  * Cross-reference repository for tracking entity relationships
  *
+ * Uses Drizzle ORM for type-safe queries.
  * Tracks which entities are mentioned in content and relationships between
  * bible entities for continuity checking and context assembly.
  */
 
 import type Database from 'libsql';
+import { and, eq } from 'drizzle-orm';
 
 import type { CrossReference, EntityRef } from '@repo/types';
 
+import type { DrizzleDB } from '../storage/database';
+import { crossReferences } from '../storage/drizzle-schema';
 
 /**
- * Database row representation of a cross-reference
+ * Convert Drizzle row to CrossReference entity
  */
-interface CrossReferenceRow {
-  id: number;
-  project_id: string;
-  source_id: string;
-  source_type: EntityRef['type'];
-  target_id: string;
-  target_type: EntityRef['type'];
-  context: string | null;
-}
-
-function rowToCrossReference(row: CrossReferenceRow): CrossReference {
+function rowToCrossReference(row: typeof crossReferences.$inferSelect): CrossReference {
   return {
-    sourceId: row.source_id,
-    sourceType: row.source_type,
-    targetId: row.target_id,
-    targetType: row.target_type,
+    sourceId: row.sourceId,
+    sourceType: row.sourceType as EntityRef['type'],
+    targetId: row.targetId,
+    targetType: row.targetType as EntityRef['type'],
     context: row.context ?? undefined,
   };
 }
@@ -128,63 +122,22 @@ export interface CrossReferenceRepository {
 /**
  * Create a cross-reference repository
  */
-export function createCrossReferenceRepository(db: Database.Database): CrossReferenceRepository {
-  const findByProjectStmt = db.prepare(`
-    SELECT * FROM cross_references WHERE project_id = ?
-  `);
-
-  const findBySourceStmt = db.prepare(`
-    SELECT * FROM cross_references
-    WHERE project_id = ? AND source_id = ? AND source_type = ?
-  `);
-
-  const findByTargetStmt = db.prepare(`
-    SELECT * FROM cross_references
-    WHERE project_id = ? AND target_id = ? AND target_type = ?
-  `);
-
-  const existsStmt = db.prepare(`
-    SELECT 1 FROM cross_references
-    WHERE project_id = ? AND source_id = ? AND source_type = ? AND target_id = ? AND target_type = ?
-    LIMIT 1
-  `);
-
-  const insertStmt = db.prepare(`
-    INSERT INTO cross_references (project_id, source_id, source_type, target_id, target_type, context)
-    VALUES (@project_id, @source_id, @source_type, @target_id, @target_type, @context)
-  `);
-
-  const deleteStmt = db.prepare(`
-    DELETE FROM cross_references
-    WHERE project_id = ? AND source_id = ? AND source_type = ? AND target_id = ? AND target_type = ?
-  `);
-
-  const deleteBySourceStmt = db.prepare(`
-    DELETE FROM cross_references
-    WHERE project_id = ? AND source_id = ? AND source_type = ?
-  `);
-
-  const deleteByTargetStmt = db.prepare(`
-    DELETE FROM cross_references
-    WHERE project_id = ? AND target_id = ? AND target_type = ?
-  `);
-
-  const deleteByProjectStmt = db.prepare(`
-    DELETE FROM cross_references WHERE project_id = ?
-  `);
-
+export function createCrossReferenceRepository(db: Database.Database, drizzleDb: DrizzleDB): CrossReferenceRepository {
+  // Transaction wrappers use raw db since Drizzle transactions require different patterns
   const insertMany = db.transaction((projectId: string, data: CreateCrossReferenceData[]) => {
     const results: CrossReference[] = [];
     for (const item of data) {
-      const row = {
-        project_id: projectId,
-        source_id: item.sourceId,
-        source_type: item.sourceType,
-        target_id: item.targetId,
-        target_type: item.targetType,
-        context: item.context ?? null,
-      };
-      insertStmt.run(row);
+      drizzleDb
+        .insert(crossReferences)
+        .values({
+          projectId,
+          sourceId: item.sourceId,
+          sourceType: item.sourceType,
+          targetId: item.targetId,
+          targetType: item.targetType,
+          context: item.context ?? null,
+        })
+        .run();
       results.push({
         sourceId: item.sourceId,
         sourceType: item.sourceType,
@@ -203,18 +156,30 @@ export function createCrossReferenceRepository(db: Database.Database): CrossRefe
       sourceType: EntityRef['type'],
       references: Array<{ targetId: string; targetType: EntityRef['type']; context?: string }>
     ) => {
-      deleteBySourceStmt.run(projectId, sourceId, sourceType);
+      drizzleDb
+        .delete(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.sourceId, sourceId),
+            eq(crossReferences.sourceType, sourceType)
+          )
+        )
+        .run();
+
       const results: CrossReference[] = [];
       for (const ref of references) {
-        const row = {
-          project_id: projectId,
-          source_id: sourceId,
-          source_type: sourceType,
-          target_id: ref.targetId,
-          target_type: ref.targetType,
-          context: ref.context ?? null,
-        };
-        insertStmt.run(row);
+        drizzleDb
+          .insert(crossReferences)
+          .values({
+            projectId,
+            sourceId,
+            sourceType,
+            targetId: ref.targetId,
+            targetType: ref.targetType,
+            context: ref.context ?? null,
+          })
+          .run();
         results.push({
           sourceId,
           sourceType,
@@ -229,17 +194,41 @@ export function createCrossReferenceRepository(db: Database.Database): CrossRefe
 
   return {
     findByProject(projectId: string): CrossReference[] {
-      const rows = findByProjectStmt.all(projectId) as CrossReferenceRow[];
+      const rows = drizzleDb
+        .select()
+        .from(crossReferences)
+        .where(eq(crossReferences.projectId, projectId))
+        .all();
       return rows.map(rowToCrossReference);
     },
 
     findBySource(projectId: string, sourceId: string, sourceType: EntityRef['type']): CrossReference[] {
-      const rows = findBySourceStmt.all(projectId, sourceId, sourceType) as CrossReferenceRow[];
+      const rows = drizzleDb
+        .select()
+        .from(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.sourceId, sourceId),
+            eq(crossReferences.sourceType, sourceType)
+          )
+        )
+        .all();
       return rows.map(rowToCrossReference);
     },
 
     findByTarget(projectId: string, targetId: string, targetType: EntityRef['type']): CrossReference[] {
-      const rows = findByTargetStmt.all(projectId, targetId, targetType) as CrossReferenceRow[];
+      const rows = drizzleDb
+        .select()
+        .from(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.targetId, targetId),
+            eq(crossReferences.targetType, targetType)
+          )
+        )
+        .all();
       return rows.map(rowToCrossReference);
     },
 
@@ -276,20 +265,36 @@ export function createCrossReferenceRepository(db: Database.Database): CrossRefe
     },
 
     exists(projectId: string, data: Omit<CreateCrossReferenceData, 'context'>): boolean {
-      const result = existsStmt.get(projectId, data.sourceId, data.sourceType, data.targetId, data.targetType);
+      const result = drizzleDb
+        .select()
+        .from(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.sourceId, data.sourceId),
+            eq(crossReferences.sourceType, data.sourceType),
+            eq(crossReferences.targetId, data.targetId),
+            eq(crossReferences.targetType, data.targetType)
+          )
+        )
+        .limit(1)
+        .get();
       return result !== undefined;
     },
 
     create(projectId: string, data: CreateCrossReferenceData): CrossReference {
-      const row = {
-        project_id: projectId,
-        source_id: data.sourceId,
-        source_type: data.sourceType,
-        target_id: data.targetId,
-        target_type: data.targetType,
-        context: data.context ?? null,
-      };
-      insertStmt.run(row);
+      drizzleDb
+        .insert(crossReferences)
+        .values({
+          projectId,
+          sourceId: data.sourceId,
+          sourceType: data.sourceType,
+          targetId: data.targetId,
+          targetType: data.targetType,
+          context: data.context ?? null,
+        })
+        .run();
+
       return {
         sourceId: data.sourceId,
         sourceType: data.sourceType,
@@ -310,22 +315,51 @@ export function createCrossReferenceRepository(db: Database.Database): CrossRefe
       targetId: string,
       targetType: EntityRef['type']
     ): boolean {
-      const result = deleteStmt.run(projectId, sourceId, sourceType, targetId, targetType);
+      const result = drizzleDb
+        .delete(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.sourceId, sourceId),
+            eq(crossReferences.sourceType, sourceType),
+            eq(crossReferences.targetId, targetId),
+            eq(crossReferences.targetType, targetType)
+          )
+        )
+        .run();
       return result.changes > 0;
     },
 
     deleteBySource(projectId: string, sourceId: string, sourceType: EntityRef['type']): number {
-      const result = deleteBySourceStmt.run(projectId, sourceId, sourceType);
+      const result = drizzleDb
+        .delete(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.sourceId, sourceId),
+            eq(crossReferences.sourceType, sourceType)
+          )
+        )
+        .run();
       return result.changes;
     },
 
     deleteByTarget(projectId: string, targetId: string, targetType: EntityRef['type']): number {
-      const result = deleteByTargetStmt.run(projectId, targetId, targetType);
+      const result = drizzleDb
+        .delete(crossReferences)
+        .where(
+          and(
+            eq(crossReferences.projectId, projectId),
+            eq(crossReferences.targetId, targetId),
+            eq(crossReferences.targetType, targetType)
+          )
+        )
+        .run();
       return result.changes;
     },
 
     deleteByProject(projectId: string): number {
-      const result = deleteByProjectStmt.run(projectId);
+      const result = drizzleDb.delete(crossReferences).where(eq(crossReferences.projectId, projectId)).run();
       return result.changes;
     },
 

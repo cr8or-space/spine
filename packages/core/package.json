@@ -41,6 +41,8 @@
   "dependencies": {
     "@repo/llm": "workspace:*",
     "@repo/types": "workspace:*",
+    "better-sqlite3": "^12.5.0",
+    "drizzle-orm": "^0.45.0",
     "libsql": "^0.5.22",
     "nanoid": "^5.0.9"
   },

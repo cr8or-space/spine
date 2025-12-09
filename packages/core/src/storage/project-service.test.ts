@@ -13,7 +13,7 @@ describe('ProjectService', () => {
 
   beforeEach(() => {
     db = createTestDatabase();
-    service = createProjectService(db.db);
+    service = createProjectService(db.db, db.drizzle);
   });
 
   afterEach(() => {

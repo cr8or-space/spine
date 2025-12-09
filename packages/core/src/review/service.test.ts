@@ -37,9 +37,9 @@ describe('ReviewWorkflowService', () => {
       )
       .run(projectId);
 
-    structureRepo = createStructureRepository(db.db);
-    contentRepo = createContentRepository(db.db);
-    lockPointRepo = createLockPointRepository(db.db);
+    structureRepo = createStructureRepository(db.db, db.drizzle);
+    contentRepo = createContentRepository(db.db, db.drizzle);
+    lockPointRepo = createLockPointRepository(db.db, db.drizzle);
 
     reviewService = createReviewWorkflowService(contentRepo, lockPointRepo, structureRepo, {
       requireAnalysisForApproval: false, // Simplify testing

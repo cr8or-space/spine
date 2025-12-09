@@ -3,13 +3,18 @@
  *
  * Uses libsql, an ESM-compatible drop-in replacement for better-sqlite3.
  * This resolves SSR compatibility issues in SvelteKit preview mode.
+ *
+ * Drizzle ORM is layered on top for type-safe queries while maintaining
+ * compatibility with raw SQL for FTS5 and complex operations.
  */
 
 import Database from 'libsql';
+import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
 
 import { CREATE_TABLES_SQL, DROP_TABLES_SQL, SCHEMA_VERSION } from './schema';
+import * as schema from './drizzle-schema';
 
 export interface DatabaseOptions {
   /** Path to the database file, or ':memory:' for in-memory */
@@ -20,9 +25,14 @@ export interface DatabaseOptions {
   readonly?: boolean;
 }
 
+/** Drizzle database type with schema */
+export type DrizzleDB = BetterSQLite3Database<typeof schema>;
+
 export interface DatabaseConnection {
   /** The underlying libsql database instance */
   db: Database.Database;
+  /** Drizzle ORM instance for type-safe queries */
+  drizzle: DrizzleDB;
   /** Close the database connection */
   close(): void;
   /** Get the current schema version */
@@ -62,8 +72,12 @@ export function openDatabase(options: DatabaseOptions): DatabaseConnection {
     db.pragma('journal_mode = WAL');
   }
 
+  // Create Drizzle ORM instance
+  const drizzleDb = drizzle(db, { schema });
+
   return {
     db,
+    drizzle: drizzleDb,
 
     close() {
       db.close();

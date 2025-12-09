@@ -16,10 +16,10 @@ describe('BibleService', () => {
   beforeEach(() => {
     db = createTestDatabase();
     // Create a project first to satisfy foreign key constraints
-    const projectService = createProjectService(db.db);
+    const projectService = createProjectService(db.db, db.drizzle);
     const project = projectService.createProject('Test Project', 'web-serial');
     projectId = project.id;
-    bibleService = createBibleService(db.db, projectId);
+    bibleService = createBibleService(db.db, db.drizzle, projectId);
   });
 
   afterEach(() => {

@@ -1,15 +1,21 @@
 /**
  * Content repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries while maintaining
+ * raw SQL for FTS5 search and transactions.
  */
 
 import type Database from 'libsql';
+import { and, asc, desc, eq, isNotNull } from 'drizzle-orm';
 
 import type { Content, ContentAnalysis, ContentStatus, ContentVersion, GenerationRecord, Review, VersionMetadata, VersionSource } from '@repo/types';
 
-import { boolToInt, createProjectScopedRepository, generateId, intToBool, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import type { DrizzleDB } from '../database';
+import { contents, contentVersions } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
- * Database row representation of content
+ * Database row representation of content (for raw SQL FTS5 queries)
  */
 interface ContentRow {
   id: string;
@@ -30,21 +36,32 @@ interface ContentRow {
 }
 
 /**
- * Database row representation of a content version
+ * Convert Drizzle row to Content entity
  */
-interface ContentVersionRow {
-  id: number;
-  content_id: string;
-  version: number;
-  text: string;
-  word_count: number;
-  source: VersionSource;
-  previous_version: number | null;
-  metadata_json: string | null;
-  created_at: string;
+function rowToContent(row: typeof contents.$inferSelect, versions: ContentVersion[]): Content {
+  return {
+    id: row.id,
+    structureId: row.structureId,
+    currentVersion: row.currentVersion,
+    versions,
+    text: row.text,
+    status: row.status,
+    analysis: row.analysisJson ? (JSON.parse(row.analysisJson) as ContentAnalysis) : undefined,
+    reviews: parseJson<Review[]>(row.reviewsJson, []),
+    generationHistory: parseJson<GenerationRecord[]>(row.generationHistoryJson, []),
+    locked: row.locked,
+    lockReason: row.lockReason ?? undefined,
+    chapterNumber: row.chapterNumber ?? undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    publishedAt: row.publishedAt ?? undefined,
+  };
 }
 
-function rowToContent(row: ContentRow, versions: ContentVersion[]): Content {
+/**
+ * Convert raw SQL row to Content entity (for FTS5 queries)
+ */
+function rawRowToContent(row: ContentRow, versions: ContentVersion[]): Content {
   return {
     id: row.id,
     structureId: row.structure_id,
@@ -55,7 +72,7 @@ function rowToContent(row: ContentRow, versions: ContentVersion[]): Content {
     analysis: row.analysis_json ? (JSON.parse(row.analysis_json) as ContentAnalysis) : undefined,
     reviews: parseJson<Review[]>(row.reviews_json, []),
     generationHistory: parseJson<GenerationRecord[]>(row.generation_history_json, []),
-    locked: intToBool(row.locked),
+    locked: row.locked === 1,
     lockReason: row.lock_reason ?? undefined,
     chapterNumber: row.chapter_number ?? undefined,
     createdAt: row.created_at,
@@ -64,15 +81,18 @@ function rowToContent(row: ContentRow, versions: ContentVersion[]): Content {
   };
 }
 
-function versionRowToVersion(row: ContentVersionRow): ContentVersion {
+/**
+ * Convert Drizzle version row to ContentVersion entity
+ */
+function versionRowToVersion(row: typeof contentVersions.$inferSelect): ContentVersion {
   return {
     version: row.version,
     text: row.text,
-    wordCount: row.word_count,
+    wordCount: row.wordCount,
     source: row.source,
-    previousVersion: row.previous_version ?? undefined,
-    metadata: row.metadata_json ? (JSON.parse(row.metadata_json) as VersionMetadata) : undefined,
-    createdAt: row.created_at,
+    previousVersion: row.previousVersion ?? undefined,
+    metadata: row.metadataJson ? (JSON.parse(row.metadataJson) as VersionMetadata) : undefined,
+    createdAt: row.createdAt,
   };
 }
 
@@ -122,66 +142,21 @@ export interface ContentRepository extends ProjectScopedRepository<Content, Crea
   addGenerationRecord(projectId: string, id: string, record: GenerationRecord): Content | undefined;
 }
 
-export function createContentRepository(db: Database.Database): ContentRepository {
-  const base = createProjectScopedRepository<ContentRow>(db, 'contents');
-
-  const insertContentStmt = db.prepare(`
-    INSERT INTO contents (
-      id, project_id, structure_id, current_version, text, status,
-      analysis_json, reviews_json, generation_history_json, locked,
-      lock_reason, chapter_number, created_at, updated_at, published_at
-    ) VALUES (
-      @id, @project_id, @structure_id, @current_version, @text, @status,
-      @analysis_json, @reviews_json, @generation_history_json, @locked,
-      @lock_reason, @chapter_number, @created_at, @updated_at, @published_at
-    )
-  `);
-
-  const insertVersionStmt = db.prepare(`
-    INSERT INTO content_versions (
-      content_id, version, text, word_count, source, previous_version, metadata_json, created_at
-    ) VALUES (
-      @content_id, @version, @text, @word_count, @source, @previous_version, @metadata_json, @created_at
-    )
-  `);
-
-  const updateContentStmt = db.prepare(`
-    UPDATE contents SET
-      structure_id = @structure_id,
-      current_version = @current_version,
-      text = @text,
-      status = @status,
-      analysis_json = @analysis_json,
-      reviews_json = @reviews_json,
-      generation_history_json = @generation_history_json,
-      locked = @locked,
-      lock_reason = @lock_reason,
-      chapter_number = @chapter_number,
-      updated_at = @updated_at,
-      published_at = @published_at
-    WHERE project_id = @project_id AND id = @id
-  `);
-
-  const findByStructureStmt = db.prepare(`SELECT * FROM contents WHERE project_id = ? AND structure_id = ?`);
-  const findByStatusStmt = db.prepare(`SELECT * FROM contents WHERE project_id = ? AND status = ?`);
-  const findByChapterStmt = db.prepare(`SELECT * FROM contents WHERE project_id = ? AND chapter_number = ?`);
-  const findLockedStmt = db.prepare(`SELECT * FROM contents WHERE project_id = ? AND locked = 1`);
-  const findPublishedStmt = db.prepare(`SELECT * FROM contents WHERE project_id = ? AND published_at IS NOT NULL ORDER BY chapter_number`);
+export function createContentRepository(db: Database.Database, drizzleDb: DrizzleDB): ContentRepository {
+  // FTS5 search requires raw SQL (Drizzle doesn't support virtual tables)
   const searchStmt = db.prepare(`
     SELECT c.* FROM contents c
     JOIN contents_fts fts ON c.id = fts.id
     WHERE c.project_id = ? AND contents_fts MATCH ?
   `);
 
-  const getVersionsStmt = db.prepare(`SELECT * FROM content_versions WHERE content_id = ? ORDER BY version`);
-  const getVersionStmt = db.prepare(`SELECT * FROM content_versions WHERE content_id = ? AND version = ?`);
-  const getVersionCountStmt = db.prepare(`SELECT COUNT(*) as count FROM content_versions WHERE content_id = ?`);
-  const getLatestVersionsStmt = db.prepare(
-    `SELECT * FROM content_versions WHERE content_id = ? ORDER BY version DESC LIMIT ?`
-  );
-
   function loadVersions(contentId: string): ContentVersion[] {
-    const rows = getVersionsStmt.all(contentId) as ContentVersionRow[];
+    const rows = drizzleDb
+      .select()
+      .from(contentVersions)
+      .where(eq(contentVersions.contentId, contentId))
+      .orderBy(asc(contentVersions.version))
+      .all();
     return rows.map(versionRowToVersion);
   }
 
@@ -191,13 +166,18 @@ export function createContentRepository(db: Database.Database): ContentRepositor
 
   return {
     findById(projectId: string, id: string): Content | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.id, id)))
+        .get();
       if (!row) return undefined;
       return rowToContent(row, loadVersions(id));
     },
 
     findByProject(projectId: string): Content[] {
-      return base.findByProject(projectId).map((row) => rowToContent(row, loadVersions(row.id)));
+      const rows = drizzleDb.select().from(contents).where(eq(contents.projectId, projectId)).all();
+      return rows.map((row) => rowToContent(row, loadVersions(row.id)));
     },
 
     create(projectId: string, data: CreateContentData): Content {
@@ -207,52 +187,68 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       const wordCount = countWords(text);
 
       // Create content row
-      const contentRow: ContentRow = {
+      const contentRow = {
         id,
-        project_id: projectId,
-        structure_id: data.structureId,
-        current_version: 1,
+        projectId,
+        structureId: data.structureId,
+        currentVersion: 1,
         text,
-        status: data.status ?? 'draft',
-        analysis_json: data.analysis ? JSON.stringify(data.analysis) : null,
-        reviews_json: JSON.stringify(data.reviews ?? []),
-        generation_history_json: JSON.stringify(data.generationHistory ?? []),
-        locked: boolToInt(data.locked ?? false),
-        lock_reason: data.lockReason ?? null,
-        chapter_number: data.chapterNumber ?? null,
-        created_at: now,
-        updated_at: now,
-        published_at: data.publishedAt ?? null,
+        status: data.status ?? ('draft' as ContentStatus),
+        analysisJson: data.analysis ? JSON.stringify(data.analysis) : null,
+        reviewsJson: JSON.stringify(data.reviews ?? []),
+        generationHistoryJson: JSON.stringify(data.generationHistory ?? []),
+        locked: data.locked ?? false,
+        lockReason: data.lockReason ?? null,
+        chapterNumber: data.chapterNumber ?? null,
+        createdAt: now,
+        updatedAt: now,
+        publishedAt: data.publishedAt ?? null,
       };
 
       // Create initial version row
-      const versionRow: Omit<ContentVersionRow, 'id'> = {
-        content_id: id,
+      const versionRow = {
+        contentId: id,
         version: 1,
         text,
-        word_count: wordCount,
-        source: data.source ?? 'generated',
-        previous_version: null,
-        metadata_json: data.metadata ? JSON.stringify(data.metadata) : null,
-        created_at: now,
+        wordCount,
+        source: data.source ?? ('generated' as VersionSource),
+        previousVersion: null,
+        metadataJson: data.metadata ? JSON.stringify(data.metadata) : null,
+        createdAt: now,
       };
 
       const createTx = db.transaction(() => {
-        insertContentStmt.run(contentRow);
-        insertVersionStmt.run(versionRow);
+        drizzleDb.insert(contents).values(contentRow).run();
+        drizzleDb.insert(contentVersions).values(versionRow).run();
       });
       createTx();
 
-      return rowToContent(contentRow, [
-        {
-          version: 1,
-          text,
-          wordCount,
-          source: data.source ?? 'generated',
-          metadata: data.metadata,
-          createdAt: now,
-        },
-      ]);
+      return {
+        id,
+        structureId: data.structureId,
+        currentVersion: 1,
+        versions: [
+          {
+            version: 1,
+            text,
+            wordCount,
+            source: data.source ?? 'generated',
+            metadata: data.metadata,
+            createdAt: now,
+          },
+        ],
+        text,
+        status: data.status ?? 'draft',
+        analysis: data.analysis,
+        reviews: data.reviews ?? [],
+        generationHistory: data.generationHistory ?? [],
+        locked: data.locked ?? false,
+        lockReason: data.lockReason,
+        chapterNumber: data.chapterNumber,
+        createdAt: now,
+        updatedAt: now,
+        publishedAt: data.publishedAt,
+      };
     },
 
     update(projectId: string, id: string, data: UpdateContentData): Content | undefined {
@@ -260,14 +256,11 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const updated: ContentRow = {
-        id,
-        project_id: projectId,
-        structure_id: data.structureId ?? existing.structureId,
-        current_version: existing.currentVersion,
+      const updateData = {
+        structureId: data.structureId ?? existing.structureId,
         text: data.text ?? existing.text,
         status: data.status ?? existing.status,
-        analysis_json:
+        analysisJson:
           data.analysis !== undefined
             ? data.analysis
               ? JSON.stringify(data.analysis)
@@ -275,68 +268,102 @@ export function createContentRepository(db: Database.Database): ContentRepositor
             : existing.analysis
               ? JSON.stringify(existing.analysis)
               : null,
-        reviews_json: data.reviews ? JSON.stringify(data.reviews) : JSON.stringify(existing.reviews),
-        generation_history_json: data.generationHistory
+        reviewsJson: data.reviews ? JSON.stringify(data.reviews) : JSON.stringify(existing.reviews),
+        generationHistoryJson: data.generationHistory
           ? JSON.stringify(data.generationHistory)
           : JSON.stringify(existing.generationHistory),
-        locked: data.locked !== undefined ? boolToInt(data.locked) : boolToInt(existing.locked),
-        lock_reason: data.lockReason !== undefined ? (data.lockReason ?? null) : (existing.lockReason ?? null),
-        chapter_number: data.chapterNumber !== undefined ? (data.chapterNumber ?? null) : (existing.chapterNumber ?? null),
-        created_at: existing.createdAt,
-        updated_at: now,
-        published_at: data.publishedAt !== undefined ? (data.publishedAt ?? null) : (existing.publishedAt ?? null),
+        locked: data.locked !== undefined ? data.locked : existing.locked,
+        lockReason: data.lockReason !== undefined ? (data.lockReason ?? null) : (existing.lockReason ?? null),
+        chapterNumber: data.chapterNumber !== undefined ? (data.chapterNumber ?? null) : (existing.chapterNumber ?? null),
+        updatedAt: now,
+        publishedAt: data.publishedAt !== undefined ? (data.publishedAt ?? null) : (existing.publishedAt ?? null),
       };
 
-      updateContentStmt.run(updated);
-      return rowToContent(updated, loadVersions(id));
+      drizzleDb
+        .update(contents)
+        .set(updateData)
+        .where(and(eq(contents.projectId, projectId), eq(contents.id, id)))
+        .run();
+
+      return this.findById(projectId, id);
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(contents).where(eq(contents.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByStructure(projectId: string, structureId: string): Content | undefined {
-      const row = findByStructureStmt.get(projectId, structureId) as ContentRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.structureId, structureId)))
+        .get();
       if (!row) return undefined;
       return rowToContent(row, loadVersions(row.id));
     },
 
     findByStatus(projectId: string, status: ContentStatus): Content[] {
-      const rows = findByStatusStmt.all(projectId, status) as ContentRow[];
+      const rows = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.status, status)))
+        .all();
       return rows.map((row) => rowToContent(row, loadVersions(row.id)));
     },
 
     findByChapterNumber(projectId: string, chapterNumber: number): Content | undefined {
-      const row = findByChapterStmt.get(projectId, chapterNumber) as ContentRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.chapterNumber, chapterNumber)))
+        .get();
       if (!row) return undefined;
       return rowToContent(row, loadVersions(row.id));
     },
 
     findLocked(projectId: string): Content[] {
-      const rows = findLockedStmt.all(projectId) as ContentRow[];
+      const rows = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), eq(contents.locked, true)))
+        .all();
       return rows.map((row) => rowToContent(row, loadVersions(row.id)));
     },
 
     findPublished(projectId: string): Content[] {
-      const rows = findPublishedStmt.all(projectId) as ContentRow[];
+      const rows = drizzleDb
+        .select()
+        .from(contents)
+        .where(and(eq(contents.projectId, projectId), isNotNull(contents.publishedAt)))
+        .orderBy(asc(contents.chapterNumber))
+        .all();
       return rows.map((row) => rowToContent(row, loadVersions(row.id)));
     },
 
     search(projectId: string, query: string): Content[] {
       const escapedQuery = query.replace(/"/g, '""');
       const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as ContentRow[];
-      return rows.map((row) => rowToContent(row, loadVersions(row.id)));
+      return rows.map((row) => rawRowToContent(row, loadVersions(row.id)));
     },
 
     getVersion(projectId: string, id: string, version: number): ContentVersion | undefined {
       const content = this.findById(projectId, id);
       if (!content) return undefined;
 
-      const row = getVersionStmt.get(id, version) as ContentVersionRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(contentVersions)
+        .where(and(eq(contentVersions.contentId, id), eq(contentVersions.version, version)))
+        .get();
       return row ? versionRowToVersion(row) : undefined;
     },
 
@@ -363,36 +390,29 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       const newVersion = existing.currentVersion + 1;
       const wordCount = countWords(text);
 
-      const versionRow: Omit<ContentVersionRow, 'id'> = {
-        content_id: id,
+      const versionRow = {
+        contentId: id,
         version: newVersion,
         text,
-        word_count: wordCount,
+        wordCount,
         source,
-        previous_version: existing.currentVersion,
-        metadata_json: metadata ? JSON.stringify(metadata) : null,
-        created_at: now,
+        previousVersion: existing.currentVersion,
+        metadataJson: metadata ? JSON.stringify(metadata) : null,
+        createdAt: now,
       };
 
       const addVersionTx = db.transaction(() => {
-        insertVersionStmt.run(versionRow);
-        updateContentStmt.run({
-          id,
-          project_id: projectId,
-          structure_id: existing.structureId,
-          current_version: newVersion,
-          text,
-          status: existing.status,
-          analysis_json: null, // Clear analysis for new version
-          reviews_json: JSON.stringify(existing.reviews),
-          generation_history_json: JSON.stringify(existing.generationHistory),
-          locked: boolToInt(existing.locked),
-          lock_reason: existing.lockReason ?? null,
-          chapter_number: existing.chapterNumber ?? null,
-          created_at: existing.createdAt,
-          updated_at: now,
-          published_at: existing.publishedAt ?? null,
-        });
+        drizzleDb.insert(contentVersions).values(versionRow).run();
+        drizzleDb
+          .update(contents)
+          .set({
+            currentVersion: newVersion,
+            text,
+            analysisJson: null, // Clear analysis for new version
+            updatedAt: now,
+          })
+          .where(and(eq(contents.projectId, projectId), eq(contents.id, id)))
+          .run();
       });
       addVersionTx();
 
@@ -424,15 +444,25 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       const content = this.findById(projectId, id);
       if (!content) return 0;
 
-      const row = getVersionCountStmt.get(id) as { count: number } | undefined;
-      return row?.count ?? 0;
+      const rows = drizzleDb
+        .select()
+        .from(contentVersions)
+        .where(eq(contentVersions.contentId, id))
+        .all();
+      return rows.length;
     },
 
     getLatestVersions(projectId: string, id: string, limit: number): ContentVersion[] {
       const content = this.findById(projectId, id);
       if (!content) return [];
 
-      const rows = getLatestVersionsStmt.all(id, limit) as ContentVersionRow[];
+      const rows = drizzleDb
+        .select()
+        .from(contentVersions)
+        .where(eq(contentVersions.contentId, id))
+        .orderBy(desc(contentVersions.version))
+        .limit(limit)
+        .all();
       return rows.map(versionRowToVersion);
     },
 

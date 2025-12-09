@@ -1,12 +1,17 @@
 /**
  * Plot thread repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries.
  */
 
 import type Database from 'libsql';
+import { and, eq, inArray } from 'drizzle-orm';
 
 import type { NarrativePromise, PlotThread, ThreadTouch } from '@repo/types';
 
-import { createProjectScopedRepository, generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import type { DrizzleDB } from '../database';
+import { plotThreads } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 interface ContentRef {
   contentId: string;
@@ -14,30 +19,9 @@ interface ContentRef {
 }
 
 /**
- * Database row representation of a plot thread
+ * Convert Drizzle row to PlotThread entity
  */
-interface PlotThreadRow {
-  id: string;
-  project_id: string;
-  name: string;
-  description: string;
-  type: PlotThread['type'];
-  status: PlotThread['status'];
-  scope: PlotThread['scope'];
-  priority: number;
-  involved_characters_json: string;
-  related_locations_json: string;
-  promises_json: string;
-  touches_json: string;
-  parent_thread_id: string | null;
-  child_threads_json: string;
-  introduced_at_json: string | null;
-  resolved_at_json: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-function rowToPlotThread(row: PlotThreadRow): PlotThread {
+function rowToPlotThread(row: typeof plotThreads.$inferSelect): PlotThread {
   return {
     id: row.id,
     entityType: 'plot-thread',
@@ -47,16 +31,16 @@ function rowToPlotThread(row: PlotThreadRow): PlotThread {
     status: row.status,
     scope: row.scope,
     priority: row.priority,
-    involvedCharacters: parseJson<string[]>(row.involved_characters_json, []),
-    relatedLocations: parseJson<string[]>(row.related_locations_json, []),
-    promises: parseJson<NarrativePromise[]>(row.promises_json, []),
-    touches: parseJson<ThreadTouch[]>(row.touches_json, []),
-    parentThreadId: row.parent_thread_id ?? undefined,
-    childThreads: parseJson<string[]>(row.child_threads_json, []),
-    introducedAt: row.introduced_at_json ? (JSON.parse(row.introduced_at_json) as ContentRef) : undefined,
-    resolvedAt: row.resolved_at_json ? (JSON.parse(row.resolved_at_json) as ContentRef) : undefined,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    involvedCharacters: parseJson<string[]>(row.involvedCharactersJson, []),
+    relatedLocations: parseJson<string[]>(row.relatedLocationsJson, []),
+    promises: parseJson<NarrativePromise[]>(row.promisesJson, []),
+    touches: parseJson<ThreadTouch[]>(row.touchesJson, []),
+    parentThreadId: row.parentThreadId ?? undefined,
+    childThreads: parseJson<string[]>(row.childThreadsJson, []),
+    introducedAt: row.introducedAtJson ? (JSON.parse(row.introducedAtJson) as ContentRef) : undefined,
+    resolvedAt: row.resolvedAtJson ? (JSON.parse(row.resolvedAtJson) as ContentRef) : undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 
@@ -76,86 +60,69 @@ export interface PlotThreadRepository extends ProjectScopedRepository<PlotThread
   resolve(projectId: string, id: string, resolvedAt: ContentRef): PlotThread | undefined;
 }
 
-export function createPlotThreadRepository(db: Database.Database): PlotThreadRepository {
-  const base = createProjectScopedRepository<PlotThreadRow>(db, 'plot_threads');
-
-  const insertStmt = db.prepare(`
-    INSERT INTO plot_threads (
-      id, project_id, name, description, type, status, scope, priority,
-      involved_characters_json, related_locations_json, promises_json, touches_json,
-      parent_thread_id, child_threads_json, introduced_at_json, resolved_at_json,
-      created_at, updated_at
-    ) VALUES (
-      @id, @project_id, @name, @description, @type, @status, @scope, @priority,
-      @involved_characters_json, @related_locations_json, @promises_json, @touches_json,
-      @parent_thread_id, @child_threads_json, @introduced_at_json, @resolved_at_json,
-      @created_at, @updated_at
-    )
-  `);
-
-  const updateStmt = db.prepare(`
-    UPDATE plot_threads SET
-      name = @name,
-      description = @description,
-      type = @type,
-      status = @status,
-      scope = @scope,
-      priority = @priority,
-      involved_characters_json = @involved_characters_json,
-      related_locations_json = @related_locations_json,
-      promises_json = @promises_json,
-      touches_json = @touches_json,
-      parent_thread_id = @parent_thread_id,
-      child_threads_json = @child_threads_json,
-      introduced_at_json = @introduced_at_json,
-      resolved_at_json = @resolved_at_json,
-      updated_at = @updated_at
-    WHERE project_id = @project_id AND id = @id
-  `);
-
-  const findByNameStmt = db.prepare(`SELECT * FROM plot_threads WHERE project_id = ? AND name = ?`);
-  const findByTypeStmt = db.prepare(`SELECT * FROM plot_threads WHERE project_id = ? AND type = ?`);
-  const findByStatusStmt = db.prepare(`SELECT * FROM plot_threads WHERE project_id = ? AND status = ?`);
-  const findActiveStmt = db.prepare(`SELECT * FROM plot_threads WHERE project_id = ? AND status IN ('planned', 'active')`);
-  const findChildrenStmt = db.prepare(`SELECT * FROM plot_threads WHERE project_id = ? AND parent_thread_id = ?`);
-
+export function createPlotThreadRepository(_db: Database.Database, drizzleDb: DrizzleDB): PlotThreadRepository {
   return {
     findById(projectId: string, id: string): PlotThread | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.id, id)))
+        .get();
       return row ? rowToPlotThread(row) : undefined;
     },
 
     findByProject(projectId: string): PlotThread[] {
-      return base.findByProject(projectId).map(rowToPlotThread);
+      const rows = drizzleDb.select().from(plotThreads).where(eq(plotThreads.projectId, projectId)).all();
+      return rows.map(rowToPlotThread);
     },
 
     create(projectId: string, data: CreatePlotThreadData): PlotThread {
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: PlotThreadRow = {
+      const newRow = {
         id,
-        project_id: projectId,
+        projectId,
         name: data.name,
         description: data.description,
         type: data.type,
         status: data.status,
         scope: data.scope,
         priority: data.priority,
-        involved_characters_json: JSON.stringify(data.involvedCharacters),
-        related_locations_json: JSON.stringify(data.relatedLocations),
-        promises_json: JSON.stringify(data.promises),
-        touches_json: JSON.stringify(data.touches),
-        parent_thread_id: data.parentThreadId ?? null,
-        child_threads_json: JSON.stringify(data.childThreads),
-        introduced_at_json: data.introducedAt ? JSON.stringify(data.introducedAt) : null,
-        resolved_at_json: data.resolvedAt ? JSON.stringify(data.resolvedAt) : null,
-        created_at: now,
-        updated_at: now,
+        involvedCharactersJson: JSON.stringify(data.involvedCharacters),
+        relatedLocationsJson: JSON.stringify(data.relatedLocations),
+        promisesJson: JSON.stringify(data.promises),
+        touchesJson: JSON.stringify(data.touches),
+        parentThreadId: data.parentThreadId ?? null,
+        childThreadsJson: JSON.stringify(data.childThreads),
+        introducedAtJson: data.introducedAt ? JSON.stringify(data.introducedAt) : null,
+        resolvedAtJson: data.resolvedAt ? JSON.stringify(data.resolvedAt) : null,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToPlotThread(row);
+      drizzleDb.insert(plotThreads).values(newRow).run();
+
+      return {
+        id,
+        entityType: 'plot-thread',
+        name: data.name,
+        description: data.description,
+        type: data.type,
+        status: data.status,
+        scope: data.scope,
+        priority: data.priority,
+        involvedCharacters: data.involvedCharacters,
+        relatedLocations: data.relatedLocations,
+        promises: data.promises,
+        touches: data.touches,
+        parentThreadId: data.parentThreadId,
+        childThreads: data.childThreads,
+        introducedAt: data.introducedAt,
+        resolvedAt: data.resolvedAt,
+        createdAt: now,
+        updatedAt: now,
+      };
     },
 
     update(projectId: string, id: string, data: UpdatePlotThreadData): PlotThread | undefined {
@@ -163,26 +130,24 @@ export function createPlotThreadRepository(db: Database.Database): PlotThreadRep
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const updated: PlotThreadRow = {
-        id,
-        project_id: projectId,
+      const updateData = {
         name: data.name ?? existing.name,
         description: data.description ?? existing.description,
         type: data.type ?? existing.type,
         status: data.status ?? existing.status,
         scope: data.scope ?? existing.scope,
         priority: data.priority ?? existing.priority,
-        involved_characters_json: data.involvedCharacters
+        involvedCharactersJson: data.involvedCharacters
           ? JSON.stringify(data.involvedCharacters)
           : JSON.stringify(existing.involvedCharacters),
-        related_locations_json: data.relatedLocations
+        relatedLocationsJson: data.relatedLocations
           ? JSON.stringify(data.relatedLocations)
           : JSON.stringify(existing.relatedLocations),
-        promises_json: data.promises ? JSON.stringify(data.promises) : JSON.stringify(existing.promises),
-        touches_json: data.touches ? JSON.stringify(data.touches) : JSON.stringify(existing.touches),
-        parent_thread_id: data.parentThreadId !== undefined ? (data.parentThreadId ?? null) : (existing.parentThreadId ?? null),
-        child_threads_json: data.childThreads ? JSON.stringify(data.childThreads) : JSON.stringify(existing.childThreads),
-        introduced_at_json:
+        promisesJson: data.promises ? JSON.stringify(data.promises) : JSON.stringify(existing.promises),
+        touchesJson: data.touches ? JSON.stringify(data.touches) : JSON.stringify(existing.touches),
+        parentThreadId: data.parentThreadId !== undefined ? (data.parentThreadId ?? null) : (existing.parentThreadId ?? null),
+        childThreadsJson: data.childThreads ? JSON.stringify(data.childThreads) : JSON.stringify(existing.childThreads),
+        introducedAtJson:
           data.introducedAt !== undefined
             ? data.introducedAt
               ? JSON.stringify(data.introducedAt)
@@ -190,7 +155,7 @@ export function createPlotThreadRepository(db: Database.Database): PlotThreadRep
             : existing.introducedAt
               ? JSON.stringify(existing.introducedAt)
               : null,
-        resolved_at_json:
+        resolvedAtJson:
           data.resolvedAt !== undefined
             ? data.resolvedAt
               ? JSON.stringify(data.resolvedAt)
@@ -198,39 +163,64 @@ export function createPlotThreadRepository(db: Database.Database): PlotThreadRep
             : existing.resolvedAt
               ? JSON.stringify(existing.resolvedAt)
               : null,
-        created_at: existing.createdAt,
-        updated_at: now,
+        updatedAt: now,
       };
 
-      updateStmt.run(updated);
-      return rowToPlotThread(updated);
+      drizzleDb
+        .update(plotThreads)
+        .set(updateData)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.id, id)))
+        .run();
+
+      return this.findById(projectId, id);
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(plotThreads).where(eq(plotThreads.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByName(projectId: string, name: string): PlotThread | undefined {
-      const row = findByNameStmt.get(projectId, name) as PlotThreadRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.name, name)))
+        .get();
       return row ? rowToPlotThread(row) : undefined;
     },
 
     findByType(projectId: string, type: PlotThread['type']): PlotThread[] {
-      const rows = findByTypeStmt.all(projectId, type) as PlotThreadRow[];
+      const rows = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.type, type)))
+        .all();
       return rows.map(rowToPlotThread);
     },
 
     findByStatus(projectId: string, status: PlotThread['status']): PlotThread[] {
-      const rows = findByStatusStmt.all(projectId, status) as PlotThreadRow[];
+      const rows = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.status, status)))
+        .all();
       return rows.map(rowToPlotThread);
     },
 
     findActive(projectId: string): PlotThread[] {
-      const rows = findActiveStmt.all(projectId) as PlotThreadRow[];
+      const rows = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), inArray(plotThreads.status, ['planned', 'active'])))
+        .all();
       return rows.map(rowToPlotThread);
     },
 
@@ -240,7 +230,11 @@ export function createPlotThreadRepository(db: Database.Database): PlotThreadRep
     },
 
     findChildren(projectId: string, parentId: string): PlotThread[] {
-      const rows = findChildrenStmt.all(projectId, parentId) as PlotThreadRow[];
+      const rows = drizzleDb
+        .select()
+        .from(plotThreads)
+        .where(and(eq(plotThreads.projectId, projectId), eq(plotThreads.parentThreadId, parentId)))
+        .all();
       return rows.map(rowToPlotThread);
     },
 

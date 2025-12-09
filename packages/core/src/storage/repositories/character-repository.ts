@@ -1,21 +1,21 @@
 /**
  * Character repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries while maintaining
+ * compatibility with raw SQL for FTS5 search.
  */
 
 import type Database from 'libsql';
+import { and, eq } from 'drizzle-orm';
 
 import type { AppearanceRef, Character, CharacterArc, Relationship, Trait } from '@repo/types';
 
-import {
-  createProjectScopedRepository,
-  generateId,
-  nowTimestamp,
-  parseJson,
-  type ProjectScopedRepository,
-} from '../repository';
+import type { DrizzleDB } from '../database';
+import { characters } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
- * Database row representation of a character
+ * Database row representation of a character (for raw SQL FTS5 queries)
  */
 interface CharacterRow {
   id: string;
@@ -35,9 +35,31 @@ interface CharacterRow {
 }
 
 /**
- * Convert database row to Character entity
+ * Convert Drizzle row to Character entity
  */
-function rowToCharacter(row: CharacterRow): Character {
+function rowToCharacter(row: typeof characters.$inferSelect): Character {
+  return {
+    id: row.id,
+    type: 'character',
+    name: row.name,
+    aliases: parseJson<string[]>(row.aliasesJson, []),
+    description: row.description,
+    traits: parseJson<Trait[]>(row.traitsJson, []),
+    relationships: parseJson<Relationship[]>(row.relationshipsJson, []),
+    arc: row.arcJson ? (JSON.parse(row.arcJson) as CharacterArc) : undefined,
+    voiceSamples: parseJson<string[]>(row.voiceSamplesJson, []),
+    appearances: parseJson<AppearanceRef[]>(row.appearancesJson, []),
+    role: row.role,
+    status: row.status,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+/**
+ * Convert raw SQL row to Character entity (for FTS5 queries)
+ */
+function rawRowToCharacter(row: CharacterRow): Character {
   return {
     id: row.id,
     type: 'character',
@@ -83,50 +105,8 @@ export interface CharacterRepository extends ProjectScopedRepository<Character, 
 /**
  * Create a character repository
  */
-export function createCharacterRepository(db: Database.Database): CharacterRepository {
-  const base = createProjectScopedRepository<CharacterRow>(db, 'characters');
-
-  // Prepared statements
-  const insertStmt = db.prepare(`
-    INSERT INTO characters (
-      id, project_id, name, aliases_json, description, traits_json,
-      relationships_json, arc_json, voice_samples_json, appearances_json,
-      role, status, created_at, updated_at
-    ) VALUES (
-      @id, @project_id, @name, @aliases_json, @description, @traits_json,
-      @relationships_json, @arc_json, @voice_samples_json, @appearances_json,
-      @role, @status, @created_at, @updated_at
-    )
-  `);
-
-  const updateStmt = db.prepare(`
-    UPDATE characters SET
-      name = @name,
-      aliases_json = @aliases_json,
-      description = @description,
-      traits_json = @traits_json,
-      relationships_json = @relationships_json,
-      arc_json = @arc_json,
-      voice_samples_json = @voice_samples_json,
-      appearances_json = @appearances_json,
-      role = @role,
-      status = @status,
-      updated_at = @updated_at
-    WHERE project_id = @project_id AND id = @id
-  `);
-
-  const findByNameStmt = db.prepare(`
-    SELECT * FROM characters WHERE project_id = ? AND name = ?
-  `);
-
-  const findByRoleStmt = db.prepare(`
-    SELECT * FROM characters WHERE project_id = ? AND role = ?
-  `);
-
-  const findByStatusStmt = db.prepare(`
-    SELECT * FROM characters WHERE project_id = ? AND status = ?
-  `);
-
+export function createCharacterRepository(db: Database.Database, drizzleDb: DrizzleDB): CharacterRepository {
+  // FTS5 search requires raw SQL (Drizzle doesn't support virtual tables)
   const searchStmt = db.prepare(`
     SELECT c.* FROM characters c
     JOIN characters_fts fts ON c.id = fts.id
@@ -135,37 +115,58 @@ export function createCharacterRepository(db: Database.Database): CharacterRepos
 
   return {
     findById(projectId: string, id: string): Character | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(characters)
+        .where(and(eq(characters.projectId, projectId), eq(characters.id, id)))
+        .get();
       return row ? rowToCharacter(row) : undefined;
     },
 
     findByProject(projectId: string): Character[] {
-      return base.findByProject(projectId).map(rowToCharacter);
+      const rows = drizzleDb.select().from(characters).where(eq(characters.projectId, projectId)).all();
+      return rows.map(rowToCharacter);
     },
 
     create(projectId: string, data: CreateCharacterData): Character {
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: CharacterRow = {
+      const newRow = {
         id,
-        project_id: projectId,
+        projectId,
         name: data.name,
-        aliases_json: JSON.stringify(data.aliases),
+        aliasesJson: JSON.stringify(data.aliases),
         description: data.description,
-        traits_json: JSON.stringify(data.traits),
-        relationships_json: JSON.stringify(data.relationships),
-        arc_json: data.arc ? JSON.stringify(data.arc) : null,
-        voice_samples_json: JSON.stringify(data.voiceSamples),
-        appearances_json: JSON.stringify(data.appearances),
+        traitsJson: JSON.stringify(data.traits),
+        relationshipsJson: JSON.stringify(data.relationships),
+        arcJson: data.arc ? JSON.stringify(data.arc) : null,
+        voiceSamplesJson: JSON.stringify(data.voiceSamples),
+        appearancesJson: JSON.stringify(data.appearances),
         role: data.role,
         status: data.status,
-        created_at: now,
-        updated_at: now,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToCharacter(row);
+      drizzleDb.insert(characters).values(newRow).run();
+
+      return {
+        id,
+        type: 'character',
+        name: data.name,
+        aliases: data.aliases,
+        description: data.description,
+        traits: data.traits,
+        relationships: data.relationships,
+        arc: data.arc,
+        voiceSamples: data.voiceSamples,
+        appearances: data.appearances,
+        role: data.role,
+        status: data.status,
+        createdAt: now,
+        updatedAt: now,
+      };
     },
 
     update(projectId: string, id: string, data: UpdateCharacterData): Character | undefined {
@@ -173,49 +174,66 @@ export function createCharacterRepository(db: Database.Database): CharacterRepos
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const updated: CharacterRow = {
-        id,
-        project_id: projectId,
+      const updateData = {
         name: data.name ?? existing.name,
-        aliases_json: data.aliases ? JSON.stringify(data.aliases) : JSON.stringify(existing.aliases),
+        aliasesJson: data.aliases ? JSON.stringify(data.aliases) : JSON.stringify(existing.aliases),
         description: data.description ?? existing.description,
-        traits_json: data.traits ? JSON.stringify(data.traits) : JSON.stringify(existing.traits),
-        relationships_json: data.relationships
-          ? JSON.stringify(data.relationships)
-          : JSON.stringify(existing.relationships),
-        arc_json: 'arc' in data ? (data.arc ? JSON.stringify(data.arc) : null) : (existing.arc ? JSON.stringify(existing.arc) : null),
-        voice_samples_json: data.voiceSamples ? JSON.stringify(data.voiceSamples) : JSON.stringify(existing.voiceSamples),
-        appearances_json: data.appearances ? JSON.stringify(data.appearances) : JSON.stringify(existing.appearances),
+        traitsJson: data.traits ? JSON.stringify(data.traits) : JSON.stringify(existing.traits),
+        relationshipsJson: data.relationships ? JSON.stringify(data.relationships) : JSON.stringify(existing.relationships),
+        arcJson: 'arc' in data ? (data.arc ? JSON.stringify(data.arc) : null) : (existing.arc ? JSON.stringify(existing.arc) : null),
+        voiceSamplesJson: data.voiceSamples ? JSON.stringify(data.voiceSamples) : JSON.stringify(existing.voiceSamples),
+        appearancesJson: data.appearances ? JSON.stringify(data.appearances) : JSON.stringify(existing.appearances),
         role: data.role ?? existing.role,
         status: data.status ?? existing.status,
-        created_at: existing.createdAt,
-        updated_at: now,
+        updatedAt: now,
       };
 
-      updateStmt.run(updated);
-      return rowToCharacter(updated);
+      drizzleDb
+        .update(characters)
+        .set(updateData)
+        .where(and(eq(characters.projectId, projectId), eq(characters.id, id)))
+        .run();
+
+      return this.findById(projectId, id);
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(characters)
+        .where(and(eq(characters.projectId, projectId), eq(characters.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(characters).where(eq(characters.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByName(projectId: string, name: string): Character | undefined {
-      const row = findByNameStmt.get(projectId, name) as CharacterRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(characters)
+        .where(and(eq(characters.projectId, projectId), eq(characters.name, name)))
+        .get();
       return row ? rowToCharacter(row) : undefined;
     },
 
     findByRole(projectId: string, role: Character['role']): Character[] {
-      const rows = findByRoleStmt.all(projectId, role) as CharacterRow[];
+      const rows = drizzleDb
+        .select()
+        .from(characters)
+        .where(and(eq(characters.projectId, projectId), eq(characters.role, role)))
+        .all();
       return rows.map(rowToCharacter);
     },
 
     findByStatus(projectId: string, status: Character['status']): Character[] {
-      const rows = findByStatusStmt.all(projectId, status) as CharacterRow[];
+      const rows = drizzleDb
+        .select()
+        .from(characters)
+        .where(and(eq(characters.projectId, projectId), eq(characters.status, status)))
+        .all();
       return rows.map(rowToCharacter);
     },
 
@@ -223,7 +241,7 @@ export function createCharacterRepository(db: Database.Database): CharacterRepos
       // FTS5 requires proper quoting for special characters
       const escapedQuery = query.replace(/"/g, '""');
       const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as CharacterRow[];
-      return rows.map(rowToCharacter);
+      return rows.map(rawRowToCharacter);
     },
 
     addRelationship(projectId: string, id: string, relationship: Relationship): Character | undefined {

@@ -1,15 +1,21 @@
 /**
  * Location repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries while maintaining
+ * compatibility with raw SQL for FTS5 search.
  */
 
 import type Database from 'libsql';
+import { and, eq, isNull } from 'drizzle-orm';
 
 import type { Location, LocationFeature, LocationRelation } from '@repo/types';
 
-import { createProjectScopedRepository, generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import type { DrizzleDB } from '../database';
+import { locations } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
- * Database row representation of a location
+ * Database row representation of a location (for raw SQL FTS5 queries)
  */
 interface LocationRow {
   id: string;
@@ -29,9 +35,31 @@ interface LocationRow {
 }
 
 /**
- * Convert database row to Location entity
+ * Convert Drizzle row to Location entity
  */
-function rowToLocation(row: LocationRow): Location {
+function rowToLocation(row: typeof locations.$inferSelect): Location {
+  return {
+    id: row.id,
+    entityType: 'location',
+    name: row.name,
+    aliases: parseJson<string[]>(row.aliasesJson, []),
+    description: row.description,
+    type: row.type,
+    parentId: row.parentId ?? undefined,
+    relations: parseJson<LocationRelation[]>(row.relationsJson, []),
+    features: parseJson<LocationFeature[]>(row.featuresJson, []),
+    atmosphere: row.atmosphere ?? undefined,
+    associatedCharacters: parseJson<string[]>(row.associatedCharactersJson, []),
+    status: row.status,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+/**
+ * Convert raw SQL row to Location entity (for FTS5 queries)
+ */
+function rawRowToLocation(row: LocationRow): Location {
   return {
     id: row.id,
     entityType: 'location',
@@ -64,41 +92,8 @@ export interface LocationRepository extends ProjectScopedRepository<Location, Cr
   associateCharacter(projectId: string, id: string, characterId: string): Location | undefined;
 }
 
-export function createLocationRepository(db: Database.Database): LocationRepository {
-  const base = createProjectScopedRepository<LocationRow>(db, 'locations');
-
-  const insertStmt = db.prepare(`
-    INSERT INTO locations (
-      id, project_id, name, aliases_json, description, type, parent_id,
-      relations_json, features_json, atmosphere, associated_characters_json,
-      status, created_at, updated_at
-    ) VALUES (
-      @id, @project_id, @name, @aliases_json, @description, @type, @parent_id,
-      @relations_json, @features_json, @atmosphere, @associated_characters_json,
-      @status, @created_at, @updated_at
-    )
-  `);
-
-  const updateStmt = db.prepare(`
-    UPDATE locations SET
-      name = @name,
-      aliases_json = @aliases_json,
-      description = @description,
-      type = @type,
-      parent_id = @parent_id,
-      relations_json = @relations_json,
-      features_json = @features_json,
-      atmosphere = @atmosphere,
-      associated_characters_json = @associated_characters_json,
-      status = @status,
-      updated_at = @updated_at
-    WHERE project_id = @project_id AND id = @id
-  `);
-
-  const findByNameStmt = db.prepare(`SELECT * FROM locations WHERE project_id = ? AND name = ?`);
-  const findByTypeStmt = db.prepare(`SELECT * FROM locations WHERE project_id = ? AND type = ?`);
-  const findByParentStmt = db.prepare(`SELECT * FROM locations WHERE project_id = ? AND parent_id IS ?`);
-  const findChildrenStmt = db.prepare(`SELECT * FROM locations WHERE project_id = ? AND parent_id = ?`);
+export function createLocationRepository(db: Database.Database, drizzleDb: DrizzleDB): LocationRepository {
+  // FTS5 search requires raw SQL (Drizzle doesn't support virtual tables)
   const searchStmt = db.prepare(`
     SELECT l.* FROM locations l
     JOIN locations_fts fts ON l.id = fts.id
@@ -107,37 +102,58 @@ export function createLocationRepository(db: Database.Database): LocationReposit
 
   return {
     findById(projectId: string, id: string): Location | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(locations)
+        .where(and(eq(locations.projectId, projectId), eq(locations.id, id)))
+        .get();
       return row ? rowToLocation(row) : undefined;
     },
 
     findByProject(projectId: string): Location[] {
-      return base.findByProject(projectId).map(rowToLocation);
+      const rows = drizzleDb.select().from(locations).where(eq(locations.projectId, projectId)).all();
+      return rows.map(rowToLocation);
     },
 
     create(projectId: string, data: CreateLocationData): Location {
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: LocationRow = {
+      const newRow = {
         id,
-        project_id: projectId,
+        projectId,
         name: data.name,
-        aliases_json: JSON.stringify(data.aliases),
+        aliasesJson: JSON.stringify(data.aliases),
         description: data.description,
         type: data.type,
-        parent_id: data.parentId ?? null,
-        relations_json: JSON.stringify(data.relations),
-        features_json: JSON.stringify(data.features),
+        parentId: data.parentId ?? null,
+        relationsJson: JSON.stringify(data.relations),
+        featuresJson: JSON.stringify(data.features),
         atmosphere: data.atmosphere ?? null,
-        associated_characters_json: JSON.stringify(data.associatedCharacters),
+        associatedCharactersJson: JSON.stringify(data.associatedCharacters),
         status: data.status,
-        created_at: now,
-        updated_at: now,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToLocation(row);
+      drizzleDb.insert(locations).values(newRow).run();
+
+      return {
+        id,
+        entityType: 'location',
+        name: data.name,
+        aliases: data.aliases,
+        description: data.description,
+        type: data.type,
+        parentId: data.parentId,
+        relations: data.relations,
+        features: data.features,
+        atmosphere: data.atmosphere,
+        associatedCharacters: data.associatedCharacters,
+        status: data.status,
+        createdAt: now,
+        updatedAt: now,
+      };
     },
 
     update(projectId: string, id: string, data: UpdateLocationData): Location | undefined {
@@ -145,61 +161,83 @@ export function createLocationRepository(db: Database.Database): LocationReposit
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const updated: LocationRow = {
-        id,
-        project_id: projectId,
+      const updateData = {
         name: data.name ?? existing.name,
-        aliases_json: data.aliases ? JSON.stringify(data.aliases) : JSON.stringify(existing.aliases),
+        aliasesJson: data.aliases ? JSON.stringify(data.aliases) : JSON.stringify(existing.aliases),
         description: data.description ?? existing.description,
         type: data.type ?? existing.type,
-        parent_id: data.parentId !== undefined ? (data.parentId ?? null) : (existing.parentId ?? null),
-        relations_json: data.relations ? JSON.stringify(data.relations) : JSON.stringify(existing.relations),
-        features_json: data.features ? JSON.stringify(data.features) : JSON.stringify(existing.features),
+        parentId: data.parentId !== undefined ? (data.parentId ?? null) : (existing.parentId ?? null),
+        relationsJson: data.relations ? JSON.stringify(data.relations) : JSON.stringify(existing.relations),
+        featuresJson: data.features ? JSON.stringify(data.features) : JSON.stringify(existing.features),
         atmosphere: data.atmosphere !== undefined ? (data.atmosphere ?? null) : (existing.atmosphere ?? null),
-        associated_characters_json: data.associatedCharacters
+        associatedCharactersJson: data.associatedCharacters
           ? JSON.stringify(data.associatedCharacters)
           : JSON.stringify(existing.associatedCharacters),
         status: data.status ?? existing.status,
-        created_at: existing.createdAt,
-        updated_at: now,
+        updatedAt: now,
       };
 
-      updateStmt.run(updated);
-      return rowToLocation(updated);
+      drizzleDb
+        .update(locations)
+        .set(updateData)
+        .where(and(eq(locations.projectId, projectId), eq(locations.id, id)))
+        .run();
+
+      return this.findById(projectId, id);
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(locations)
+        .where(and(eq(locations.projectId, projectId), eq(locations.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(locations).where(eq(locations.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByName(projectId: string, name: string): Location | undefined {
-      const row = findByNameStmt.get(projectId, name) as LocationRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(locations)
+        .where(and(eq(locations.projectId, projectId), eq(locations.name, name)))
+        .get();
       return row ? rowToLocation(row) : undefined;
     },
 
     findByType(projectId: string, type: Location['type']): Location[] {
-      const rows = findByTypeStmt.all(projectId, type) as LocationRow[];
+      const rows = drizzleDb
+        .select()
+        .from(locations)
+        .where(and(eq(locations.projectId, projectId), eq(locations.type, type)))
+        .all();
       return rows.map(rowToLocation);
     },
 
     findByParent(projectId: string, parentId: string | null): Location[] {
-      const rows = findByParentStmt.all(projectId, parentId) as LocationRow[];
+      const condition = parentId === null
+        ? and(eq(locations.projectId, projectId), isNull(locations.parentId))
+        : and(eq(locations.projectId, projectId), eq(locations.parentId, parentId));
+      const rows = drizzleDb.select().from(locations).where(condition).all();
       return rows.map(rowToLocation);
     },
 
     findChildren(projectId: string, parentId: string): Location[] {
-      const rows = findChildrenStmt.all(projectId, parentId) as LocationRow[];
+      const rows = drizzleDb
+        .select()
+        .from(locations)
+        .where(and(eq(locations.projectId, projectId), eq(locations.parentId, parentId)))
+        .all();
       return rows.map(rowToLocation);
     },
 
     search(projectId: string, query: string): Location[] {
       const escapedQuery = query.replace(/"/g, '""');
       const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as LocationRow[];
-      return rows.map(rowToLocation);
+      return rows.map(rawRowToLocation);
     },
 
     addRelation(projectId: string, id: string, relation: LocationRelation): Location | undefined {
