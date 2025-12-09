@@ -189,11 +189,11 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Unfulfilled warnings
 
 ### 5.5 Serial dashboard UI
-- [ ] Release calendar
-- [ ] Buffer status
-- [ ] Hook patterns
-- [ ] Cycle indicator
-- [ ] Mystery board
+- [x] Release calendar
+- [x] Buffer status
+- [x] Hook patterns
+- [x] Cycle indicator
+- [x] Mystery board
 
 ## Phase 6: Polish
 

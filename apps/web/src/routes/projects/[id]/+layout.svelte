@@ -2,7 +2,7 @@
   import type { LayoutData } from './$types';
   import type { Snippet } from 'svelte';
   import { page } from '$app/stores';
-  import { ArrowLeft, BookOpen, SquarePen, Settings, ClipboardCheck, BarChart3 } from 'lucide-svelte';
+  import { ArrowLeft, BookOpen, SquarePen, Settings, ClipboardCheck, BarChart3, Radio } from 'lucide-svelte';
   import { cn } from '$lib/utils/cn';
 
   interface Props {
@@ -17,6 +17,7 @@
     { href: `/projects/${data.project.id}/workspace`, label: 'Workspace', icon: 'edit' },
     { href: `/projects/${data.project.id}/review`, label: 'Review', icon: 'review' },
     { href: `/projects/${data.project.id}/analytics`, label: 'Analytics', icon: 'analytics' },
+    { href: `/projects/${data.project.id}/serial`, label: 'Serial', icon: 'serial' },
     { href: `/projects/${data.project.id}/settings`, label: 'Settings', icon: 'settings' },
   ]);
 
@@ -58,6 +59,8 @@
             <ClipboardCheck size={18} />
           {:else if item.icon === 'analytics'}
             <BarChart3 size={18} />
+          {:else if item.icon === 'serial'}
+            <Radio size={18} />
           {:else if item.icon === 'settings'}
             <Settings size={18} />
           {/if}
