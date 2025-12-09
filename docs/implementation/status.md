@@ -155,12 +155,12 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] ValidationBadge component
 
 ### 4.5 Analytics dashboard UI
-- [ ] Dashboard page
-- [ ] Tension curve view
-- [ ] Character presence view
-- [ ] Plot thread timeline
-- [ ] Quality metrics
-- [ ] Filtering controls
+- [x] Dashboard page
+- [x] Tension curve view
+- [x] Character presence view
+- [x] Plot thread timeline
+- [x] Quality metrics
+- [x] Filtering controls
 
 ## Phase 5: Serial features
 

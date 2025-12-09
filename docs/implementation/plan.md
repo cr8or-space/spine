@@ -152,7 +152,7 @@ Version tracking, diff generation, and review workflows.
 - Lock point visualization
 - Status indicators
 
-## Phase 4: Analytics (In Progress)
+## Phase 4: Analytics (Complete)
 
 Visualization and tracking dashboards.
 
@@ -185,14 +185,15 @@ Visualization and tracking dashboards.
 - Quality trend charts
 - Chapter type distribution
 
-### 4.5 Analytics dashboard UI (Pending)
+### 4.5 Analytics dashboard UI (Complete)
 
 - Analytics dashboard page
-- Tension curve view
-- Character presence view
-- Plot thread timeline
-- Quality metrics overview
-- Filtering controls
+- Tension curve view with divergence tracking
+- Character presence heatmap
+- Plot thread Gantt timeline
+- Quality metrics chart (tension, pacing, hook strength)
+- Chapter type distribution (pie/bar chart)
+- Structure filtering controls
 
 ## Phase 5: Serial features (Partial)
 
