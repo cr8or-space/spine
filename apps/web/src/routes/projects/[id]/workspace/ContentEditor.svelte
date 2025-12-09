@@ -104,19 +104,19 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <Card>
-  <div class="content-editor">
-    <header class="editor-header">
-      <div class="header-left">
-        <h3 class="section-title">Content</h3>
+  <div class="flex flex-col gap-4">
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <h3 class="m-0 text-base font-semibold">Content</h3>
         {#if content}
           <Badge variant={statusVariant()}>{content.status}</Badge>
-          <span class="version-info">v{content.currentVersion}</span>
+          <span class="text-sm text-text-tertiary">v{content.currentVersion}</span>
         {:else}
           <Badge>New</Badge>
         {/if}
       </div>
-      <div class="header-right">
-        <span class="word-count">{wordCount} words</span>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-text-secondary">{wordCount} words</span>
         {#if content?.locked}
           <Badge variant="danger">Locked</Badge>
         {/if}
@@ -125,27 +125,27 @@
 
     <!-- Continuity Warnings -->
     {#if continuityIssues.length > 0}
-      <div class="continuity-warnings">
-        <header class="warnings-header">
+      <div class="rounded-md border border-warning bg-warning-light p-3">
+        <header class="mb-2 flex items-center gap-2 text-warning">
           <AlertTriangle size={16} />
-          <span class="warnings-count">
+          <span class="text-sm font-medium">
             {continuityIssues.length} continuity {continuityIssues.length === 1 ? 'issue' : 'issues'}
           </span>
         </header>
-        <ul class="warnings-list">
+        <ul class="m-0 flex list-none flex-col gap-2 p-0">
           {#each continuityIssues.slice(0, 5) as issue (issue.id)}
-            <li class="warning-item" class:critical={issue.severity === 'critical'} class:major={issue.severity === 'major'}>
+            <li class="flex items-start gap-2 text-sm">
               <Badge
                 variant={issue.severity === 'critical' ? 'danger' : issue.severity === 'major' ? 'warning' : 'default'}
                 size="sm"
               >
                 {issue.severity}
               </Badge>
-              <span class="warning-text">{issue.description}</span>
+              <span class="flex-1 text-text-secondary">{issue.description}</span>
             </li>
           {/each}
           {#if continuityIssues.length > 5}
-            <li class="warning-more">
+            <li class="text-sm italic text-text-tertiary">
               +{continuityIssues.length - 5} more issues
             </li>
           {/if}
@@ -154,9 +154,9 @@
     {/if}
 
     <!-- Editor Textarea -->
-    <div class="editor-wrapper">
+    <div class="min-h-[400px] flex-1">
       <textarea
-        class="editor-textarea"
+        class="min-h-[400px] w-full resize-y rounded-md border border-border bg-surface p-4 font-serif text-base leading-relaxed focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-primary-light disabled:cursor-not-allowed disabled:bg-bg disabled:opacity-70"
         value={editorText}
         oninput={handleTextChange}
         placeholder="Start writing..."
@@ -165,8 +165,8 @@
     </div>
 
     <!-- Editor Actions -->
-    <footer class="editor-footer">
-      <div class="footer-left">
+    <footer class="flex items-center justify-between border-t border-border pt-3">
+      <div class="flex items-center gap-3">
         <Button
           variant="secondary"
           onclick={() => (showGenerateDialog = true)}
@@ -176,9 +176,9 @@
           Generate
         </Button>
       </div>
-      <div class="footer-right">
+      <div class="flex items-center gap-3">
         {#if isDirty}
-          <span class="unsaved-indicator">Unsaved changes</span>
+          <span class="text-sm text-warning">Unsaved changes</span>
         {/if}
         <Button
           onclick={handleSave}
@@ -198,19 +198,19 @@
   title="Generate Content"
   onClose={() => (showGenerateDialog = false)}
 >
-  <div class="generate-dialog">
-    <p class="generate-description">
+  <div class="flex flex-col gap-4">
+    <p class="m-0 text-sm text-text-secondary">
       Generate content for "{structure.title}" using AI. The generated text will replace the current content.
     </p>
 
     {#if structure.beats.length === 0}
-      <div class="generate-warning">
+      <div class="flex items-center gap-2 rounded-md bg-warning-light p-3 text-sm text-warning">
         <Info size={16} />
         <span>Consider adding story beats before generating for better results.</span>
       </div>
     {/if}
 
-    <div class="generate-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Model"
         bind:value={generateOptions.model}
@@ -218,7 +218,7 @@
         placeholder="e.g., gpt-4"
       />
 
-      <div class="form-row">
+      <div class="grid grid-cols-2 gap-4">
         <TextField
           label="Temperature"
           type="number"
@@ -240,18 +240,19 @@
         placeholder="e.g., fast-paced, atmospheric"
       />
 
-      <label class="checkbox-label">
+      <label class="flex cursor-pointer items-center gap-2 text-sm">
         <input
           type="checkbox"
           bind:checked={generateOptions.includeSelfReview}
+          class="h-4 w-4"
         />
         <span>Include self-review pass</span>
       </label>
     </div>
 
-    <div class="generate-context">
-      <h4 class="context-title">Context that will be included:</h4>
-      <ul class="context-list">
+    <div class="rounded-md bg-bg p-3">
+      <h4 class="m-0 mb-2 text-sm font-medium text-text-secondary">Context that will be included:</h4>
+      <ul class="m-0 pl-4 text-sm text-text-tertiary [&>li]:mb-1">
         <li>{bible.characters.length} characters</li>
         <li>{bible.locations.length} locations</li>
         <li>{bible.worldRules.length} world rules</li>
@@ -265,7 +266,7 @@
       </ul>
     </div>
 
-    <div class="dialog-actions">
+    <div class="mt-2 flex justify-end gap-3 border-t border-border pt-4">
       <Button variant="secondary" onclick={() => (showGenerateDialog = false)}>
         Cancel
       </Button>
@@ -280,227 +281,3 @@
     </div>
   </div>
 </Dialog>
-
-<style>
-  .content-editor {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .section-title {
-    font-size: var(--text-base);
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .version-info {
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .word-count {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  /* Continuity Warnings */
-  .continuity-warnings {
-    padding: var(--space-3);
-    background-color: var(--color-warning-light);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-warning);
-  }
-
-  .warnings-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--color-warning);
-    margin-bottom: var(--space-2);
-  }
-
-  .warnings-count {
-    font-size: var(--text-sm);
-    font-weight: 500;
-  }
-
-  .warnings-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .warning-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-  }
-
-  .warning-text {
-    flex: 1;
-    color: var(--color-text-secondary);
-  }
-
-  .warning-more {
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
-    font-style: italic;
-  }
-
-  /* Editor Wrapper */
-  .editor-wrapper {
-    flex: 1;
-    min-height: 400px;
-  }
-
-  .editor-textarea {
-    width: 100%;
-    min-height: 400px;
-    padding: var(--space-4);
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: var(--text-base);
-    line-height: 1.8;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    resize: vertical;
-  }
-
-  .editor-textarea:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
-  }
-
-  .editor-textarea:disabled {
-    background-color: var(--color-bg);
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-
-  /* Editor Footer */
-  .editor-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .footer-left,
-  .footer-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .unsaved-indicator {
-    font-size: var(--text-sm);
-    color: var(--color-warning);
-  }
-
-  /* Generate Dialog */
-  .generate-dialog {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .generate-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-  }
-
-  .generate-warning {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3);
-    background-color: var(--color-warning-light);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    color: var(--color-warning);
-  }
-
-  .generate-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input {
-    width: 16px;
-    height: 16px;
-  }
-
-  .generate-context {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-  }
-
-  .context-title {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    margin: 0 0 var(--space-2);
-    color: var(--color-text-secondary);
-  }
-
-  .context-list {
-    margin: 0;
-    padding-left: var(--space-4);
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
-  }
-
-  .context-list li {
-    margin-bottom: var(--space-1);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

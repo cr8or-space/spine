@@ -1,6 +1,28 @@
-/* NovelGen Design System - Tailwind CSS v4 */
+/* NovelGen Design System - Tailwind CSS v4
+ *
+ * This file contains:
+ * 1. @theme block - Tailwind v4 theme tokens for utility class generation
+ * 2. :root block - CSS custom properties for var() usage in component styles
+ *
+ * The @theme block generates Tailwind utilities (e.g., bg-surface, text-primary)
+ * The :root block provides CSS variables for non-migrated components using var()
+ *
+ * TODO: Remove :root block when all components are migrated to Tailwind utilities
+ * Remaining components using CSS vars (14 files):
+ * - ValidationPanel.svelte, ValidationBadge.svelte
+ * - EntityCard.svelte, CreateEntityDialog.svelte
+ * - Bible detail pages: character, faction, location, plot-thread, timeline, world-rule
+ * - Route pages: +page.svelte, projects/[id]/+layout.svelte, projects/[id]/bible/+page.svelte,
+ *   projects/[id]/settings/+page.svelte
+ *
+ * MIGRATED (3.TW.14): workspace/+page.svelte, OutlineTree.svelte, StructureEditor.svelte,
+ * ContentEditor.svelte, AnalysisPanel.svelte, DraftHistory.svelte
+ */
 @import 'tailwindcss';
 
+/* =============================================================================
+ * Tailwind v4 Theme - Generates utility classes
+ * ============================================================================= */
 @theme {
   /* Colors - Light mode defaults */
   --color-bg: #ffffff;
@@ -18,7 +40,6 @@
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-light: #eef2ff;
-  --color-primary-text: #ffffff;
 
   --color-success: #10b981;
   --color-success-light: #d1fae5;
@@ -53,19 +74,15 @@
   --spacing-8: 2rem;
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
-  --spacing-16: 4rem;
 
   /* Border radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
   --radius-full: 9999px;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -73,11 +90,10 @@
   --transition-slow: 300ms ease;
 
   /* Layout */
-  --sidebar-width: 240px;
   --header-height: 56px;
 }
 
-/* Dark mode - Tailwind v4 uses CSS nesting with @media */
+/* Dark mode - Tailwind v4 theme overrides */
 @media (prefers-color-scheme: dark) {
   @theme {
     --color-bg: #1a1a1a;
@@ -96,7 +112,10 @@
   }
 }
 
-/* Legacy CSS custom properties for backward compatibility during migration */
+/* =============================================================================
+ * Legacy CSS Custom Properties - For var() usage in non-migrated components
+ * TODO: Remove when workspace components and remaining pages are migrated
+ * ============================================================================= */
 :root {
   /* Colors - Light mode */
   --color-bg: #ffffff;
@@ -114,7 +133,6 @@
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-light: #eef2ff;
-  --color-primary-text: #ffffff;
 
   --color-success: #10b981;
   --color-success-light: #d1fae5;
@@ -139,7 +157,7 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
 
-  /* Spacing - keep --space-* for backward compatibility */
+  /* Spacing - --space-* naming for legacy components */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -149,19 +167,15 @@
   --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
-  --space-16: 4rem;
 
   /* Border radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
   --radius-full: 9999px;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -169,7 +183,6 @@
   --transition-slow: 300ms ease;
 
   /* Layout */
-  --sidebar-width: 240px;
   --header-height: 56px;
 }
 

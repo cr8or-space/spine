@@ -68,7 +68,19 @@ This is a pure checklist file. No comments other than this one.
 - [x] Bible tab components migration
 
 ### 3.TW Cleanup
-- [ ] Remove legacy CSS
+- [x] Remove legacy CSS (partial - removed unused vars, kept vars needed by unmigrated components)
+- [x] Complete legacy CSS removal (blocked: requires workspace component migration)
+  - [x] Migrate workspace/+page.svelte
+  - [x] Migrate OutlineTree.svelte
+  - [x] Migrate StructureEditor.svelte
+  - [x] Migrate ContentEditor.svelte
+  - [x] Migrate AnalysisPanel.svelte
+  - [x] Migrate DraftHistory.svelte
+  - [x] Update app.css comments documenting remaining legacy CSS usage
+- [ ] Final legacy CSS removal (blocked: 14 files still using CSS vars)
+  - Components: ValidationPanel, ValidationBadge, EntityCard, CreateEntityDialog
+  - Routes: +page.svelte, projects/[id]/+layout.svelte, projects/[id]/bible/+page.svelte, projects/[id]/settings/+page.svelte
+  - Bible pages: character, faction, location, plot-thread, timeline, world-rule
 
 ## Phase 4: UI Accessibility (UA)
 

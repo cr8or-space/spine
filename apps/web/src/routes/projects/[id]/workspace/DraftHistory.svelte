@@ -96,35 +96,32 @@
   }
 </script>
 
-<div class="history-panel">
-  <header class="panel-header">
-    <h3 class="panel-title">History</h3>
-    <button class="close-btn" onclick={onClose} aria-label="Close panel">
+<div class="flex h-full flex-col">
+  <header class="flex items-center justify-between border-b border-border px-4 py-3">
+    <h3 class="m-0 text-sm font-semibold uppercase tracking-wide text-text-secondary">History</h3>
+    <button class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-0 text-text-tertiary hover:bg-surface-hover hover:text-text" onclick={onClose} aria-label="Close panel">
       <X size={16} />
     </button>
   </header>
 
-  <div class="panel-content">
+  <div class="flex flex-1 flex-col gap-4 overflow-auto p-4">
     {#if !content}
-      <div class="no-content">
-        <Clock size={32} strokeWidth={1.5} />
-        <p>No content history yet</p>
-        <p class="hint">Save some content to start tracking versions.</p>
+      <div class="flex flex-col items-center justify-center px-4 py-8 text-center text-text-secondary">
+        <Clock class="mb-3 text-text-tertiary" size={32} strokeWidth={1.5} />
+        <p class="m-0 text-sm">No content history yet</p>
+        <p class="mt-1 text-xs text-text-tertiary">Save some content to start tracking versions.</p>
       </div>
     {:else if sortedVersions.length === 0}
-      <div class="no-content">
-        <p>No versions available</p>
+      <div class="flex flex-col items-center justify-center px-4 py-8 text-center text-text-secondary">
+        <p class="m-0 text-sm">No versions available</p>
       </div>
     {:else}
-      <div class="versions-list">
+      <div class="flex flex-col gap-3">
         {#each sortedVersions as version (version.version)}
-          <div
-            class="version-item"
-            class:current={version.version === content.currentVersion}
-          >
-            <div class="version-header">
-              <div class="version-info">
-                <span class="version-number">v{version.version}</span>
+          <div class="rounded-md border p-3 {version.version === content.currentVersion ? 'border-primary bg-primary-light' : 'border-transparent bg-bg'}">
+            <div class="mb-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold">v{version.version}</span>
                 {#if version.version === content.currentVersion}
                   <Badge size="sm" variant="primary">Current</Badge>
                 {/if}
@@ -132,20 +129,20 @@
                   {getSourceLabel(version.source)}
                 </Badge>
               </div>
-              <span class="version-date">{formatDate(version.createdAt)}</span>
+              <span class="text-xs text-text-tertiary">{formatDate(version.createdAt)}</span>
             </div>
 
-            <div class="version-stats">
-              <span class="stat">{version.wordCount.toLocaleString()} words</span>
+            <div class="mb-2 flex flex-wrap gap-2 text-xs text-text-secondary">
+              <span class="rounded-sm bg-surface px-2 py-1">{version.wordCount.toLocaleString()} words</span>
               {#if version.metadata?.editDescription}
-                <span class="description">{version.metadata.editDescription}</span>
+                <span class="min-w-full flex-1 italic">{version.metadata.editDescription}</span>
               {/if}
               {#if version.metadata?.modelId}
-                <span class="model">{version.metadata.modelId}</span>
+                <span class="text-text-tertiary">{version.metadata.modelId}</span>
               {/if}
             </div>
 
-            <div class="version-actions">
+            <div class="flex gap-2">
               <Button size="sm" variant="ghost" onclick={() => previewVersion(version)}>
                 Preview
               </Button>
@@ -159,12 +156,12 @@
         {/each}
       </div>
 
-      <div class="history-stats">
-        <span class="stats-item">{sortedVersions.length} versions</span>
-        <span class="stats-item">
+      <div class="flex flex-wrap gap-3 border-t border-border pt-3">
+        <span class="text-xs text-text-tertiary">{sortedVersions.length} versions</span>
+        <span class="text-xs text-text-tertiary">
           {sortedVersions.filter(v => v.source === 'generated').length} generated
         </span>
-        <span class="stats-item">
+        <span class="text-xs text-text-tertiary">
           {sortedVersions.filter(v => v.source === 'edited').length} edited
         </span>
       </div>
@@ -179,20 +176,20 @@
   onClose={closePreview}
 >
   {#if selectedVersion}
-    <div class="preview-dialog">
-      <div class="preview-meta">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-3">
         <Badge variant={getSourceVariant(selectedVersion.source)}>
           {getSourceLabel(selectedVersion.source)}
         </Badge>
-        <span class="preview-date">{formatDate(selectedVersion.createdAt)}</span>
-        <span class="preview-words">{selectedVersion.wordCount.toLocaleString()} words</span>
+        <span class="text-sm text-text-secondary">{formatDate(selectedVersion.createdAt)}</span>
+        <span class="text-sm text-text-secondary">{selectedVersion.wordCount.toLocaleString()} words</span>
       </div>
 
-      <div class="preview-content">
-        <pre class="preview-text">{selectedVersion.text}</pre>
+      <div class="max-h-[400px] overflow-auto rounded-md border border-border bg-bg p-4">
+        <pre class="m-0 whitespace-pre-wrap font-serif text-sm leading-relaxed">{selectedVersion.text}</pre>
       </div>
 
-      <div class="preview-actions">
+      <div class="flex justify-end gap-3 border-t border-border pt-3">
         <Button variant="secondary" onclick={closePreview}>Close</Button>
         {#if content && selectedVersion.version !== content.currentVersion}
           <Button onclick={() => {
@@ -213,14 +210,14 @@
   title="Restore Version"
   onClose={() => (showRollbackConfirm = false)}
 >
-  <div class="rollback-dialog">
-    <p class="rollback-warning">
+  <div class="flex flex-col gap-4">
+    <p class="m-0 text-sm">
       Are you sure you want to restore version {rollbackTarget}? This will create a new version based on the selected version's content.
     </p>
-    <p class="rollback-note">
+    <p class="m-0 rounded-md bg-bg p-3 text-sm text-text-secondary">
       The current content will not be deleted - it will remain in the version history.
     </p>
-    <div class="rollback-actions">
+    <div class="flex justify-end gap-3 border-t border-border pt-3">
       <Button variant="secondary" onclick={() => (showRollbackConfirm = false)}>
         Cancel
       </Button>
@@ -230,241 +227,3 @@
     </div>
   </div>
 </Dialog>
-
-<style>
-  .history-panel {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .panel-title {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
-  }
-
-  .close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--color-text-tertiary);
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-  }
-
-  .close-btn:hover {
-    background-color: var(--color-surface-hover);
-    color: var(--color-text);
-  }
-
-  .panel-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  /* No Content State */
-  .no-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-8) var(--space-4);
-    color: var(--color-text-secondary);
-  }
-
-  .no-content :global(svg) {
-    margin-bottom: var(--space-3);
-    color: var(--color-text-tertiary);
-  }
-
-  .no-content p {
-    margin: 0;
-    font-size: var(--text-sm);
-  }
-
-  .hint {
-    color: var(--color-text-tertiary);
-    font-size: var(--text-xs);
-    margin-top: var(--space-1);
-  }
-
-  /* Versions List */
-  .versions-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .version-item {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-    border: 1px solid transparent;
-  }
-
-  .version-item.current {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-light);
-  }
-
-  .version-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-  }
-
-  .version-info {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .version-number {
-    font-size: var(--text-sm);
-    font-weight: 600;
-  }
-
-  .version-date {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-  }
-
-  .version-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-2);
-  }
-
-  .version-stats .stat {
-    padding: var(--space-1) var(--space-2);
-    background-color: var(--color-surface);
-    border-radius: var(--radius-sm);
-  }
-
-  .version-stats .description {
-    flex: 1;
-    min-width: 100%;
-    font-style: italic;
-  }
-
-  .version-stats .model {
-    color: var(--color-text-tertiary);
-  }
-
-  .version-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .history-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .stats-item {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-  }
-
-  /* Preview Dialog */
-  .preview-dialog {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .preview-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .preview-date,
-  .preview-words {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .preview-content {
-    max-height: 400px;
-    overflow: auto;
-    padding: var(--space-4);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-  }
-
-  .preview-text {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: var(--text-sm);
-    line-height: 1.8;
-    white-space: pre-wrap;
-    margin: 0;
-  }
-
-  .preview-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-
-  /* Rollback Dialog */
-  .rollback-dialog {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .rollback-warning {
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-
-  .rollback-note {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border-radius: var(--radius-md);
-  }
-
-  .rollback-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--color-border);
-  }
-</style>
