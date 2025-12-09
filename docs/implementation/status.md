@@ -300,3 +300,24 @@ Removed `better-sqlite3` dependency and fixed Playwright integration tests.
 - [x] Fixed Playwright integration test selectors (added `.nav-item`, `.project-link`, `.project-title`, `.back-link`, `.action-btn`, `.logo` classes to UI components)
 - [x] All 23 Playwright integration tests now pass
 - [x] All 933 tests pass (669 core, 143 llm, 111 web unit, types)
+
+### esbuild Build Script Fix (Complete)
+Fixed pnpm install warning about ignored build scripts.
+
+- [x] Added `esbuild` to `pnpm.onlyBuiltDependencies` in root `package.json`
+
+### Svelte 5 Reactivity Fixes (Complete)
+Fixed ESLint `state_referenced_locally` errors in Svelte 5 components.
+
+- [x] Added `@types/node` to `packages/core` devDependencies
+- [x] Updated `packages/core/tsconfig.json` to include node types
+- [x] Fixed `Card.svelte` - use `$derived` for hover classes
+- [x] Fixed `Select.svelte` - use `$derived` for inputId and triggerClasses
+- [x] Fixed `TextArea.svelte` - use `$derived` for inputId and textareaClasses
+- [x] Fixed `TextField.svelte` - use `$derived` for inputId and inputClasses
+- [x] Fixed `ValidationPanel.svelte` - use `$effect` to initialize collapsedPhases
+- [x] Fixed bible page - use `$derived` for tabs array
+- [x] Fixed all entity detail pages (character, faction, location, plot-thread, timeline, world-rule) - use `$effect` to sync form state with props
+- [x] Fixed settings page - use `$effect` to sync form state with props
+- [x] Fixed ContentEditor.svelte - use `$effect` to sync options with props
+- [x] Fixed StructureEditor.svelte - initialize forms empty and use `$effect` to sync

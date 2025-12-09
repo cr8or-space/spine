@@ -24,13 +24,15 @@
     max,
   }: Props = $props();
 
-  const inputId = id || `input-${Math.random().toString(36).slice(2, 9)}`;
+  let inputId = $derived(id || `input-${Math.random().toString(36).slice(2, 9)}`);
 
-  const inputClasses = cn(
-    'w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text transition-all duration-150',
-    'placeholder:text-text-tertiary',
-    'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
-    error && 'border-danger focus:ring-danger-light'
+  let inputClasses = $derived(
+    cn(
+      'w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text transition-all duration-150',
+      'placeholder:text-text-tertiary',
+      'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
+      error && 'border-danger focus:ring-danger-light'
+    )
   );
 </script>
 

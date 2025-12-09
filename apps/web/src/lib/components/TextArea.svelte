@@ -22,14 +22,16 @@
     disabled,
   }: Props = $props();
 
-  const inputId = id || `textarea-${Math.random().toString(36).slice(2, 9)}`;
+  let inputId = $derived(id || `textarea-${Math.random().toString(36).slice(2, 9)}`);
 
-  const textareaClasses = cn(
-    'w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text',
-    'resize-y min-h-20 transition-all duration-150',
-    'placeholder:text-text-tertiary',
-    'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
-    error && 'border-danger focus:ring-danger-light'
+  let textareaClasses = $derived(
+    cn(
+      'w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text',
+      'resize-y min-h-20 transition-all duration-150',
+      'placeholder:text-text-tertiary',
+      'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
+      error && 'border-danger focus:ring-danger-light'
+    )
   );
 </script>
 

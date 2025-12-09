@@ -19,12 +19,24 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.character.name,
-    description: data.character.description,
-    aliases: data.character.aliases.join(', '),
-    role: data.character.role,
-    status: data.character.status,
-    voiceSamples: data.character.voiceSamples.join('\n\n---\n\n'),
+    name: '',
+    description: '',
+    aliases: '',
+    role: '' as 'protagonist' | 'antagonist' | 'major' | 'supporting' | 'minor',
+    status: '' as 'active' | 'deceased' | 'absent' | 'unknown',
+    voiceSamples: '',
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.character.name,
+      description: data.character.description,
+      aliases: data.character.aliases.join(', '),
+      role: data.character.role,
+      status: data.character.status,
+      voiceSamples: data.character.voiceSamples.join('\n\n---\n\n'),
+    };
   });
 
   // Dialog states

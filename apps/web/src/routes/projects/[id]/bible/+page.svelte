@@ -13,14 +13,14 @@
   let activeTab = $state('characters');
   let searchQuery = $state('');
 
-  const tabs = [
+  let tabs = $derived([
     { id: 'characters', label: 'Characters', count: data.bible.characters.length },
     { id: 'locations', label: 'Locations', count: data.bible.locations.length },
     { id: 'factions', label: 'Factions', count: data.bible.factions.length },
     { id: 'world-rules', label: 'World Rules', count: data.bible.worldRules.length },
     { id: 'plot-threads', label: 'Plot Threads', count: data.bible.plotThreads.length },
     { id: 'timeline', label: 'Timeline', count: data.bible.timelineEvents.length },
-  ];
+  ]);
 </script>
 
 <svelte:head>

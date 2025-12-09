@@ -18,15 +18,30 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.worldRule.name,
-    category: data.worldRule.category,
-    rule: data.worldRule.rule,
-    description: data.worldRule.description,
-    rationale: data.worldRule.rationale || '',
-    consequences: data.worldRule.consequences || '',
-    priority: data.worldRule.priority,
-    established: data.worldRule.established,
-    publicKnowledge: data.worldRule.publicKnowledge,
+    name: '',
+    category: '' as typeof data.worldRule.category,
+    rule: '',
+    description: '',
+    rationale: '',
+    consequences: '',
+    priority: 0,
+    established: false,
+    publicKnowledge: false,
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.worldRule.name,
+      category: data.worldRule.category,
+      rule: data.worldRule.rule,
+      description: data.worldRule.description,
+      rationale: data.worldRule.rationale || '',
+      consequences: data.worldRule.consequences || '',
+      priority: data.worldRule.priority,
+      established: data.worldRule.established,
+      publicKnowledge: data.worldRule.publicKnowledge,
+    };
   });
 
   // Dialog states

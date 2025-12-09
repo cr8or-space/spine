@@ -6,11 +6,19 @@
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
 
-  // Form state
-  let title = $state(data.project.title);
-  let format = $state(data.project.format);
-  let author = $state(data.project.metadata.author || '');
-  let description = $state(data.project.metadata.description || '');
+  // Form state - initialized empty, synced via $effect
+  let title = $state('');
+  let format = $state('' as typeof data.project.format);
+  let author = $state('');
+  let description = $state('');
+
+  // Sync form with data when it changes
+  $effect(() => {
+    title = data.project.title;
+    format = data.project.format;
+    author = data.project.metadata.author || '';
+    description = data.project.metadata.description || '';
+  });
 
   const formatOptions = [
     { value: 'web-serial', label: 'Web Serial' },

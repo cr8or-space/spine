@@ -17,13 +17,26 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.location.name,
-    description: data.location.description,
-    aliases: data.location.aliases.join(', '),
-    type: data.location.type,
-    status: data.location.status,
-    features: data.location.features.join('\n'),
-    associatedCharacters: data.location.associatedCharacters,
+    name: '',
+    description: '',
+    aliases: '',
+    type: '' as typeof data.location.type,
+    status: '' as typeof data.location.status,
+    features: '',
+    associatedCharacters: [] as string[],
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.location.name,
+      description: data.location.description,
+      aliases: data.location.aliases.join(', '),
+      type: data.location.type,
+      status: data.location.status,
+      features: data.location.features.join('\n'),
+      associatedCharacters: data.location.associatedCharacters,
+    };
   });
 
   // Dialog states

@@ -17,18 +17,36 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.event.name,
-    description: data.event.description,
-    type: data.event.type,
-    significance: data.event.significance,
-    positionDate: data.event.position.date || '',
-    positionStoryTime: data.event.position.storyTime || '',
-    positionChapterNumber: data.event.position.chapterNumber?.toString() || '',
-    positionApproximate: data.event.position.approximate,
-    duration: data.event.duration || '',
-    revealed: data.event.revealed,
-    involvedCharacters: data.event.involvedCharacters,
-    locations: data.event.locations,
+    name: '',
+    description: '',
+    type: '' as typeof data.event.type,
+    significance: '' as typeof data.event.significance,
+    positionDate: '',
+    positionStoryTime: '',
+    positionChapterNumber: '',
+    positionApproximate: false,
+    duration: '',
+    revealed: false,
+    involvedCharacters: [] as string[],
+    locations: [] as string[],
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.event.name,
+      description: data.event.description,
+      type: data.event.type,
+      significance: data.event.significance,
+      positionDate: data.event.position.date || '',
+      positionStoryTime: data.event.position.storyTime || '',
+      positionChapterNumber: data.event.position.chapterNumber?.toString() || '',
+      positionApproximate: data.event.position.approximate,
+      duration: data.event.duration || '',
+      revealed: data.event.revealed,
+      involvedCharacters: data.event.involvedCharacters,
+      locations: data.event.locations,
+    };
   });
 
   // Dialog states

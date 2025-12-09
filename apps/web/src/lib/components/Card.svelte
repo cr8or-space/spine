@@ -20,9 +20,11 @@
     lg: 'p-6',
   };
 
-  const hoverClasses = hover
-    ? 'cursor-pointer transition-all duration-150 hover:border-primary hover:shadow-md'
-    : '';
+  let hoverClasses = $derived(
+    hover
+      ? 'cursor-pointer transition-all duration-150 hover:border-primary hover:shadow-md'
+      : ''
+  );
 </script>
 
 <div class={cn(baseClasses, paddingClasses[padding], hoverClasses, className)}>

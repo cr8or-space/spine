@@ -53,8 +53,13 @@
 
   const PHASE_ORDER: ValidationPhase[] = ['structural', 'automated', 'computed'];
 
-  // Collapsed state for each phase
-  let collapsedPhases = $state<Set<ValidationPhase>>(new Set(initiallyCollapsed));
+  // Collapsed state for each phase - initialized from prop
+  let collapsedPhases = $state<Set<ValidationPhase>>(new Set());
+
+  // Initialize from prop on mount
+  $effect(() => {
+    collapsedPhases = new Set(initiallyCollapsed);
+  });
 
   // Group results by phase
   let groupedResults = $derived.by(() => {

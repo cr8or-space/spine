@@ -17,13 +17,26 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.plotThread.name,
-    description: data.plotThread.description,
-    type: data.plotThread.type,
-    status: data.plotThread.status,
-    scope: data.plotThread.scope,
-    priority: data.plotThread.priority,
-    involvedCharacters: data.plotThread.involvedCharacters,
+    name: '',
+    description: '',
+    type: '' as typeof data.plotThread.type,
+    status: '' as typeof data.plotThread.status,
+    scope: '' as typeof data.plotThread.scope,
+    priority: 0,
+    involvedCharacters: [] as string[],
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.plotThread.name,
+      description: data.plotThread.description,
+      type: data.plotThread.type,
+      status: data.plotThread.status,
+      scope: data.plotThread.scope,
+      priority: data.plotThread.priority,
+      involvedCharacters: data.plotThread.involvedCharacters,
+    };
   });
 
   // Dialog states

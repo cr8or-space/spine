@@ -13,21 +13,21 @@
 
   let isEditing = $state(false);
   let editForm = $state({
-    title: structure.title,
-    summary: structure.summary,
-    chapterType: structure.chapterType || '',
-    tensionTarget: structure.tensionTarget?.toString() || '',
-    targetWordCount: structure.targetWordCount?.toString() || '',
-    notes: structure.notes || '',
+    title: '',
+    summary: '',
+    chapterType: '',
+    tensionTarget: '',
+    targetWordCount: '',
+    notes: '',
   });
 
   let newBeatDescription = $state('');
   let newBeatWordCount = $state('');
 
   let hookForm = $state({
-    type: structure.hook?.type || '',
-    description: structure.hook?.description || '',
-    targetStrength: structure.hook?.targetStrength?.toString() || '',
+    type: '',
+    description: '',
+    targetStrength: '',
   });
 
   // Reset forms when structure changes

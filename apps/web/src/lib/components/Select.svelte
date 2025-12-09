@@ -43,7 +43,7 @@
     placeholder = 'Select an option...',
   }: Props = $props();
 
-  const inputId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
+  let inputId = $derived(id || `select-${Math.random().toString(36).slice(2, 9)}`);
 
   let selectedLabel = $derived(
     options.find((opt) => opt.value === value)?.label ?? placeholder
@@ -58,12 +58,14 @@
     }
   }
 
-  const triggerClasses = cn(
-    'flex items-center justify-between w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text cursor-pointer transition-all duration-150',
-    'hover:border-text-tertiary',
-    'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
-    'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
-    error && 'border-danger focus:ring-danger-light'
+  let triggerClasses = $derived(
+    cn(
+      'flex items-center justify-between w-full px-3 py-2 text-sm bg-bg border border-border rounded-md text-text cursor-pointer transition-all duration-150',
+      'hover:border-text-tertiary',
+      'focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary-light',
+      'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+      error && 'border-danger focus:ring-danger-light'
+    )
   );
 </script>
 

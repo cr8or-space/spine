@@ -19,14 +19,28 @@
   // Edit state
   let isEditing = $state(false);
   let editForm = $state({
-    name: data.faction.name,
-    description: data.faction.description,
-    aliases: data.faction.aliases.join(', '),
-    type: data.faction.type,
-    status: data.faction.status,
-    influence: data.faction.influence,
-    ideology: data.faction.ideology || '',
-    goals: data.faction.goals.join('\n'),
+    name: '',
+    description: '',
+    aliases: '',
+    type: '' as typeof data.faction.type,
+    status: '' as typeof data.faction.status,
+    influence: '' as typeof data.faction.influence,
+    ideology: '',
+    goals: '',
+  });
+
+  // Sync form with data when it changes
+  $effect(() => {
+    editForm = {
+      name: data.faction.name,
+      description: data.faction.description,
+      aliases: data.faction.aliases.join(', '),
+      type: data.faction.type,
+      status: data.faction.status,
+      influence: data.faction.influence,
+      ideology: data.faction.ideology || '',
+      goals: data.faction.goals.join('\n'),
+    };
   });
 
   // Dialog states

@@ -12,7 +12,7 @@
 
   let { structure, content, bible }: Props = $props();
 
-  let editorText = $state(content?.text || '');
+  let editorText = $state('');
   let isDirty = $state(false);
   let isSaving = $state(false);
   let showGenerateDialog = $state(false);
@@ -21,7 +21,7 @@
   let generateOptions = $state({
     model: '',
     temperature: '0.7',
-    targetWordCount: structure.targetWordCount?.toString() || '2000',
+    targetWordCount: '2000',
     styleGuidance: '',
     includeSelfReview: true,
   });
@@ -31,9 +31,10 @@
     isDirty = editorText !== (content?.text || '');
   });
 
-  // Reset editor when structure changes
+  // Reset editor when structure/content changes
   $effect(() => {
     editorText = content?.text || '';
+    generateOptions.targetWordCount = structure.targetWordCount?.toString() || '2000';
   });
 
   const wordCount = $derived(
