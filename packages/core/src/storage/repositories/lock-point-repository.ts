@@ -1,37 +1,28 @@
 /**
  * Lock point repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries.
  */
 
 import type Database from 'libsql';
+import { and, eq } from 'drizzle-orm';
 
 import type { LockPoint } from '@repo/types';
 
-import {
-  createProjectScopedRepository,
-  generateId,
-  nowTimestamp,
-  type ProjectScopedRepository,
-} from '../repository';
+import type { DrizzleDB } from '../database';
+import { lockPoints } from '../drizzle-schema';
+import { generateId, nowTimestamp, type ProjectScopedRepository } from '../repository';
 
 /**
- * Database row representation of lock point
+ * Convert Drizzle row to LockPoint entity
  */
-interface LockPointRow {
-  id: string;
-  project_id: string;
-  content_id: string;
-  reason: string;
-  type: 'cascade-protection' | 'full-lock';
-  created_at: string;
-}
-
-function rowToLockPoint(row: LockPointRow): LockPoint {
+function rowToLockPoint(row: typeof lockPoints.$inferSelect): LockPoint {
   return {
     id: row.id,
-    contentId: row.content_id,
+    contentId: row.contentId,
     reason: row.reason,
     type: row.type,
-    createdAt: row.created_at,
+    createdAt: row.createdAt,
   };
 }
 
@@ -42,47 +33,44 @@ export interface LockPointRepository extends ProjectScopedRepository<LockPoint, 
   deleteByContent(projectId: string, contentId: string): number;
 }
 
-export function createLockPointRepository(db: Database.Database): LockPointRepository {
-  const base = createProjectScopedRepository<LockPointRow>(db, 'lock_points');
-
-  const insertStmt = db.prepare(`
-    INSERT INTO lock_points (id, project_id, content_id, reason, type, created_at)
-    VALUES (@id, @project_id, @content_id, @reason, @type, @created_at)
-  `);
-
-  const findByContentStmt = db.prepare(
-    `SELECT * FROM lock_points WHERE project_id = ? AND content_id = ?`
-  );
-
-  const deleteByContentStmt = db.prepare(
-    `DELETE FROM lock_points WHERE project_id = ? AND content_id = ?`
-  );
-
+export function createLockPointRepository(_db: Database.Database, drizzleDb: DrizzleDB): LockPointRepository {
   return {
     findById(projectId: string, id: string): LockPoint | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(lockPoints)
+        .where(and(eq(lockPoints.projectId, projectId), eq(lockPoints.id, id)))
+        .get();
       return row ? rowToLockPoint(row) : undefined;
     },
 
     findByProject(projectId: string): LockPoint[] {
-      return base.findByProject(projectId).map(rowToLockPoint);
+      const rows = drizzleDb.select().from(lockPoints).where(eq(lockPoints.projectId, projectId)).all();
+      return rows.map(rowToLockPoint);
     },
 
     create(projectId: string, data: CreateLockPointData): LockPoint {
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: LockPointRow = {
+      const newRow = {
         id,
-        project_id: projectId,
-        content_id: data.contentId,
+        projectId,
+        contentId: data.contentId,
         reason: data.reason,
         type: data.type,
-        created_at: now,
+        createdAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToLockPoint(row);
+      drizzleDb.insert(lockPoints).values(newRow).run();
+
+      return {
+        id,
+        contentId: data.contentId,
+        reason: data.reason,
+        type: data.type,
+        createdAt: now,
+      };
     },
 
     update(): undefined {
@@ -91,20 +79,32 @@ export function createLockPointRepository(db: Database.Database): LockPointRepos
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(lockPoints)
+        .where(and(eq(lockPoints.projectId, projectId), eq(lockPoints.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(lockPoints).where(eq(lockPoints.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByContent(projectId: string, contentId: string): LockPoint[] {
-      const rows = findByContentStmt.all(projectId, contentId) as LockPointRow[];
+      const rows = drizzleDb
+        .select()
+        .from(lockPoints)
+        .where(and(eq(lockPoints.projectId, projectId), eq(lockPoints.contentId, contentId)))
+        .all();
       return rows.map(rowToLockPoint);
     },
 
     deleteByContent(projectId: string, contentId: string): number {
-      const result = deleteByContentStmt.run(projectId, contentId);
+      const result = drizzleDb
+        .delete(lockPoints)
+        .where(and(eq(lockPoints.projectId, projectId), eq(lockPoints.contentId, contentId)))
+        .run();
       return result.changes;
     },
   };

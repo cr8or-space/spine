@@ -1,54 +1,38 @@
 /**
  * Structure repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries.
  */
 
 import type Database from 'libsql';
+import { and, asc, eq, isNull } from 'drizzle-orm';
 
 import type { Beat, ChapterType, Hook, Structure, StructureType } from '@repo/types';
 
-import { createProjectScopedRepository, generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import type { DrizzleDB } from '../database';
+import { structures } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
- * Database row representation of a structure
+ * Convert Drizzle row to Structure entity (without children - those are loaded separately)
  */
-interface StructureRow {
-  id: string;
-  project_id: string;
-  type: StructureType;
-  title: string;
-  summary: string;
-  beats_json: string;
-  tension_target: number | null;
-  chapter_type: ChapterType | null;
-  hook_json: string | null;
-  sort_order: number;
-  parent_id: string | null;
-  target_word_count: number | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * Convert database row to Structure entity (without children - those are loaded separately)
- */
-function rowToStructure(row: StructureRow): Structure {
+function rowToStructure(row: typeof structures.$inferSelect): Structure {
   return {
     id: row.id,
     type: row.type,
     title: row.title,
     summary: row.summary,
-    beats: parseJson<Beat[]>(row.beats_json, []),
-    tensionTarget: row.tension_target ?? undefined,
-    chapterType: row.chapter_type ?? undefined,
-    hook: row.hook_json ? (JSON.parse(row.hook_json) as Hook) : undefined,
-    order: row.sort_order,
+    beats: parseJson<Beat[]>(row.beatsJson, []),
+    tensionTarget: row.tensionTarget ?? undefined,
+    chapterType: row.chapterType ?? undefined,
+    hook: row.hookJson ? (JSON.parse(row.hookJson) as Hook) : undefined,
+    order: row.sortOrder,
     children: [], // Loaded separately
-    parentId: row.parent_id ?? undefined,
-    targetWordCount: row.target_word_count ?? undefined,
+    parentId: row.parentId ?? undefined,
+    targetWordCount: row.targetWordCount ?? undefined,
     notes: row.notes ?? undefined,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 
@@ -69,86 +53,80 @@ export interface StructureRepository extends ProjectScopedRepository<Structure, 
   move(projectId: string, id: string, newParentId: string | null, newOrder: number): Structure | undefined;
 }
 
-export function createStructureRepository(db: Database.Database): StructureRepository {
-  const base = createProjectScopedRepository<StructureRow>(db, 'structures');
-
-  const insertStmt = db.prepare(`
-    INSERT INTO structures (
-      id, project_id, type, title, summary, beats_json, tension_target,
-      chapter_type, hook_json, sort_order, parent_id, target_word_count,
-      notes, created_at, updated_at
-    ) VALUES (
-      @id, @project_id, @type, @title, @summary, @beats_json, @tension_target,
-      @chapter_type, @hook_json, @sort_order, @parent_id, @target_word_count,
-      @notes, @created_at, @updated_at
-    )
-  `);
-
-  const updateStmt = db.prepare(`
-    UPDATE structures SET
-      type = @type,
-      title = @title,
-      summary = @summary,
-      beats_json = @beats_json,
-      tension_target = @tension_target,
-      chapter_type = @chapter_type,
-      hook_json = @hook_json,
-      sort_order = @sort_order,
-      parent_id = @parent_id,
-      target_word_count = @target_word_count,
-      notes = @notes,
-      updated_at = @updated_at
-    WHERE project_id = @project_id AND id = @id
-  `);
-
-  const findByTypeStmt = db.prepare(`SELECT * FROM structures WHERE project_id = ? AND type = ?`);
-  const findChildrenStmt = db.prepare(`SELECT * FROM structures WHERE project_id = ? AND parent_id IS ? ORDER BY sort_order`);
-  const findRootStmt = db.prepare(`SELECT * FROM structures WHERE project_id = ? AND parent_id IS NULL LIMIT 1`);
+export function createStructureRepository(db: Database.Database, drizzleDb: DrizzleDB): StructureRepository {
+  // Reorder requires a transaction so we use raw db
   const reorderStmt = db.prepare(`UPDATE structures SET sort_order = ? WHERE project_id = ? AND id = ?`);
 
   /**
    * Recursively load children for a structure
    */
   function loadChildren(projectId: string, structure: Structure): Structure {
-    const childRows = findChildrenStmt.all(projectId, structure.id) as StructureRow[];
+    const childRows = drizzleDb
+      .select()
+      .from(structures)
+      .where(and(eq(structures.projectId, projectId), eq(structures.parentId, structure.id)))
+      .orderBy(asc(structures.sortOrder))
+      .all();
     structure.children = childRows.map((row) => loadChildren(projectId, rowToStructure(row)));
     return structure;
   }
 
   return {
     findById(projectId: string, id: string): Structure | undefined {
-      const row = base.findById(projectId, id);
+      const row = drizzleDb
+        .select()
+        .from(structures)
+        .where(and(eq(structures.projectId, projectId), eq(structures.id, id)))
+        .get();
       return row ? rowToStructure(row) : undefined;
     },
 
     findByProject(projectId: string): Structure[] {
-      return base.findByProject(projectId).map(rowToStructure);
+      const rows = drizzleDb.select().from(structures).where(eq(structures.projectId, projectId)).all();
+      return rows.map(rowToStructure);
     },
 
     create(projectId: string, data: CreateStructureData): Structure {
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: StructureRow = {
+      const newRow = {
         id,
-        project_id: projectId,
+        projectId,
         type: data.type,
         title: data.title,
         summary: data.summary,
-        beats_json: JSON.stringify(data.beats),
-        tension_target: data.tensionTarget ?? null,
-        chapter_type: data.chapterType ?? null,
-        hook_json: data.hook ? JSON.stringify(data.hook) : null,
-        sort_order: data.order,
-        parent_id: data.parentId ?? null,
-        target_word_count: data.targetWordCount ?? null,
+        beatsJson: JSON.stringify(data.beats),
+        tensionTarget: data.tensionTarget ?? null,
+        chapterType: data.chapterType ?? null,
+        hookJson: data.hook ? JSON.stringify(data.hook) : null,
+        sortOrder: data.order,
+        parentId: data.parentId ?? null,
+        targetWordCount: data.targetWordCount ?? null,
         notes: data.notes ?? null,
-        created_at: now,
-        updated_at: now,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToStructure(row);
+      drizzleDb.insert(structures).values(newRow).run();
+
+      return {
+        id,
+        type: data.type,
+        title: data.title,
+        summary: data.summary,
+        beats: data.beats,
+        tensionTarget: data.tensionTarget,
+        chapterType: data.chapterType,
+        hook: data.hook,
+        order: data.order,
+        children: [],
+        parentId: data.parentId,
+        targetWordCount: data.targetWordCount,
+        notes: data.notes,
+        createdAt: now,
+        updatedAt: now,
+      };
     },
 
     update(projectId: string, id: string, data: UpdateStructureData): Structure | undefined {
@@ -167,48 +145,67 @@ export function createStructureRepository(db: Database.Database): StructureRepos
         return existingValue ?? null;
       }
 
-      const updated: StructureRow = {
-        id,
-        project_id: projectId,
+      const updateData = {
         type: data.type ?? existing.type,
         title: data.title ?? existing.title,
         summary: data.summary ?? existing.summary,
-        beats_json: 'beats' in data ? JSON.stringify(data.beats ?? []) : JSON.stringify(existing.beats),
-        tension_target: resolveOptional(data.tensionTarget, existing.tensionTarget, 'tensionTarget'),
-        chapter_type: resolveOptional(data.chapterType, existing.chapterType, 'chapterType'),
-        hook_json: 'hook' in data ? (data.hook ? JSON.stringify(data.hook) : null) : (existing.hook ? JSON.stringify(existing.hook) : null),
-        sort_order: data.order ?? existing.order,
-        parent_id: 'parentId' in data ? (data.parentId ?? null) : (existing.parentId ?? null),
-        target_word_count: resolveOptional(data.targetWordCount, existing.targetWordCount, 'targetWordCount'),
+        beatsJson: 'beats' in data ? JSON.stringify(data.beats ?? []) : JSON.stringify(existing.beats),
+        tensionTarget: resolveOptional(data.tensionTarget, existing.tensionTarget, 'tensionTarget'),
+        chapterType: resolveOptional(data.chapterType as ChapterType | undefined, existing.chapterType, 'chapterType'),
+        hookJson: 'hook' in data ? (data.hook ? JSON.stringify(data.hook) : null) : (existing.hook ? JSON.stringify(existing.hook) : null),
+        sortOrder: data.order ?? existing.order,
+        parentId: 'parentId' in data ? (data.parentId ?? null) : (existing.parentId ?? null),
+        targetWordCount: resolveOptional(data.targetWordCount, existing.targetWordCount, 'targetWordCount'),
         notes: 'notes' in data ? (data.notes ?? null) : (existing.notes ?? null),
-        created_at: existing.createdAt,
-        updated_at: now,
+        updatedAt: now,
       };
 
-      updateStmt.run(updated);
-      return rowToStructure(updated);
+      drizzleDb
+        .update(structures)
+        .set(updateData)
+        .where(and(eq(structures.projectId, projectId), eq(structures.id, id)))
+        .run();
+
+      return this.findById(projectId, id);
     },
 
     delete(projectId: string, id: string): boolean {
-      return base.deleteById(projectId, id);
+      const result = drizzleDb
+        .delete(structures)
+        .where(and(eq(structures.projectId, projectId), eq(structures.id, id)))
+        .run();
+      return result.changes > 0;
     },
 
     deleteByProject(projectId: string): number {
-      return base.deleteByProject(projectId);
+      const result = drizzleDb.delete(structures).where(eq(structures.projectId, projectId)).run();
+      return result.changes;
     },
 
     findByType(projectId: string, type: StructureType): Structure[] {
-      const rows = findByTypeStmt.all(projectId, type) as StructureRow[];
+      const rows = drizzleDb
+        .select()
+        .from(structures)
+        .where(and(eq(structures.projectId, projectId), eq(structures.type, type)))
+        .all();
       return rows.map(rowToStructure);
     },
 
     findChildren(projectId: string, parentId: string | null): Structure[] {
-      const rows = findChildrenStmt.all(projectId, parentId) as StructureRow[];
+      const condition = parentId === null
+        ? and(eq(structures.projectId, projectId), isNull(structures.parentId))
+        : and(eq(structures.projectId, projectId), eq(structures.parentId, parentId));
+      const rows = drizzleDb.select().from(structures).where(condition).orderBy(asc(structures.sortOrder)).all();
       return rows.map(rowToStructure);
     },
 
     findRoot(projectId: string): Structure | undefined {
-      const row = findRootStmt.get(projectId) as StructureRow | undefined;
+      const row = drizzleDb
+        .select()
+        .from(structures)
+        .where(and(eq(structures.projectId, projectId), isNull(structures.parentId)))
+        .limit(1)
+        .get();
       return row ? rowToStructure(row) : undefined;
     },
 

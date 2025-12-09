@@ -245,3 +245,38 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 ### Integration tests (Playwright)
 - [x] Bible flow integration test
 - [x] Project flow integration test
+
+## Tech Stack Upgrades
+
+### Drizzle ORM Migration (Complete)
+Migration from raw SQL to Drizzle ORM for type-safe queries.
+
+#### Completed
+- [x] Drizzle ORM dependency installed (`drizzle-orm`)
+- [x] Better-sqlite3 dependency installed (for drizzle-orm/better-sqlite3 driver)
+- [x] Drizzle schema definitions created (`drizzle-schema.ts`)
+- [x] Database connection exports DrizzleDB instance (BetterSQLite3Database type)
+- [x] Character repository migrated to Drizzle
+- [x] Location repository migrated to Drizzle
+- [x] Faction repository migrated to Drizzle
+- [x] World rule repository migrated to Drizzle
+- [x] Plot thread repository migrated to Drizzle
+- [x] Timeline event repository migrated to Drizzle
+- [x] Timeline span repository migrated to Drizzle
+- [x] Structure repository migrated to Drizzle
+- [x] Content repository migrated to Drizzle (with FTS5 search via raw SQL)
+- [x] Project repository migrated to Drizzle
+- [x] Lock point repository migrated to Drizzle
+- [x] Cross-reference repository migrated to Drizzle
+- [x] project-service updated to pass drizzle instance
+- [x] bible-service updated to pass drizzle instance
+- [x] Test files updated to create drizzle instances
+
+Note: All repositories now accept `(db, drizzleDb)` as parameters instead of just `(db)`.
+The `db` parameter (libsql Database) is used for:
+- FTS5 search operations (Drizzle doesn't support virtual tables)
+- Transaction wrappers using db.transaction()
+
+The `drizzleDb` parameter (BetterSQLite3Database) is used for:
+- Type-safe CRUD operations via drizzle-orm/better-sqlite3 driver
+- The libsql package is API-compatible with better-sqlite3

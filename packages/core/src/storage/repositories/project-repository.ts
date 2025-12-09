@@ -1,8 +1,11 @@
 /**
  * Project repository for database operations
+ *
+ * Uses Drizzle ORM for type-safe queries.
  */
 
 import type Database from 'libsql';
+import { eq } from 'drizzle-orm';
 
 import type {
   ProjectFormat,
@@ -12,31 +15,22 @@ import type {
   ProjectSummary,
 } from '@repo/types';
 
-import { createBaseRepository, generateId, nowTimestamp, parseJson, type Repository } from '../repository';
+import type { DrizzleDB } from '../database';
+import { projects } from '../drizzle-schema';
+import { generateId, nowTimestamp, parseJson, type Repository } from '../repository';
 
 /**
- * Database row representation of a project
+ * Convert Drizzle row to ProjectSummary
  */
-interface ProjectRow {
-  id: string;
-  title: string;
-  format: ProjectFormat;
-  settings_json: string;
-  metadata_json: string;
-  stats_json: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-function rowToProjectSummary(row: ProjectRow, stats?: ProjectStats): ProjectSummary {
-  const metadata = parseJson<ProjectMetadata>(row.metadata_json, { genres: [] });
+function rowToProjectSummary(row: typeof projects.$inferSelect, stats?: ProjectStats): ProjectSummary {
+  const metadata = parseJson<ProjectMetadata>(row.metadataJson, { genres: [] });
   return {
     id: row.id,
     title: row.title,
     format: row.format,
     wordCount: stats?.totalWordCount ?? 0,
     chapterCount: stats?.totalChapters ?? 0,
-    lastModified: row.updated_at,
+    lastModified: row.updatedAt,
     coverImage: metadata.coverImage,
   };
 }
@@ -74,35 +68,12 @@ export interface ProjectRepository extends Repository<ProjectSummary, CreateProj
   touch(id: string): boolean;
 }
 
-export function createProjectRepository(db: Database.Database): ProjectRepository {
-  const base = createBaseRepository<ProjectRow>(db, 'projects');
-
-  const insertStmt = db.prepare(`
-    INSERT INTO projects (
-      id, title, format, settings_json, metadata_json, stats_json, created_at, updated_at
-    ) VALUES (
-      @id, @title, @format, @settings_json, @metadata_json, @stats_json, @created_at, @updated_at
-    )
-  `);
-
-  const updateStmt = db.prepare(`
-    UPDATE projects SET
-      title = @title,
-      format = @format,
-      settings_json = @settings_json,
-      metadata_json = @metadata_json,
-      stats_json = @stats_json,
-      updated_at = @updated_at
-    WHERE id = @id
-  `);
-
-  const touchStmt = db.prepare(`UPDATE projects SET updated_at = ? WHERE id = ?`);
-
+export function createProjectRepository(_db: Database.Database, drizzleDb: DrizzleDB): ProjectRepository {
   return {
     findById(id: string): ProjectSummary | undefined {
-      const row = base.findById(id);
+      const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      const stats = row.stats_json ? (JSON.parse(row.stats_json) as ProjectStats) : undefined;
+      const stats = row.statsJson ? (JSON.parse(row.statsJson) as ProjectStats) : undefined;
       return rowToProjectSummary(row, stats);
     },
 
@@ -111,9 +82,9 @@ export function createProjectRepository(db: Database.Database): ProjectRepositor
     },
 
     listAll(): ProjectSummary[] {
-      const rows = base.findAll() as ProjectRow[];
+      const rows = drizzleDb.select().from(projects).all();
       return rows.map((row) => {
-        const stats = row.stats_json ? (JSON.parse(row.stats_json) as ProjectStats) : undefined;
+        const stats = row.statsJson ? (JSON.parse(row.statsJson) as ProjectStats) : undefined;
         return rowToProjectSummary(row, stats);
       });
     },
@@ -122,115 +93,125 @@ export function createProjectRepository(db: Database.Database): ProjectRepositor
       const now = nowTimestamp();
       const id = generateId();
 
-      const row: ProjectRow = {
+      const newRow = {
         id,
         title: data.title,
         format: data.format,
-        settings_json: JSON.stringify(data.settings),
-        metadata_json: JSON.stringify(data.metadata),
-        stats_json: null,
-        created_at: now,
-        updated_at: now,
+        settingsJson: JSON.stringify(data.settings),
+        metadataJson: JSON.stringify(data.metadata),
+        statsJson: null,
+        createdAt: now,
+        updatedAt: now,
       };
 
-      insertStmt.run(row);
-      return rowToProjectSummary(row);
+      drizzleDb.insert(projects).values(newRow).run();
+
+      return {
+        id,
+        title: data.title,
+        format: data.format,
+        wordCount: 0,
+        chapterCount: 0,
+        lastModified: now,
+        coverImage: data.metadata.coverImage,
+      };
     },
 
     update(id: string, data: Partial<ProjectSummary>): ProjectSummary | undefined {
-      const existing = base.findById(id);
+      const existing = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const existingMetadata = parseJson<ProjectMetadata>(existing.metadata_json, { genres: [] });
+      const existingMetadata = parseJson<ProjectMetadata>(existing.metadataJson, { genres: [] });
 
-      const updated: ProjectRow = {
-        id,
+      const updateData = {
         title: data.title ?? existing.title,
         format: data.format ?? existing.format,
-        settings_json: existing.settings_json,
-        metadata_json: data.coverImage !== undefined
+        metadataJson: data.coverImage !== undefined
           ? JSON.stringify({ ...existingMetadata, coverImage: data.coverImage })
-          : existing.metadata_json,
-        stats_json: existing.stats_json,
-        created_at: existing.created_at,
-        updated_at: now,
+          : existing.metadataJson,
+        updatedAt: now,
       };
 
-      updateStmt.run(updated);
-      const stats = updated.stats_json ? (JSON.parse(updated.stats_json) as ProjectStats) : undefined;
+      drizzleDb.update(projects).set(updateData).where(eq(projects.id, id)).run();
+
+      const updated = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
+      if (!updated) return undefined;
+      const stats = updated.statsJson ? (JSON.parse(updated.statsJson) as ProjectStats) : undefined;
       return rowToProjectSummary(updated, stats);
     },
 
     delete(id: string): boolean {
-      return base.deleteById(id);
+      const result = drizzleDb.delete(projects).where(eq(projects.id, id)).run();
+      return result.changes > 0;
     },
 
     getSettings(id: string): ProjectSettings | undefined {
-      const row = base.findById(id);
+      const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      return JSON.parse(row.settings_json) as ProjectSettings;
+      return JSON.parse(row.settingsJson) as ProjectSettings;
     },
 
     getMetadata(id: string): ProjectMetadata | undefined {
-      const row = base.findById(id);
+      const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      return JSON.parse(row.metadata_json) as ProjectMetadata;
+      return JSON.parse(row.metadataJson) as ProjectMetadata;
     },
 
     getStats(id: string): ProjectStats | undefined {
-      const row = base.findById(id);
-      if (!row || !row.stats_json) return undefined;
-      return JSON.parse(row.stats_json) as ProjectStats;
+      const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
+      if (!row || !row.statsJson) return undefined;
+      return JSON.parse(row.statsJson) as ProjectStats;
     },
 
     updateSettings(id: string, settings: ProjectSettings): boolean {
-      const existing = base.findById(id);
+      const existing = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!existing) return false;
 
       const now = nowTimestamp();
-      const updated: ProjectRow = {
-        ...existing,
-        settings_json: JSON.stringify(settings),
-        updated_at: now,
-      };
+      drizzleDb
+        .update(projects)
+        .set({ settingsJson: JSON.stringify(settings), updatedAt: now })
+        .where(eq(projects.id, id))
+        .run();
 
-      updateStmt.run(updated);
       return true;
     },
 
     updateMetadata(id: string, metadata: ProjectMetadata): boolean {
-      const existing = base.findById(id);
+      const existing = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!existing) return false;
 
       const now = nowTimestamp();
-      const updated: ProjectRow = {
-        ...existing,
-        metadata_json: JSON.stringify(metadata),
-        updated_at: now,
-      };
+      drizzleDb
+        .update(projects)
+        .set({ metadataJson: JSON.stringify(metadata), updatedAt: now })
+        .where(eq(projects.id, id))
+        .run();
 
-      updateStmt.run(updated);
       return true;
     },
 
     updateStats(id: string, stats: ProjectStats): boolean {
-      const existing = base.findById(id);
+      const existing = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!existing) return false;
 
       const now = nowTimestamp();
-      const updated: ProjectRow = {
-        ...existing,
-        stats_json: JSON.stringify(stats),
-        updated_at: now,
-      };
+      drizzleDb
+        .update(projects)
+        .set({ statsJson: JSON.stringify(stats), updatedAt: now })
+        .where(eq(projects.id, id))
+        .run();
 
-      updateStmt.run(updated);
       return true;
     },
 
     touch(id: string): boolean {
-      const result = touchStmt.run(nowTimestamp(), id);
+      const result = drizzleDb
+        .update(projects)
+        .set({ updatedAt: nowTimestamp() })
+        .where(eq(projects.id, id))
+        .run();
       return result.changes > 0;
     },
   };

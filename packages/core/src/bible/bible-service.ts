@@ -10,6 +10,7 @@ import type Database from 'libsql';
 
 import type { Bible, BibleSummary, EntityRef } from '@repo/types';
 
+import type { DrizzleDB } from '../storage/database';
 import type { ProjectRepositories } from '../storage/project-service';
 import {
   createCharacterRepository,
@@ -104,16 +105,16 @@ export interface BibleService {
 /**
  * Create bible service
  */
-export function createBibleService(db: Database.Database, projectId: string): BibleService {
+export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, projectId: string): BibleService {
   // Create repositories
-  const characterRepo = createCharacterRepository(db);
-  const locationRepo = createLocationRepository(db);
-  const factionRepo = createFactionRepository(db);
-  const worldRuleRepo = createWorldRuleRepository(db);
-  const plotThreadRepo = createPlotThreadRepository(db);
-  const timelineEventRepo = createTimelineEventRepository(db);
-  const timelineSpanRepo = createTimelineSpanRepository(db);
-  const crossRefRepo = createCrossReferenceRepository(db);
+  const characterRepo = createCharacterRepository(db, drizzleDb);
+  const locationRepo = createLocationRepository(db, drizzleDb);
+  const factionRepo = createFactionRepository(db, drizzleDb);
+  const worldRuleRepo = createWorldRuleRepository(db, drizzleDb);
+  const plotThreadRepo = createPlotThreadRepository(db, drizzleDb);
+  const timelineEventRepo = createTimelineEventRepository(db, drizzleDb);
+  const timelineSpanRepo = createTimelineSpanRepository(db, drizzleDb);
+  const crossRefRepo = createCrossReferenceRepository(db, drizzleDb);
 
   // Create services
   const characterService = createCharacterService(projectId, characterRepo);
@@ -296,9 +297,10 @@ export function createBibleService(db: Database.Database, projectId: string): Bi
 export function createBibleServiceFromRepositories(
   projectId: string,
   repos: ProjectRepositories,
-  db: Database.Database
+  db: Database.Database,
+  drizzleDb: DrizzleDB
 ): BibleService {
-  const crossRefRepo = createCrossReferenceRepository(db);
+  const crossRefRepo = createCrossReferenceRepository(db, drizzleDb);
 
   const characterService = createCharacterService(projectId, repos.characters);
   const locationService = createLocationService(projectId, repos.locations);
