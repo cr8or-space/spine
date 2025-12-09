@@ -183,10 +183,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Deadline tracking
 
 ### 5.4 Mystery tracking
-- [ ] Layer classification
-- [ ] Lifecycle tracking
-- [ ] Resolution detection
-- [ ] Unfulfilled warnings
+- [x] Layer classification
+- [x] Lifecycle tracking
+- [x] Resolution detection
+- [x] Unfulfilled warnings
 
 ### 5.5 Serial dashboard UI
 - [ ] Release calendar

@@ -298,3 +298,29 @@ export {
   type ReleasePlanningResult,
   type ReleasePlanningConfig,
 } from './release';
+
+// Mystery tracking types (Phase 5.4)
+export {
+  MysteryLayerSchema,
+  MysteryStatusSchema,
+  ClueTypeSchema,
+  ResolutionTypeSchema,
+  MysteryClueSchema,
+  MysteryResolutionSchema,
+  MysteryTrackingDataSchema,
+  MysteryWarningSchema,
+  LayerAnalysisResultSchema,
+  SuspenseCurveSchema,
+  ClueDistributionSuggestionSchema,
+  type MysteryLayer,
+  type MysteryStatus,
+  type ClueType,
+  type ResolutionType,
+  type MysteryClue,
+  type MysteryResolution,
+  type MysteryTrackingData,
+  type MysteryWarning,
+  type LayerAnalysisResult,
+  type SuspenseCurve,
+  type ClueDistributionSuggestion,
+} from './mystery';

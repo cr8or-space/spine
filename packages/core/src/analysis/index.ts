@@ -12,6 +12,7 @@
  * - Plot thread tracking (Phase 4.3)
  * - Hook management for web serials (Phase 5.1)
  * - Cycle enforcement for tension patterns (Phase 5.2)
+ * - Mystery tracking with clue analysis (Phase 5.4)
  */
 
 // Service
@@ -155,6 +156,21 @@ export {
   type CycleViolation,
   type RebalancingSuggestion,
 } from './cycle-enforcement';
+
+// Mystery tracking (Phase 5.4)
+export {
+  generateMysteryTrackingData,
+  generateAllMysteryTracking,
+  analyzeMysteryLayers,
+  detectUnfulfilledClues,
+  calculateSuspenseProgression,
+  suggestClueDistribution,
+  getMysteryWarnings,
+  DEFAULT_MYSTERY_CONFIG,
+  type MysteryTrackingInput,
+  type MysteryTrackingDependencies,
+  type MysteryAnalysisConfig,
+} from './mystery-tracking';
 
 // Reference extraction (Phase 7.VR.3)
 export {
