@@ -1,5 +1,5 @@
 /**
- * Render module for NovelGen
+ * Render module for Spine
  *
  * Provides content rendering pipelines for transforming domain content
  * into various output formats (HTML, Markdown, EPUB, etc.).

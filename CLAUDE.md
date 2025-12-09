@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NovelGen is a tool for producing web serials at scale using LLM assistance. It manages story bibles, tracks continuity, visualizes pacing, and orchestrates content generation with human review. Single-author, local-first, OpenAI-compatible API for LLM access.
+Spine is a tool for producing web serials at scale using LLM assistance. It manages story bibles, tracks continuity, visualizes pacing, and orchestrates content generation with human review. Single-author, local-first, OpenAI-compatible API for LLM access.
 
 ## SvelteKit Unbreakable Rules
 Unbreakable Rules:

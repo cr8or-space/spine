@@ -1,6 +1,6 @@
 # Implementation Plan
 
-Detailed implementation roadmap for NovelGen, organized into phases with concrete deliverables.
+Detailed implementation roadmap for Spine, organized into phases with concrete deliverables.
 
 ## Phase 1: Foundation
 

@@ -87,7 +87,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.location.name} - {data.project.title} - NovelGen</title>
+  <title>{data.location.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="location-page">

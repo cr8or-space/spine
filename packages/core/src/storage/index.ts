@@ -1,5 +1,5 @@
 /**
- * Storage layer for NovelGen
+ * Storage layer for Spine
  *
  * Provides:
  * - SQLite database with schema and migrations

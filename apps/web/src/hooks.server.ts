@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 // Data directory for storing projects
-const DATA_DIR = process.env.NOVELGEN_DATA_DIR || path.join(process.cwd(), '.bookgen-data');
+const DATA_DIR = process.env.SPINE_DATA_DIR || path.join(process.cwd(), '.bookgen-data');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -16,7 +16,7 @@ if (!fs.existsSync(DATA_DIR)) {
 }
 
 // Database path
-const DB_PATH = path.join(DATA_DIR, 'novelgen.db');
+const DB_PATH = path.join(DATA_DIR, 'spine.db');
 
 // Initialize database and project service (singleton)
 const dbConnection = openDatabase({ path: DB_PATH });

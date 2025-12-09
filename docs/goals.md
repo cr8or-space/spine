@@ -61,7 +61,7 @@ The system assists, it does not replace the author. All generated content requir
 
 ### Not a publishing platform
 
-NovelGen produces content. Export to publishing platforms (Royal Road, etc.) is a feature, but the system is not itself a publishing tool.
+Spine produces content. Export to publishing platforms (Royal Road, etc.) is a feature, but the system is not itself a publishing tool.
 
 ### Not multi-author
 
@@ -74,7 +74,7 @@ The system is optimized for long-form serialized fiction. Short stories, non-fic
 ## Success metrics
 
 1. **Continuity defect rate**: Zero contradictions in published content
-2. **Pacing accuracy**: Actual tension within ±15 points of planned for 80% of chapters
+2. **Pacing accuracy**: Actual tension within ï¿½15 points of planned for 80% of chapters
 3. **Review throughput**: 10x faster than manual review for routine chapters
 4. **Generation acceptance rate**: >80% of generated content approved with minor or no edits
 5. **Buffer maintenance**: Release buffer never drops below configured minimum

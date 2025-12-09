@@ -80,7 +80,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.worldRule.name} - {data.project.title} - NovelGen</title>
+  <title>{data.worldRule.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="world-rule-page">

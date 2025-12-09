@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-  <title>Settings - {data.project.title} - NovelGen</title>
+  <title>Settings - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="settings-page">

@@ -1,5 +1,5 @@
 /**
- * Content rendering pipeline for NovelGen.
+ * Content rendering pipeline for Spine.
  *
  * Provides a two-stage rendering pipeline:
  * 1. ContentRenderer: Transforms content into an intermediate representation (IR)

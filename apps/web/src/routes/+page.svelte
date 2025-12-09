@@ -78,13 +78,13 @@
 </script>
 
 <svelte:head>
-  <title>NovelGen - Projects</title>
+  <title>Spine - Projects</title>
 </svelte:head>
 
 <div class="page">
   <header class="header">
     <div class="header-content">
-      <h1 class="logo">NovelGen</h1>
+      <h1 class="logo">Spine</h1>
       <p class="tagline">AI-assisted web serial creation</p>
     </div>
   </header>

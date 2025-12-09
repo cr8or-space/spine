@@ -240,7 +240,7 @@ interface Renderer<Output> {
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Domain Layer                            │
-│  (NovelGen, TechBook, InteractiveFiction, APIDocs, etc.)       │
+│  (Spine, TechBook, InteractiveFiction, APIDocs, etc.)       │
 ├─────────────────────────────────────────────────────────────────┤
 │                        Spine Framework                          │
 │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐       │
@@ -444,8 +444,8 @@ Structural validation (graphs, references) is very generic. Automated validation
 
 ## Related Documents
 
-- [NovelGen Goals](./novelgen/goals.md)
-- [NovelGen Rationale](./novelgen/rationale.md)
+- [Spine Goals](./spine/goals.md)
+- [Spine Rationale](./spine/rationale.md)
 - [TechBook Goals](./techbook/goals.md)
 - [TechBook Rationale](./techbook/rationale.md)
 - [TechBook Plan](./techbook/plan.md)

@@ -18,11 +18,11 @@ describe('fillTemplate', () => {
     const template = 'Hello {{context}}, welcome to {{structure}}';
     const placeholders: PromptPlaceholders = {
       context: 'World',
-      structure: 'NovelGen',
+      structure: 'Spine',
     };
 
     const result = fillTemplate(template, placeholders);
-    expect(result).toBe('Hello World, welcome to NovelGen');
+    expect(result).toBe('Hello World, welcome to Spine');
   });
 
   it('should handle missing placeholders', () => {

@@ -87,7 +87,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.plotThread.name} - {data.project.title} - NovelGen</title>
+  <title>{data.plotThread.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="plot-thread-page">

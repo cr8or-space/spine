@@ -1,6 +1,6 @@
-# NovelGen Web Application
+# Spine Web Application
 
-The web application for NovelGen, built with SvelteKit and Svelte 5.
+The web application for Spine, built with SvelteKit and Svelte 5.
 
 ## Development
 

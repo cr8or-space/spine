@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-  <title>Bible - {data.project.title} - NovelGen</title>
+  <title>Bible - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="bible-page">

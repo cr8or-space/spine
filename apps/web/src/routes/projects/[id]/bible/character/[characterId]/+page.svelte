@@ -106,7 +106,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.character.name} - {data.project.title} - NovelGen</title>
+  <title>{data.character.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="character-page">

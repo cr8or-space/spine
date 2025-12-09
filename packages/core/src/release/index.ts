@@ -1,5 +1,5 @@
 /**
- * Release planning module for NovelGen
+ * Release planning module for Spine
  *
  * Provides web serial release management:
  * - Schedule configuration

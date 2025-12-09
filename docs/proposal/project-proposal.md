@@ -1,10 +1,10 @@
-# NovelGen Project Proposal
+# Spine Project Proposal
 
 A system for writing, tracking, and iteratively refining LLM-generated novels with human oversight.
 
 ## Overview
 
-NovelGen is a tool for authors to collaborate with LLMs on long-form fiction. It handles the mechanical aspects of novel creation—continuity tracking, pacing analysis, consistency checking—while keeping the human author in creative control. The system generates, reviews, and refines content iteratively, with the author as final arbiter.
+Spine is a tool for authors to collaborate with LLMs on long-form fiction. It handles the mechanical aspects of novel creation—continuity tracking, pacing analysis, consistency checking—while keeping the human author in creative control. The system generates, reviews, and refines content iteratively, with the author as final arbiter.
 
 The primary target is web serial production (see `docs/examples/web.serial/The.Accident/proposal.md`), though the architecture supports shorter formats.
 

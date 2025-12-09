@@ -1,11 +1,11 @@
-  Analysis: Preparing NovelGen for Future Spine Framework Extraction
+  Analysis: Preparing Spine for Future Spine Framework Extraction
 
-  After reviewing all documents, I see a clear trajectory: NovelGen → Spine Framework → Multiple domain tools (TechBook, Interactive Fiction, API Docs, etc.). Here are concrete changes to make NovelGen easier to upgrade and
+  After reviewing all documents, I see a clear trajectory: Spine → Spine Framework → Multiple domain tools (TechBook, Interactive Fiction, API Docs, etc.). Here are concrete changes to make Spine easier to upgrade and
   extract from:
 
   1. Introduce Abstract Interfaces Now
 
-  Your current implementation has NovelGen-specific types baked in. Add abstraction layers early:
+  Your current implementation has Spine-specific types baked in. Add abstraction layers early:
 
   // packages/types - Add generic base interfaces
   interface BaseEntity {
@@ -23,13 +23,13 @@
     references: Reference[];
   }
 
-  // NovelGen types extend these
+  // Spine types extend these
   interface Character extends BaseEntity {
     type: 'character';
     // character-specific fields
   }
 
-  Why: Spine framework defines Entity, Content, Spine interfaces. If NovelGen already uses these abstractions, extraction is mechanical.
+  Why: Spine framework defines Entity, Content, Spine interfaces. If Spine already uses these abstractions, extraction is mechanical.
 
   ---
   2. Separate Storage Schema from Domain Logic
@@ -48,7 +48,7 @@
     delete(id: string): Promise<void>;
   }
 
-  // NovelGen implementation
+  // Spine implementation
   class CharacterRepository implements EntityRepository<Character> {
     // ...
   }
@@ -68,7 +68,7 @@
     position(node: Node): number;
   }
 
-  // NovelGen's structure is a TreeSpine
+  // Spine's structure is a TreeSpine
   interface StorySpine extends Spine<StoryNode> {
     books: Book[];
     currentBook(): Book;
@@ -89,13 +89,13 @@
     validate(context: Context): Promise<ValidationResult[]>;
   }
 
-  // NovelGen validators
-  class ContinuityValidator implements Validator<NovelGenContext> {
+  // Spine validators
+  class ContinuityValidator implements Validator<SpineContext> {
     phase = 'computed' as const;
     // uses LLM
   }
 
-  class TimelineValidator implements Validator<NovelGenContext> {
+  class TimelineValidator implements Validator<SpineContext> {
     phase = 'structural' as const;
     // graph-based
   }
@@ -140,7 +140,7 @@
     retiredAt: text('retired_at'),
   });
 
-  // NovelGen extends with domain tables
+  // Spine extends with domain tables
   export const characters = sqliteTable('characters', {
     entityId: text('entity_id').references(() => entities.id),
     fullName: text('full_name'),
@@ -157,7 +157,7 @@
     extract(content: Content): Reference[];
   }
 
-  // NovelGen's prose extractor
+  // Spine's prose extractor
   class ProseReferenceExtractor implements ReferenceExtractor<ProseContent> {
     extract(content: ProseContent): Reference[] {
       // Scan prose for entity names
@@ -181,7 +181,7 @@
     render(ir: IR): Output;
   }
 
-  // NovelGen
+  // Spine
   class ProseRenderer implements ContentRenderer<ProseContent, ProseIR> { }
   class EPUBRenderer implements FormatRenderer<BookIR, Buffer> { }
 
@@ -191,7 +191,7 @@
   Your @repo/llm package should separate:
 
   - Client infrastructure (retry, rate limiting, streaming) → future @spine/llm
-  - Prompt templates → NovelGen-specific
+  - Prompt templates → Spine-specific
   - Response parsing utilities → shared
 
   // Reusable (future @spine/llm)
@@ -205,11 +205,11 @@
     chatWithSchema<T>(messages: Message[], schema: ZodSchema<T>): Promise<T>;
   }
 
-  // NovelGen-specific
+  // Spine-specific
   class TensionAnalyzer {
     constructor(private client: LLMClient) {}
     analyze(content: string): Promise<TensionScore> {
-      // NovelGen-specific prompt
+      // Spine-specific prompt
     }
   }
 
@@ -270,5 +270,5 @@
   | Low      | Two-stage rendering architecture             | Low    | Easy to defer until export phase  |
   | Low      | Entity lifecycle tracking                    | Low    | Small schema addition             |
 
-  The key insight: Build NovelGen as if Spine already existed. Use generic interfaces, separate domain from infrastructure, and make extension points explicit. When extraction time comes, you'll be moving files and adjusting
+  The key insight: Build Spine as if Spine already existed. Use generic interfaces, separate domain from infrastructure, and make extension points explicit. When extraction time comes, you'll be moving files and adjusting
   imports—not rewriting architecture.

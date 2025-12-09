@@ -1,5 +1,5 @@
 /**
- * SQLite database schema for NovelGen
+ * SQLite database schema for Spine
  *
  * Design decisions:
  * - JSON columns for complex nested structures (traits, relationships, etc.)

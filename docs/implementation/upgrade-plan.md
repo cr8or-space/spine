@@ -1,4 +1,4 @@
-# NovelGen Upgrade Plan
+# Spine Upgrade Plan
 
 Comprehensive task list for parallel agent execution. Tasks are organized by phase with explicit dependencies.
 
@@ -791,7 +791,7 @@ pnpm add lucide-svelte
 
 ## Phase 6: Architecture Preparation (AP)
 
-**Goal**: Prepare NovelGen codebase for future Spine framework extraction.
+**Goal**: Prepare Spine codebase for future Spine framework extraction.
 
 ### 6.AP.1 - Create Base Entity Interface
 **Dependencies**: None (can start immediately)
@@ -980,7 +980,7 @@ apps/web/src/lib/
 │   ├── Header.svelte
 │   └── StatusBar.svelte
 ├── components/               # Generic UI primitives
-└── domain/                   # NovelGen-specific
+└── domain/                   # Spine-specific
 ```
 
 ---

@@ -88,7 +88,7 @@
 </script>
 
 <svelte:head>
-  <title>Workspace - {data.project.title} - NovelGen</title>
+  <title>Workspace - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="flex flex-1 flex-col overflow-hidden">

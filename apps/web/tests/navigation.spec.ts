@@ -43,7 +43,7 @@ test.describe('Navigation', () => {
 
 		// Should be on home page
 		await expect(page).toHaveURL('/');
-		await expect(page.locator('.logo')).toHaveText('NovelGen');
+		await expect(page.locator('.logo')).toHaveText('Spine');
 	});
 
 	test('should show correct active nav item', async ({ page }) => {

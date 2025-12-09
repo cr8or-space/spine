@@ -68,7 +68,7 @@
   │   │   ├── Card.svelte           # Keep
   │   │   ├── TextField.svelte      # Keep
   │   │   └── ...
-  │   └── domain/                   # NovelGen-specific
+  │   └── domain/                   # Spine-specific
   │       ├── BibleEditor.svelte
   │       ├── CharacterForm.svelte
   │       └── ...
@@ -77,7 +77,7 @@
           ├── +layout.svelte        # Uses AppShell
           └── bible/                # Domain workspace
 
-  Why for Spine: When extracting @spine/ui, the shell components move directly. Domain components stay in NovelGen.
+  Why for Spine: When extracting @spine/ui, the shell components move directly. Domain components stay in Spine.
 
   ---
   3. Add an Icon System
@@ -343,5 +343,5 @@
   | Low      | Token consolidation/theming           | Low    | Domain customization            |
   | Low      | Rich text editor abstraction          | Low    | Just design the interface       |
 
-  The key principle: Build components as if they'll be extracted to @spine/ui. If it's domain-agnostic (shell, validation display, entity list), make it generic. If it's NovelGen-specific (CharacterForm, TensionCurve), it stays in
+  The key principle: Build components as if they'll be extracted to @spine/ui. If it's domain-agnostic (shell, validation display, entity list), make it generic. If it's Spine-specific (CharacterForm, TensionCurve), it stays in
    the domain.

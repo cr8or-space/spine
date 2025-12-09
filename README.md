@@ -1,4 +1,4 @@
-# NovelGen
+# Spine
 
 A tool for producing web serials at scale using LLM assistance. Manages story bibles, tracks continuity, visualizes pacing, and orchestrates content generation with human review.
 

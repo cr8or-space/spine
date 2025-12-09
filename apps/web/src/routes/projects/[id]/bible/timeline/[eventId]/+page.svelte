@@ -105,7 +105,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.event.name} - {data.project.title} - NovelGen</title>
+  <title>{data.event.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
 <div class="timeline-event-page">

@@ -1,5 +1,5 @@
 /**
- * @repo/core - Core domain logic for NovelGen
+ * @repo/core - Core domain logic for Spine
  *
  * This package contains:
  * - Storage layer (SQLite + file-based)

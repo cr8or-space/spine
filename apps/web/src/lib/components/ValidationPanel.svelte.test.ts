@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import ValidationPanel from './ValidationPanel.svelte';
-import type { ValidationResult } from '@novelgen/types';
+import type { ValidationResult } from '@spine/types';
 
 describe('ValidationPanel', () => {
   const mockResults: ValidationResult[] = [

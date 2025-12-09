@@ -1,5 +1,5 @@
 /**
- * Structure management module for NovelGen
+ * Structure management module for Spine
  *
  * Provides operations for managing the hierarchical story structure:
  * Book -> Arc -> Chapter -> Scene

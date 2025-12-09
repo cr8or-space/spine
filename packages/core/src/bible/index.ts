@@ -1,5 +1,5 @@
 /**
- * Bible management module for NovelGen
+ * Bible management module for Spine
  *
  * Provides comprehensive CRUD operations and services for managing
  * story bible entities including characters, locations, factions,

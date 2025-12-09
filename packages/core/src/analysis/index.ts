@@ -1,5 +1,5 @@
 /**
- * Analysis module for NovelGen
+ * Analysis module for Spine
  *
  * Provides LLM-based content analysis including:
  * - Tension scoring (0-100 with explanation)

@@ -113,6 +113,6 @@ All of these share:
 5. **Multiple output formats** for different audiences
 6. **LLM assistance for drafting**, human authority for approval
 
-The technical book tool and NovelGen are two instances of a broader pattern. You could almost imagine a meta-framework that these specialize.
+The technical book tool and Spine are two instances of a broader pattern. You could almost imagine a meta-framework that these specialize.
 
 Want me to draft goals for any of these?
