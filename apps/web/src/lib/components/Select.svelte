@@ -80,6 +80,7 @@
     {name}
     {required}
     {disabled}
+    {value}
     onValueChange={handleValueChange}
   >
     <Select.Trigger

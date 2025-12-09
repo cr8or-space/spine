@@ -245,4 +245,5 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 ### Integration tests (Playwright)
 - [x] Bible flow integration test
 - [x] Project flow integration test
+- [ ] Entity creation tests (Character, Location, Faction, etc.)
 
