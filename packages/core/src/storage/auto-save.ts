@@ -87,7 +87,7 @@ export function createAutoSaveController(
     currentOptions.onSaveStart?.();
 
     try {
-      // Save is synchronous with better-sqlite3, but we wrap it for consistency
+      // Save is synchronous with libsql, but we wrap it for consistency
       await new Promise<void>((resolve, reject) => {
         try {
           projectService.saveProject(project);

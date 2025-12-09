@@ -1,8 +1,8 @@
 /**
  * Database connection and initialization
  *
- * Uses libsql, an ESM-compatible drop-in replacement for better-sqlite3.
- * This resolves SSR compatibility issues in SvelteKit preview mode.
+ * Uses libsql, a synchronous SQLite library with better-sqlite3-compatible API.
+ * This provides ESM compatibility required for SvelteKit SSR.
  *
  * Drizzle ORM is layered on top for type-safe queries while maintaining
  * compatibility with raw SQL for FTS5 and complex operations.

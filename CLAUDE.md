@@ -70,10 +70,6 @@ cd packages/types && pnpm test
 - Co-locate tests: `foo.ts` → `foo.test.ts`
 - Imports: external → internal → relative, alphabetized within groups
 
-## Known Issues
-
-- **Integration tests**: Playwright tests have SSR compatibility issues with `better-sqlite3` (CommonJS `__filename` in ESM context) and outdated UI selectors causing timeouts
-  - Do not run until fixed, unless that is your task
 ## Documentation
 
 Key docs in `docs/`:
@@ -82,5 +78,4 @@ Key docs in `docs/`:
 - `proposal/project-proposal.md` — Full system design
 - `implementation/plan.md` — Phased implementation roadmap
 - `implementation/status.md` — Checklist of completed work
-- `implementation/upgrade-status.md` — Current upgrade progress
 - `development/coding-style.md` — Detailed code conventions
