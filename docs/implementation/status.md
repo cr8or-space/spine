@@ -280,3 +280,9 @@ The `db` parameter (libsql Database) is used for:
 The `drizzleDb` parameter (BetterSQLite3Database) is used for:
 - Type-safe CRUD operations via drizzle-orm/better-sqlite3 driver
 - The libsql package is API-compatible with better-sqlite3
+
+### Web App Integration
+- [x] `hooks.server.ts` updated to pass both `db` and `drizzle` to `createProjectService()`
+
+### Turborepo Configuration
+- [x] Added `test` task to `turbo.json` for running tests across packages
