@@ -1,11 +1,16 @@
 /**
  * Database connection and initialization
  *
- * Uses libsql, a synchronous SQLite library with better-sqlite3-compatible API.
+ * Uses libsql, a synchronous SQLite library with ESM support.
  * This provides ESM compatibility required for SvelteKit SSR.
  *
  * Drizzle ORM is layered on top for type-safe queries while maintaining
  * compatibility with raw SQL for FTS5 and complex operations.
+ *
+ * Note: We use the drizzle-orm/better-sqlite3 driver because libsql provides
+ * a compatible API. Both libsql and better-sqlite3 packages are required:
+ * - libsql: Actual SQLite implementation with ESM support
+ * - better-sqlite3: Required by drizzle-orm driver as a peer dependency
  */
 
 import Database from 'libsql';
@@ -25,7 +30,12 @@ export interface DatabaseOptions {
   readonly?: boolean;
 }
 
-/** Drizzle database type with schema */
+/**
+ * Drizzle database type with schema
+ *
+ * Note: We use BetterSQLite3Database type because the libsql package provides
+ * a compatible API, allowing us to use the drizzle-orm/better-sqlite3 driver.
+ */
 export type DrizzleDB = BetterSQLite3Database<typeof schema>;
 
 export interface DatabaseConnection {

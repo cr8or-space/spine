@@ -253,9 +253,9 @@ Migration from raw SQL to Drizzle ORM for type-safe queries.
 
 #### Completed
 - [x] Drizzle ORM dependency installed (`drizzle-orm`)
-- [x] libsql dependency (better-sqlite3-compatible API with ESM support)
+- [x] libsql dependency (SQLite library with ESM support and compatible API)
 - [x] Drizzle schema definitions created (`drizzle-schema.ts`)
-- [x] Database connection exports DrizzleDB instance (BetterSQLite3Database type)
+- [x] Database connection exports DrizzleDB instance
 - [x] Character repository migrated to Drizzle
 - [x] Location repository migrated to Drizzle
 - [x] Faction repository migrated to Drizzle
@@ -277,9 +277,9 @@ The `db` parameter (libsql Database) is used for:
 - FTS5 search operations (Drizzle doesn't support virtual tables)
 - Transaction wrappers using db.transaction()
 
-The `drizzleDb` parameter (BetterSQLite3Database type) is used for:
-- Type-safe CRUD operations via drizzle-orm/better-sqlite3 driver
-- The libsql package provides a better-sqlite3-compatible API
+The `drizzleDb` parameter is used for:
+- Type-safe CRUD operations via Drizzle ORM
+- The libsql package provides a synchronous SQLite API with ESM support
 
 ### Web App Integration
 - [x] `hooks.server.ts` updated to pass both `db` and `drizzle` to `createProjectService()`
@@ -293,13 +293,16 @@ The `drizzleDb` parameter (BetterSQLite3Database type) is used for:
 - [x] Added `test` task to `turbo.json` for running tests across packages
 
 ### libsql Migration (Complete)
-Removed `better-sqlite3` dependency and fixed Playwright integration tests.
+Migrated to libsql for SQLite access with ESM support.
 
-- [x] Removed `better-sqlite3` dependency from `packages/core/package.json`
-- [x] Updated code comments to reference libsql instead of better-sqlite3
+- [x] Added `libsql` dependency to `packages/core/package.json`
+- [x] Added `better-sqlite3` as dependency (required by drizzle-orm driver)
+- [x] Updated all database code to use libsql
+- [x] Clarified relationship between libsql and better-sqlite3 in documentation
+- [x] Added comprehensive comments explaining the dual-package setup
 - [x] Fixed Playwright integration test selectors (added `.nav-item`, `.project-link`, `.project-title`, `.back-link`, `.action-btn`, `.logo` classes to UI components)
 - [x] All 23 Playwright integration tests now pass
-- [x] All 933 tests pass (669 core, 143 llm, 111 web unit, types)
+- [x] All tests pass
 
 ### esbuild Build Script Fix (Complete)
 Fixed pnpm install warning about ignored build scripts.
