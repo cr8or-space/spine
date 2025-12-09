@@ -17,9 +17,7 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		// Bits UI Dialog uses portal, so query the document body
-		const backdrop = document.querySelector('.dialog-backdrop');
-		expect(backdrop).toBeFalsy();
+		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 	});
 
 	it('renders when open is true', async () => {
@@ -31,7 +29,6 @@ describe('CreateEntityDialog', () => {
 				children: () => 'Form fields',
 			},
 		});
-		// Use page locators since Bits UI uses portal
 		// Use heading role to get the title specifically (avoid button with same text)
 		await expect.element(page.getByRole('heading', { name: 'Create Character' })).toBeVisible();
 	});
@@ -81,7 +78,7 @@ describe('CreateEntityDialog', () => {
 		expect(handleClose).toHaveBeenCalledOnce();
 	});
 
-	it('has dialog-form and dialog-actions structure', async () => {
+	it('has dialog structure with cancel and submit buttons', async () => {
 		render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -92,12 +89,12 @@ describe('CreateEntityDialog', () => {
 		});
 		// Wait for dialog to render
 		await expect.element(page.getByRole('dialog')).toBeVisible();
-		// Query document for structure elements (rendered via portal)
-		expect(document.querySelector('.dialog-form')).toBeTruthy();
-		expect(document.querySelector('.dialog-actions')).toBeTruthy();
+		// Check that both buttons are present
+		await expect.element(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
+		await expect.element(page.getByRole('button', { name: 'Create Item' })).toBeVisible();
 	});
 
-	it('has submit button inside dialog-actions', async () => {
+	it('has submit button that can be submitted', async () => {
 		render(CreateEntityDialog, {
 			props: {
 				open: true,
@@ -108,9 +105,9 @@ describe('CreateEntityDialog', () => {
 		});
 		// Wait for dialog to render
 		await expect.element(page.getByRole('dialog')).toBeVisible();
-		const actions = document.querySelector('.dialog-actions');
-		expect(actions).toBeTruthy();
-		const submitButton = actions?.querySelector('button[type="submit"]');
-		expect(submitButton).toBeTruthy();
+		// Check submit button exists and has correct type
+		const submitButton = page.getByRole('button', { name: 'Create Item' });
+		await expect.element(submitButton).toBeVisible();
+		await expect.element(submitButton).toHaveAttribute('type', 'submit');
 	});
 });

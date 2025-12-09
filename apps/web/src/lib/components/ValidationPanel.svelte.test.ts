@@ -1,265 +1,269 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import ValidationPanel from './ValidationPanel.svelte';
 import type { ValidationResult } from '@spine/types';
 
 describe('ValidationPanel', () => {
-  const mockResults: ValidationResult[] = [
-    {
-      status: 'pass',
-      message: 'All required fields present',
-    },
-    {
-      status: 'fail',
-      message: 'Character name is too short',
-      location: { nodeId: 'chapter-1', order: 0 },
-      fix: 'Use a name with at least 2 characters',
-    },
-    {
-      status: 'warn',
-      message: 'Description could be more detailed',
-      location: { nodeId: 'chapter-2', order: 1 },
-    },
-    {
-      status: 'pass',
-      message: 'Timeline consistency verified',
-      location: { nodeId: 'chapter-3', order: 2 },
-    },
-  ];
+	const mockResults: ValidationResult[] = [
+		{
+			status: 'pass',
+			message: 'All required fields present',
+		},
+		{
+			status: 'fail',
+			message: 'Character name is too short',
+			location: { nodeId: 'chapter-1', order: 0 },
+			fix: 'Use a name with at least 2 characters',
+		},
+		{
+			status: 'warn',
+			message: 'Description could be more detailed',
+			location: { nodeId: 'chapter-2', order: 1 },
+		},
+		{
+			status: 'pass',
+			message: 'Timeline consistency verified',
+			location: { nodeId: 'chapter-3', order: 2 },
+		},
+	];
 
-  describe('rendering', () => {
-    it('should render panel with title', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-          title: 'Custom Title',
-        },
-      });
-      const title = container.querySelector('.panel-title');
-      expect(title?.textContent).toBe('Custom Title');
-    });
+	describe('rendering', () => {
+		it('should render panel with title', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+					title: 'Custom Title',
+				},
+			});
+			const title = page.getByRole('heading', { name: 'Custom Title' });
+			await expect.element(title).toBeVisible();
+		});
 
-    it('should render default title', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-        },
-      });
-      const title = container.querySelector('.panel-title');
-      expect(title?.textContent).toBe('Validation Results');
-    });
+		it('should render default title', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+				},
+			});
+			const title = page.getByRole('heading', { name: 'Validation Results' });
+			await expect.element(title).toBeVisible();
+		});
 
-    it('should show empty state when no results', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [],
-        },
-      });
-      const emptyState = container.querySelector('.empty-state');
-      expect(emptyState).toBeTruthy();
-      expect(emptyState?.textContent).toContain('No validation results');
-    });
+		it('should show empty state when no results', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [],
+				},
+			});
+			await expect.element(page.getByText('No validation results to display.')).toBeVisible();
+		});
 
-    it('should render validation results', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-        },
-      });
-      const resultItems = container.querySelectorAll('.result-item');
-      expect(resultItems.length).toBeGreaterThan(0);
-    });
+		it('should render validation results', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+				},
+			});
+			// Should render at least one result message
+			await expect.element(page.getByText('All required fields present')).toBeVisible();
+		});
 
-    it('should display result messages', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'fail', message: 'Test message' }],
-        },
-      });
-      const message = container.querySelector('.result-message');
-      expect(message?.textContent).toBe('Test message');
-    });
-  });
+		it('should display result messages', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'fail', message: 'Test message' }],
+				},
+			});
+			await expect.element(page.getByText('Test message')).toBeVisible();
+		});
+	});
 
-  describe('status indicators', () => {
-    it('should show pass icon for passing results', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'pass', message: 'Passed' }],
-        },
-      });
-      const icon = container.querySelector('.status-icon.status-pass');
-      expect(icon?.textContent).toBe('✓');
-    });
+	describe('status indicators', () => {
+		it('should show pass icon for passing results', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'pass', message: 'Passed' }],
+				},
+			});
+			// The pass icon is ✓ with aria-label="pass" - use list item context to avoid badge matches
+			const listItem = page.getByRole('listitem');
+			await expect.element(listItem.getByLabelText('pass')).toBeVisible();
+			await expect.element(listItem.getByLabelText('pass')).toHaveTextContent('✓');
+		});
 
-    it('should show fail icon for failing results', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'fail', message: 'Failed' }],
-        },
-      });
-      const icon = container.querySelector('.status-icon.status-fail');
-      expect(icon?.textContent).toBe('✕');
-    });
+		it('should show fail icon for failing results', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'fail', message: 'Failed' }],
+				},
+			});
+			const listItem = page.getByRole('listitem');
+			await expect.element(listItem.getByLabelText('fail')).toBeVisible();
+			await expect.element(listItem.getByLabelText('fail')).toHaveTextContent('✕');
+		});
 
-    it('should show warn icon for warning results', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'warn', message: 'Warning' }],
-        },
-      });
-      const icon = container.querySelector('.status-icon.status-warn');
-      expect(icon?.textContent).toBe('!');
-    });
-  });
+		it('should show warn icon for warning results', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'warn', message: 'Warning' }],
+				},
+			});
+			const listItem = page.getByRole('listitem');
+			await expect.element(listItem.getByLabelText('warn')).toBeVisible();
+			await expect.element(listItem.getByLabelText('warn')).toHaveTextContent('!');
+		});
+	});
 
-  describe('location links', () => {
-    it('should show location link when result has location', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [
-            {
-              status: 'fail',
-              message: 'Test',
-              location: { nodeId: 'test-node', order: 0 },
-            },
-          ],
-        },
-      });
-      const locationLink = container.querySelector('.location-link');
-      expect(locationLink).toBeTruthy();
-      expect(locationLink?.textContent).toContain('test-node');
-    });
+	describe('location links', () => {
+		it('should show location link when result has location', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [
+						{
+							status: 'fail',
+							message: 'Test',
+							location: { nodeId: 'test-node', order: 0 },
+						},
+					],
+				},
+			});
+			await expect.element(page.getByRole('button', { name: /test-node/i })).toBeVisible();
+		});
 
-    it('should call onNavigate when location is clicked', async () => {
-      const handleNavigate = vi.fn();
-      const location = { nodeId: 'test-node', order: 0 };
+		it('should call onNavigate when location is clicked', async () => {
+			const handleNavigate = vi.fn();
+			const location = { nodeId: 'test-node', order: 0 };
 
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'fail', message: 'Test', location }],
-          onNavigate: handleNavigate,
-        },
-      });
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'fail', message: 'Test', location }],
+					onNavigate: handleNavigate,
+				},
+			});
 
-      const locationLink = container.querySelector('.location-link') as HTMLButtonElement;
-      locationLink?.click();
+			const locationBtn = page.getByRole('button', { name: /test-node/i });
+			await locationBtn.click();
 
-      expect(handleNavigate).toHaveBeenCalledWith(location);
-    });
+			expect(handleNavigate).toHaveBeenCalledWith(location);
+		});
 
-    it('should disable location link when onNavigate is not provided', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [
-            {
-              status: 'fail',
-              message: 'Test',
-              location: { nodeId: 'test-node', order: 0 },
-            },
-          ],
-        },
-      });
-      const locationLink = container.querySelector('.location-link') as HTMLButtonElement;
-      expect(locationLink?.disabled).toBe(true);
-    });
-  });
+		it('should disable location link when onNavigate is not provided', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [
+						{
+							status: 'fail',
+							message: 'Test',
+							location: { nodeId: 'test-node', order: 0 },
+						},
+					],
+				},
+			});
+			const locationBtn = page.getByRole('button', { name: /test-node/i });
+			await expect.element(locationBtn).toBeDisabled();
+		});
+	});
 
-  describe('fix suggestions', () => {
-    it('should show fix suggestion when available', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [
-            {
-              status: 'fail',
-              message: 'Test',
-              fix: 'Do this to fix it',
-            },
-          ],
-        },
-      });
-      const fixSuggestion = container.querySelector('.fix-suggestion');
-      expect(fixSuggestion).toBeTruthy();
-      expect(fixSuggestion?.textContent).toContain('Do this to fix it');
-    });
+	describe('fix suggestions', () => {
+		it('should show fix suggestion when available', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [
+						{
+							status: 'fail',
+							message: 'Test',
+							fix: 'Do this to fix it',
+						},
+					],
+				},
+			});
+			await expect.element(page.getByText('Suggested fix:')).toBeVisible();
+			await expect.element(page.getByText('Do this to fix it')).toBeVisible();
+		});
 
-    it('should not show fix suggestion when not available', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'fail', message: 'Test' }],
-        },
-      });
-      const fixSuggestion = container.querySelector('.fix-suggestion');
-      expect(fixSuggestion).toBeNull();
-    });
-  });
+		it('should not show fix suggestion when not available', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'fail', message: 'Test' }],
+				},
+			});
+			await expect.element(page.getByText('Suggested fix:')).not.toBeInTheDocument();
+		});
+	});
 
-  describe('collapsible phases', () => {
-    it('should have collapsible class when collapsible is true', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-          collapsible: true,
-        },
-      });
-      const phaseHeader = container.querySelector('.phase-header');
-      expect(phaseHeader?.classList.contains('collapsible')).toBe(true);
-    });
+	describe('collapsible phases', () => {
+		it('should have expandable header when collapsible is true', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+					collapsible: true,
+				},
+			});
+			// Phase headers are buttons with aria-expanded
+			const phaseHeader = page.getByRole('button', { name: /Structural|Automated/i }).first();
+			await expect.element(phaseHeader).toHaveAttribute('aria-expanded', 'true');
+		});
 
-    it('should not have collapsible class when collapsible is false', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-          collapsible: false,
-        },
-      });
-      const phaseHeader = container.querySelector('.phase-header');
-      expect(phaseHeader?.classList.contains('collapsible')).toBe(false);
-    });
+		it('should not be expandable when collapsible is false', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+					collapsible: false,
+				},
+			});
+			// Phase headers should be disabled when not collapsible
+			const phaseHeader = page.getByRole('button', { name: /Structural|Automated/i }).first();
+			await expect.element(phaseHeader).toBeDisabled();
+		});
 
-    it('should toggle phase visibility when header is clicked', async () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: [{ status: 'fail', message: 'Test' }],
-          collapsible: true,
-        },
-      });
+		it('should respect initiallyCollapsed prop', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [{ status: 'fail', message: 'Test failure message' }],
+					collapsible: true,
+					initiallyCollapsed: ['structural'],
+				},
+			});
 
-      // Initially expanded
-      let resultList = container.querySelector('.result-list');
-      expect(resultList).toBeTruthy();
+			// When initially collapsed, list should not be present
+			const list = page.getByRole('list');
+			await expect.element(list).not.toBeInTheDocument();
 
-      // Click to collapse
-      const phaseHeader = container.querySelector('.phase-header') as HTMLButtonElement;
-      phaseHeader?.click();
+			// Phase header should show collapsed state
+			const phaseHeader = page.getByRole('button', { name: /Structural/i }).first();
+			await expect.element(phaseHeader).toHaveAttribute('aria-expanded', 'false');
+		});
+	});
 
-      // Wait for Svelte to update
-      await new Promise((r) => setTimeout(r, 0));
+	describe('summary badge', () => {
+		it('should show summary badge in header', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: mockResults,
+				},
+			});
+			// The summary badge has an aria-label describing the status
+			const badge = page.getByRole('button', { name: /Validation status:/i }).first();
+			await expect.element(badge).toBeVisible();
+		});
 
-      resultList = container.querySelector('.result-list');
-      expect(resultList).toBeNull();
-    });
-  });
-
-  describe('summary badge', () => {
-    it('should show summary badge in header', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-        },
-      });
-      const headerBadge = container.querySelector('.panel-header .validation-badge');
-      expect(headerBadge).toBeTruthy();
-    });
-
-    it('should show phase badges', () => {
-      const { container } = render(ValidationPanel, {
-        props: {
-          results: mockResults,
-        },
-      });
-      const phaseBadges = container.querySelectorAll('.phase-header .validation-badge');
-      expect(phaseBadges.length).toBeGreaterThan(0);
-    });
-  });
+		it('should show correct counts in badges', async () => {
+			render(ValidationPanel, {
+				props: {
+					results: [
+						{ status: 'pass', message: 'Pass 1' },
+						{ status: 'pass', message: 'Pass 2' },
+						{ status: 'fail', message: 'Fail 1' },
+						{ status: 'warn', message: 'Warn 1' },
+					],
+				},
+			});
+			// Badge should show counts - look for the aria-label, use .first() to get header badge
+			const badge = page
+				.getByRole('button', { name: /2 passed.*1 failed.*1 warnings/i })
+				.first();
+			await expect.element(badge).toBeVisible();
+		});
+	});
 });

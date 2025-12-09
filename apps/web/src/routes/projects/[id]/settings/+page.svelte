@@ -27,19 +27,19 @@
   <title>Settings - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="settings-page">
-  <div class="settings-container">
-    <header class="page-header">
-      <h1 class="page-title">Project Settings</h1>
-      <p class="page-description">Configure your project metadata and preferences</p>
+<div class="flex-1 p-6 bg-bg">
+  <div class="max-w-3xl mx-auto flex flex-col gap-6">
+    <header class="mb-2">
+      <h1 class="text-2xl font-bold m-0 mb-2">Project Settings</h1>
+      <p class="text-base text-text-secondary m-0">Configure your project metadata and preferences</p>
     </header>
 
     <Card>
       <form method="POST" action="?/update" use:enhance>
-        <div class="form-section">
-          <h2 class="section-title">Basic Information</h2>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-lg font-semibold m-0 pb-3 border-b border-border-light">Basic Information</h2>
 
-          <div class="form-fields">
+          <div class="flex flex-col gap-4">
             <TextField
               label="Project Title"
               name="title"
@@ -73,14 +73,14 @@
         </div>
 
         {#if form?.error}
-          <p class="form-error">{form.error}</p>
+          <p class="p-3 bg-danger-light text-danger rounded-md text-sm mt-4">{form.error}</p>
         {/if}
 
         {#if form?.success}
-          <p class="form-success">Settings saved successfully!</p>
+          <p class="p-3 bg-success-light text-success rounded-md text-sm mt-4">Settings saved successfully!</p>
         {/if}
 
-        <div class="form-actions">
+        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
           <Button type="button" variant="secondary" onclick={handleCancel}>
             Cancel
           </Button>
@@ -92,131 +92,24 @@
     </Card>
 
     <Card>
-      <div class="form-section">
-        <h2 class="section-title">Project Statistics</h2>
+      <div class="flex flex-col gap-4">
+        <h2 class="text-lg font-semibold m-0 pb-3 border-b border-border-light">Project Statistics</h2>
 
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-label">Created</span>
-            <span class="stat-value">{new Date(data.project.createdAt).toLocaleDateString()}</span>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-text-secondary font-medium">Created</span>
+            <span class="text-base text-text">{new Date(data.project.createdAt).toLocaleDateString()}</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-label">Last Modified</span>
-            <span class="stat-value">{new Date(data.project.updatedAt).toLocaleDateString()}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-text-secondary font-medium">Last Modified</span>
+            <span class="text-base text-text">{new Date(data.project.updatedAt).toLocaleDateString()}</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-label">Project ID</span>
-            <span class="stat-value stat-mono">{data.project.id}</span>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-text-secondary font-medium">Project ID</span>
+            <span class="text-sm text-text font-mono">{data.project.id}</span>
           </div>
         </div>
       </div>
     </Card>
   </div>
 </div>
-
-<style>
-  .settings-page {
-    flex: 1;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-
-  .settings-container {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-  }
-
-  .page-header {
-    margin-bottom: var(--space-2);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0 0 var(--space-2);
-  }
-
-  .page-description {
-    font-size: var(--text-base);
-    color: var(--color-text-secondary);
-    margin: 0;
-  }
-
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--color-border-light);
-  }
-
-  .form-fields {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .form-error {
-    padding: var(--space-3);
-    background-color: var(--color-danger-light);
-    color: var(--color-danger);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    margin: var(--space-4) 0 0;
-  }
-
-  .form-success {
-    padding: var(--space-3);
-    background-color: var(--color-success-light);
-    color: var(--color-success);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    margin: var(--space-4) 0 0;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .stat-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    font-weight: 500;
-  }
-
-  .stat-value {
-    font-size: var(--text-base);
-    color: var(--color-text);
-  }
-
-  .stat-mono {
-    font-family: monospace;
-    font-size: var(--text-sm);
-  }
-</style>

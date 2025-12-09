@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { enhance } from '$app/forms';
+  import { ArrowLeft } from 'lucide-svelte';
   import {
     Button,
     TextField,
@@ -108,17 +109,15 @@
   <title>{data.event.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="timeline-event-page">
-  <header class="page-header">
-    <div class="header-left">
-      <a href="/projects/{data.project.id}/bible" class="back-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
+<div class="flex-1 flex flex-col overflow-hidden">
+  <header class="flex items-center justify-between p-6 border-b border-border bg-surface">
+    <div class="flex flex-col gap-2">
+      <a href="/projects/{data.project.id}/bible" class="flex items-center gap-1 text-sm text-text-secondary no-underline transition-colors duration-150 hover:text-primary">
+        <ArrowLeft size={20} />
         Back to Bible
       </a>
-      <h1 class="page-title">{data.event.name}</h1>
-      <div class="event-badges">
+      <h1 class="text-2xl font-bold m-0">{data.event.name}</h1>
+      <div class="flex gap-2">
         <Badge variant={getTypeBadgeVariant(data.event.type)}>
           {data.event.type}
         </Badge>
@@ -130,7 +129,7 @@
         </Badge>
       </div>
     </div>
-    <div class="header-actions">
+    <div class="flex gap-2">
       {#if !isEditing}
         <Button variant="secondary" onclick={() => (isEditing = true)}>Edit</Button>
         <Button variant="danger" onclick={() => (showDeleteConfirm = true)}>Delete</Button>
@@ -138,7 +137,7 @@
     </div>
   </header>
 
-  <div class="page-content">
+  <div class="flex-1 overflow-auto p-6 bg-bg">
     {#if isEditing}
       <Card>
         <form method="POST" action="?/update" use:enhance={() => {
@@ -147,7 +146,7 @@
             isEditing = false;
           };
         }}>
-          <div class="form-grid">
+          <div class="grid grid-cols-2 gap-4">
             <TextField
               label="Name"
               name="name"
@@ -195,21 +194,21 @@
               bind:value={editForm.positionChapterNumber}
             />
 
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" bind:checked={editForm.positionApproximate} />
+            <div class="flex flex-col gap-2">
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" bind:checked={editForm.positionApproximate} class="cursor-pointer" />
                 Approximate time
               </label>
               <input type="hidden" name="position-approximate" value={editForm.positionApproximate.toString()} />
 
-              <label class="checkbox-label">
-                <input type="checkbox" bind:checked={editForm.revealed} />
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" bind:checked={editForm.revealed} class="cursor-pointer" />
                 Revealed in story
               </label>
               <input type="hidden" name="revealed" value={editForm.revealed.toString()} />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Description"
                 name="description"
@@ -219,15 +218,16 @@
               />
             </div>
 
-            <div class="form-full-width">
-              <span class="field-label">Involved Characters</span>
-              <div class="selection-grid">
+            <div class="col-span-2">
+              <span class="block text-sm font-medium mb-2 text-text">Involved Characters</span>
+              <div class="flex flex-wrap gap-3 p-3 bg-bg border border-border rounded-md max-h-[200px] overflow-y-auto">
                 {#each data.allCharacters as character}
-                  <label class="selection-checkbox">
+                  <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editForm.involvedCharacters.includes(character.id)}
                       onchange={() => toggleCharacter(character.id)}
+                      class="cursor-pointer"
                     />
                     {character.name}
                   </label>
@@ -240,15 +240,16 @@
               />
             </div>
 
-            <div class="form-full-width">
-              <span class="field-label">Locations</span>
-              <div class="selection-grid">
+            <div class="col-span-2">
+              <span class="block text-sm font-medium mb-2 text-text">Locations</span>
+              <div class="flex flex-wrap gap-3 p-3 bg-bg border border-border rounded-md max-h-[200px] overflow-y-auto">
                 {#each data.allLocations as location}
-                  <label class="selection-checkbox">
+                  <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editForm.locations.includes(location.id)}
                       onchange={() => toggleLocation(location.id)}
+                      class="cursor-pointer"
                     />
                     {location.name}
                   </label>
@@ -262,7 +263,7 @@
             </div>
           </div>
 
-          <div class="form-actions">
+          <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
             <Button type="button" variant="secondary" onclick={() => {
               isEditing = false;
               editForm = {
@@ -285,37 +286,37 @@
         </form>
       </Card>
     {:else}
-      <div class="detail-grid">
+      <div class="grid gap-4 max-w-screen-xl">
         <Card>
-          <h2 class="section-title">Timeline Position</h2>
-          <div class="time-display">
+          <h2 class="text-lg font-semibold m-0 mb-4">Timeline Position</h2>
+          <div class="flex items-center gap-2 text-lg font-medium text-text">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 6v6l4 2" />
             </svg>
-            <span class="time-value">{formatTimelinePosition()}</span>
+            <span class="text-primary">{formatTimelinePosition()}</span>
             {#if data.event.position.approximate}
               <Badge size="sm" variant="warning">Approximate</Badge>
             {/if}
           </div>
           {#if data.event.duration}
-            <p class="duration">Duration: {data.event.duration}</p>
+            <p class="text-sm text-text-secondary mt-2 m-0">Duration: {data.event.duration}</p>
           {/if}
         </Card>
 
         <Card>
-          <h2 class="section-title">Description</h2>
-          <p class="description">{data.event.description}</p>
+          <h2 class="text-lg font-semibold m-0 mb-4">Description</h2>
+          <p class="text-sm text-text leading-relaxed m-0">{data.event.description}</p>
         </Card>
 
         <Card>
-          <h2 class="section-title">Involved Characters ({data.event.involvedCharacters.length})</h2>
+          <h2 class="text-lg font-semibold m-0 mb-4">Involved Characters ({data.event.involvedCharacters.length})</h2>
           {#if data.event.involvedCharacters.length === 0}
-            <p class="empty-message">No characters involved.</p>
+            <p class="text-text-secondary text-sm m-0">No characters involved.</p>
           {:else}
-            <div class="entity-chips">
+            <div class="flex flex-wrap gap-2">
               {#each data.event.involvedCharacters as characterId}
-                <a href="/projects/{data.project.id}/bible/character/{characterId}" class="entity-chip">
+                <a href="/projects/{data.project.id}/bible/character/{characterId}" class="px-3 py-2 bg-primary/10 text-primary rounded-full text-sm no-underline transition-colors duration-150 hover:bg-primary hover:text-white">
                   {getCharacterName(characterId)}
                 </a>
               {/each}
@@ -324,13 +325,13 @@
         </Card>
 
         <Card>
-          <h2 class="section-title">Locations ({data.event.locations.length})</h2>
+          <h2 class="text-lg font-semibold m-0 mb-4">Locations ({data.event.locations.length})</h2>
           {#if data.event.locations.length === 0}
-            <p class="empty-message">No locations associated.</p>
+            <p class="text-text-secondary text-sm m-0">No locations associated.</p>
           {:else}
-            <div class="entity-chips">
+            <div class="flex flex-wrap gap-2">
               {#each data.event.locations as locationId}
-                <a href="/projects/{data.project.id}/bible/location/{locationId}" class="entity-chip location-chip">
+                <a href="/projects/{data.project.id}/bible/location/{locationId}" class="px-3 py-2 bg-success/10 text-success rounded-full text-sm no-underline transition-colors duration-150 hover:bg-success hover:text-white">
                   {getLocationName(locationId)}
                 </a>
               {/each}
@@ -340,10 +341,10 @@
 
         {#if data.event.consequences && data.event.consequences.length > 0}
           <Card>
-            <h2 class="section-title">Consequences</h2>
-            <ul class="consequence-list">
+            <h2 class="text-lg font-semibold m-0 mb-4">Consequences</h2>
+            <ul class="list-none p-0 m-0 flex flex-col gap-2">
               {#each data.event.consequences as consequence}
-                <li class="consequence-item">{consequence}</li>
+                <li class="p-3 bg-bg border border-border rounded-md text-sm">{consequence}</li>
               {/each}
             </ul>
           </Card>
@@ -369,225 +370,3 @@
   }}
   onCancel={() => (showDeleteConfirm = false)}
 />
-
-<style>
-  .timeline-event-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .back-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .back-link:hover {
-    color: var(--color-primary);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .event-badges {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .page-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-
-  .detail-grid {
-    display: grid;
-    gap: var(--space-4);
-    max-width: 1200px;
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0 0 var(--space-4);
-  }
-
-  .time-display {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-lg);
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .time-value {
-    color: var(--color-primary);
-  }
-
-  .duration {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: var(--space-2) 0 0;
-  }
-
-  .description {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .entity-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .entity-chip {
-    padding: var(--space-2) var(--space-3);
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-    border-radius: var(--radius-full);
-    font-size: var(--text-sm);
-    text-decoration: none;
-    transition: background-color var(--transition-fast);
-  }
-
-  .entity-chip:hover {
-    background-color: var(--color-primary);
-    color: white;
-  }
-
-  .location-chip {
-    background-color: var(--color-success-light);
-    color: var(--color-success);
-  }
-
-  .location-chip:hover {
-    background-color: var(--color-success);
-    color: white;
-  }
-
-  .consequence-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .consequence-item {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-  }
-
-  .empty-message {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .form-full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .field-label {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: 500;
-    margin-bottom: var(--space-2);
-    color: var(--color-text);
-  }
-
-  .selection-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .selection-checkbox {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .selection-checkbox input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-</style>

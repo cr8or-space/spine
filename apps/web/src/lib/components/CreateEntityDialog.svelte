@@ -16,10 +16,10 @@
 </script>
 
 <Dialog {open} {title} {onClose}>
-  <div class="dialog-form">
+  <div class="flex flex-col gap-4">
     {@render children()}
 
-    <div class="dialog-actions">
+    <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
       <Button type="button" variant="secondary" onclick={onClose}>
         Cancel
       </Button>
@@ -27,20 +27,3 @@
     </div>
   </div>
 </Dialog>
-
-<style>
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

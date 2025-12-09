@@ -27,15 +27,15 @@
   <title>Bible - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="bible-page">
-  <header class="bible-header">
-    <div class="header-content">
-      <h1 class="page-title">Story Bible</h1>
-      <p class="page-description">
+<div class="flex-1 flex flex-col overflow-hidden">
+  <header class="py-6 px-6 pb-4 border-b border-border bg-surface">
+    <div class="mb-4">
+      <h1 class="text-2xl font-bold m-0 mb-2">Story Bible</h1>
+      <p class="text-sm text-text-secondary m-0">
         Manage characters, locations, factions, rules, and storylines for your project
       </p>
     </div>
-    <div class="header-search">
+    <div class="max-w-md">
       <SearchInput
         bind:value={searchQuery}
         placeholder="Search bible entries..."
@@ -43,10 +43,10 @@
     </div>
   </header>
 
-  <div class="bible-content">
+  <div class="flex-1 flex flex-col overflow-hidden">
     <Tabs bind:active={activeTab} {tabs} />
 
-    <div class="tab-content">
+    <div class="flex-1 overflow-auto p-6 bg-bg">
       {#if activeTab === 'characters'}
         <CharacterTab
           characters={data.bible.characters}
@@ -87,52 +87,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .bible-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .bible-header {
-    padding: var(--space-6) var(--space-6) var(--space-4);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .header-content {
-    margin-bottom: var(--space-4);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0 0 var(--space-2);
-  }
-
-  .page-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0;
-  }
-
-  .header-search {
-    max-width: 400px;
-  }
-
-  .bible-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .tab-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-</style>

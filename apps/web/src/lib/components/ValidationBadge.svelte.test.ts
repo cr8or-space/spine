@@ -1,234 +1,226 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { render } from 'vitest-browser-svelte';
+import { page } from 'vitest/browser';
 import ValidationBadge from './ValidationBadge.svelte';
 
 describe('ValidationBadge', () => {
-  describe('rendering', () => {
-    it('should render nothing when all counts are zero', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 0,
-          failCount: 0,
-          warnCount: 0,
-        },
-      });
-      expect(container.querySelector('.validation-badge')).toBeNull();
-    });
+	describe('rendering', () => {
+		it('should render nothing when all counts are zero', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 0,
+					failCount: 0,
+					warnCount: 0,
+				},
+			});
+			await expect.element(page.getByRole('button')).not.toBeInTheDocument();
+		});
 
-    it('should render when showZero is true', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 0,
-          failCount: 0,
-          warnCount: 0,
-          showZero: true,
-        },
-      });
-      expect(container.querySelector('.validation-badge')).toBeTruthy();
-    });
+		it('should render when showZero is true', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 0,
+					failCount: 0,
+					warnCount: 0,
+					showZero: true,
+				},
+			});
+			await expect.element(page.getByRole('button')).toBeVisible();
+		});
 
-    it('should render pass count', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-          failCount: 0,
-          warnCount: 0,
-        },
-      });
-      const passCount = container.querySelector('.count-pass .value');
-      expect(passCount?.textContent).toBe('5');
-    });
+		it('should render pass count', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					failCount: 0,
+					warnCount: 0,
+				},
+			});
+			await expect.element(page.getByLabelText('5 passed', { exact: true })).toBeVisible();
+		});
 
-    it('should render fail count', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 0,
-          failCount: 3,
-          warnCount: 0,
-        },
-      });
-      const failCount = container.querySelector('.count-fail .value');
-      expect(failCount?.textContent).toBe('3');
-    });
+		it('should render fail count', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 0,
+					failCount: 3,
+					warnCount: 0,
+				},
+			});
+			await expect.element(page.getByLabelText('3 failed', { exact: true })).toBeVisible();
+		});
 
-    it('should render warn count', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 0,
-          failCount: 0,
-          warnCount: 2,
-        },
-      });
-      const warnCount = container.querySelector('.count-warn .value');
-      expect(warnCount?.textContent).toBe('2');
-    });
+		it('should render warn count', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 0,
+					failCount: 0,
+					warnCount: 2,
+				},
+			});
+			await expect.element(page.getByLabelText('2 warnings', { exact: true })).toBeVisible();
+		});
 
-    it('should render all counts when non-zero', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 2,
-          warnCount: 5,
-        },
-      });
-      expect(container.querySelector('.count-pass .value')?.textContent).toBe('10');
-      expect(container.querySelector('.count-fail .value')?.textContent).toBe('2');
-      expect(container.querySelector('.count-warn .value')?.textContent).toBe('5');
-    });
-  });
+		it('should render all counts when non-zero', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 2,
+					warnCount: 5,
+				},
+			});
+			await expect.element(page.getByLabelText('10 passed', { exact: true })).toBeVisible();
+			await expect.element(page.getByLabelText('2 failed', { exact: true })).toBeVisible();
+			await expect.element(page.getByLabelText('5 warnings', { exact: true })).toBeVisible();
+		});
+	});
 
-  describe('status classes', () => {
-    it('should have status-fail when failCount > 0', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 1,
-          warnCount: 0,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('status-fail')).toBe(true);
-    });
+	describe('status classes', () => {
+		it('should have danger border when failCount > 0', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 1,
+					warnCount: 0,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/border-danger/);
+		});
 
-    it('should have status-warn when warnCount > 0 and failCount = 0', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 0,
-          warnCount: 1,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('status-warn')).toBe(true);
-    });
+		it('should have warning border when warnCount > 0 and failCount = 0', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 0,
+					warnCount: 1,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/border-warning/);
+		});
 
-    it('should have status-pass when only passCount > 0', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 0,
-          warnCount: 0,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('status-pass')).toBe(true);
-    });
+		it('should have success border when only passCount > 0', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 0,
+					warnCount: 0,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/border-success/);
+		});
 
-    it('should prioritize fail over warn', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 1,
-          warnCount: 5,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('status-fail')).toBe(true);
-      expect(badge?.classList.contains('status-warn')).toBe(false);
-    });
-  });
+		it('should prioritize fail over warn', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 1,
+					warnCount: 5,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/border-danger/);
+		});
+	});
 
-  describe('size variants', () => {
-    it('should apply badge-md class by default', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('badge-md')).toBe(true);
-    });
+	describe('size variants', () => {
+		it('should apply text-sm class by default (md size)', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/text-sm/);
+		});
 
-    it('should apply badge-sm class when size is sm', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-          size: 'sm',
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('badge-sm')).toBe(true);
-    });
-  });
+		it('should apply text-xs class when size is sm', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					size: 'sm',
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/text-xs/);
+		});
+	});
 
-  describe('interactivity', () => {
-    it('should have interactive class when onclick is provided', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-          onclick: () => {},
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('interactive')).toBe(true);
-    });
+	describe('interactivity', () => {
+		it('should have cursor-pointer when onclick is provided', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					onclick: () => {},
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toHaveClass(/cursor-pointer/);
+		});
 
-    it('should not have interactive class when onclick is not provided', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.classList.contains('interactive')).toBe(false);
-    });
+		it('should not be disabled when onclick is provided', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					onclick: () => {},
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).not.toBeDisabled();
+		});
 
-    it('should call onclick when clicked', async () => {
-      const handleClick = vi.fn();
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-          onclick: handleClick,
-        },
-      });
-      const badge = container.querySelector('.validation-badge') as HTMLButtonElement;
-      badge?.click();
-      expect(handleClick).toHaveBeenCalledTimes(1);
-    });
+		it('should call onclick when clicked', async () => {
+			const handleClick = vi.fn();
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					onclick: handleClick,
+				},
+			});
+			const badge = page.getByRole('button');
+			await badge.click();
+			expect(handleClick).toHaveBeenCalledTimes(1);
+		});
 
-    it('should be disabled when onclick is not provided', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-        },
-      });
-      const badge = container.querySelector('.validation-badge') as HTMLButtonElement;
-      expect(badge?.disabled).toBe(true);
-    });
-  });
+		it('should be disabled when onclick is not provided', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+				},
+			});
+			const badge = page.getByRole('button');
+			await expect.element(badge).toBeDisabled();
+		});
+	});
 
-  describe('accessibility', () => {
-    it('should have aria-label describing status', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 10,
-          failCount: 2,
-          warnCount: 5,
-        },
-      });
-      const badge = container.querySelector('.validation-badge');
-      expect(badge?.getAttribute('aria-label')).toBe(
-        'Validation status: 10 passed, 2 failed, 5 warnings'
-      );
-    });
+	describe('accessibility', () => {
+		it('should have aria-label describing status', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 10,
+					failCount: 2,
+					warnCount: 5,
+				},
+			});
+			const badge = page.getByRole('button', {
+				name: 'Validation status: 10 passed, 2 failed, 5 warnings',
+			});
+			await expect.element(badge).toBeVisible();
+		});
 
-    it('should have aria-label on individual counts', () => {
-      const { container } = render(ValidationBadge, {
-        props: {
-          passCount: 5,
-          failCount: 3,
-          warnCount: 1,
-        },
-      });
-      expect(
-        container.querySelector('.count-pass')?.getAttribute('aria-label')
-      ).toBe('5 passed');
-      expect(
-        container.querySelector('.count-fail')?.getAttribute('aria-label')
-      ).toBe('3 failed');
-      expect(
-        container.querySelector('.count-warn')?.getAttribute('aria-label')
-      ).toBe('1 warnings');
-    });
-  });
+		it('should have aria-label on individual counts', async () => {
+			render(ValidationBadge, {
+				props: {
+					passCount: 5,
+					failCount: 3,
+					warnCount: 1,
+				},
+			});
+			await expect.element(page.getByLabelText('5 passed', { exact: true })).toBeVisible();
+			await expect.element(page.getByLabelText('3 failed', { exact: true })).toBeVisible();
+			await expect.element(page.getByLabelText('1 warnings', { exact: true })).toBeVisible();
+		});
+	});
 });

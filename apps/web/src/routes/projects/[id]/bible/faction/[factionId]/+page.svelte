@@ -2,6 +2,7 @@
   import type { PageData } from './$types';
   import type { FactionMember, FactionRelation } from '@repo/types';
   import { enhance } from '$app/forms';
+  import { ArrowLeft } from 'lucide-svelte';
   import {
     Button,
     TextField,
@@ -161,17 +162,15 @@
   <title>{data.faction.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="faction-page">
-  <header class="page-header">
-    <div class="header-left">
-      <a href="/projects/{data.project.id}/bible" class="back-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
+<div class="flex-1 flex flex-col overflow-hidden">
+  <header class="flex items-center justify-between p-6 border-b border-border bg-surface">
+    <div class="flex flex-col gap-2">
+      <a href="/projects/{data.project.id}/bible" class="flex items-center gap-1 text-sm text-text-secondary no-underline transition-colors duration-150 hover:text-primary">
+        <ArrowLeft size={20} />
         Back to Bible
       </a>
-      <h1 class="page-title">{data.faction.name}</h1>
-      <div class="faction-badges">
+      <h1 class="text-2xl font-bold m-0">{data.faction.name}</h1>
+      <div class="flex gap-2">
         <Badge variant={getTypeBadgeVariant(data.faction.type)}>
           {data.faction.type}
         </Badge>
@@ -183,7 +182,7 @@
         </Badge>
       </div>
     </div>
-    <div class="header-actions">
+    <div class="flex gap-2">
       {#if !isEditing}
         <Button variant="secondary" onclick={() => (isEditing = true)}>Edit</Button>
         <Button variant="danger" onclick={() => (showDeleteConfirm = true)}>Delete</Button>
@@ -191,7 +190,7 @@
     </div>
   </header>
 
-  <div class="page-content">
+  <div class="flex-1 overflow-auto p-6 bg-bg">
     {#if isEditing}
       <Card>
         <form method="POST" action="?/update" use:enhance={() => {
@@ -200,7 +199,7 @@
             isEditing = false;
           };
         }}>
-          <div class="form-grid">
+          <div class="grid grid-cols-2 gap-4">
             <TextField
               label="Name"
               name="name"
@@ -247,7 +246,7 @@
               bind:value={editForm.ideology}
             />
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Description"
                 name="description"
@@ -257,7 +256,7 @@
               />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Goals (one per line)"
                 name="goals-display"
@@ -272,7 +271,7 @@
             </div>
           </div>
 
-          <div class="form-actions">
+          <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
             <Button type="button" variant="secondary" onclick={() => {
               isEditing = false;
               editForm = {
@@ -291,36 +290,36 @@
         </form>
       </Card>
     {:else}
-      <div class="detail-grid">
+      <div class="grid gap-4 max-w-screen-xl">
         <Card>
-          <h2 class="section-title">Basic Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Name</span>
-              <span class="info-value">{data.faction.name}</span>
+          <h2 class="text-lg font-semibold m-0 mb-4">Basic Information</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-semibold uppercase text-text-secondary">Name</span>
+              <span class="text-sm text-text m-0">{data.faction.name}</span>
             </div>
             {#if data.faction.aliases.length > 0}
-              <div class="info-item">
-                <span class="info-label">Also known as</span>
-                <span class="info-value">{data.faction.aliases.join(', ')}</span>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Also known as</span>
+                <span class="text-sm text-text m-0">{data.faction.aliases.join(', ')}</span>
               </div>
             {/if}
             {#if data.faction.ideology}
-              <div class="info-item">
-                <span class="info-label">Ideology</span>
-                <span class="info-value">{data.faction.ideology}</span>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Ideology</span>
+                <span class="text-sm text-text m-0">{data.faction.ideology}</span>
               </div>
             {/if}
-            <div class="info-item full-width">
-              <span class="info-label">Description</span>
-              <p class="info-value">{data.faction.description}</p>
+            <div class="flex flex-col gap-1 col-span-2">
+              <span class="text-xs font-semibold uppercase text-text-secondary">Description</span>
+              <p class="text-sm text-text m-0">{data.faction.description}</p>
             </div>
           </div>
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Goals ({data.faction.goals.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Goals ({data.faction.goals.length})</h2>
             <Button size="sm" onclick={() => {
               resetGoalForm();
               showGoalDialog = true;
@@ -328,11 +327,11 @@
           </div>
 
           {#if data.faction.goals.length === 0}
-            <p class="empty-message">No goals defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No goals defined yet.</p>
           {:else}
-            <ul class="goal-list">
+            <ul class="list-none p-0 m-0 flex flex-col gap-2">
               {#each data.faction.goals as goal, i}
-                <li class="goal-item">
+                <li class="flex items-center justify-between p-3 bg-bg border border-border rounded-md">
                   <span>{goal}</span>
                   <form method="POST" action="?/removeGoal" use:enhance>
                     <input type="hidden" name="goalIndex" value={i} />
@@ -345,8 +344,8 @@
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Ranks ({data.faction.ranks.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Ranks ({data.faction.ranks.length})</h2>
             <Button size="sm" onclick={() => {
               resetRankForm();
               showRankDialog = true;
@@ -354,19 +353,19 @@
           </div>
 
           {#if data.faction.ranks.length === 0}
-            <p class="empty-message">No ranks defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No ranks defined yet.</p>
           {:else}
-            <div class="rank-list">
+            <div class="flex flex-col gap-3">
               {#each data.faction.ranks.sort((a, b) => b.level - a.level) as rank}
-                <div class="rank-item">
-                  <div class="rank-header">
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="flex items-center gap-2 mb-2">
                     <Badge size="sm" variant="info">Level {rank.level}</Badge>
                     <strong>{rank.name}</strong>
                   </div>
-                  <p class="rank-description">{rank.description}</p>
+                  <p class="text-sm text-text-secondary m-0 mb-2">{rank.description}</p>
                   {#if rank.privileges.length > 0}
-                    <div class="rank-privileges">
-                      <span class="privileges-label">Privileges:</span>
+                    <div class="text-xs text-text-tertiary mb-2">
+                      <span class="font-semibold">Privileges:</span>
                       {rank.privileges.join(', ')}
                     </div>
                   {/if}
@@ -381,8 +380,8 @@
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Members ({data.faction.members.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Members ({data.faction.members.length})</h2>
             <Button size="sm" onclick={() => {
               resetMemberForm();
               showMemberDialog = true;
@@ -390,13 +389,13 @@
           </div>
 
           {#if data.faction.members.length === 0}
-            <p class="empty-message">No members yet.</p>
+            <p class="text-text-secondary text-sm m-0">No members yet.</p>
           {:else}
-            <div class="member-list">
+            <div class="flex flex-col gap-3">
               {#each data.faction.members as member}
-                <div class="member-item">
-                  <div class="member-header">
-                    <a href="/projects/{data.project.id}/bible/character/{member.characterId}" class="member-name">
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="flex items-center gap-2 mb-2">
+                    <a href="/projects/{data.project.id}/bible/character/{member.characterId}" class="font-semibold text-primary no-underline hover:underline">
                       {getCharacterName(member.characterId)}
                     </a>
                     <Badge size="sm">{member.rank}</Badge>
@@ -405,7 +404,7 @@
                     </Badge>
                   </div>
                   {#if member.role}
-                    <p class="member-role">Role: {member.role}</p>
+                    <p class="text-sm text-text-secondary m-0 mb-2">Role: {member.role}</p>
                   {/if}
                   <form method="POST" action="?/removeMember" use:enhance>
                     <input type="hidden" name="characterId" value={member.characterId} />
@@ -418,8 +417,8 @@
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Relations ({data.faction.relations.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Relations ({data.faction.relations.length})</h2>
             <Button size="sm" onclick={() => {
               resetRelationForm();
               showRelationDialog = true;
@@ -427,23 +426,23 @@
           </div>
 
           {#if data.faction.relations.length === 0}
-            <p class="empty-message">No relations defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No relations defined yet.</p>
           {:else}
-            <div class="relation-list">
+            <div class="flex flex-col gap-3">
               {#each data.faction.relations as relation}
-                <div class="relation-item">
-                  <div class="relation-header">
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="flex items-center gap-2 mb-2">
                     <Badge size="sm" variant={relation.type === 'ally' ? 'success' : relation.type === 'enemy' ? 'danger' : 'info'}>
                       {relation.type}
                     </Badge>
-                    <a href="/projects/{data.project.id}/bible/faction/{relation.targetId}" class="relation-target">
+                    <a href="/projects/{data.project.id}/bible/faction/{relation.targetId}" class="font-semibold text-primary no-underline hover:underline">
                       {getFactionName(relation.targetId)}
                     </a>
                     {#if !relation.public}
                       <Badge size="sm" variant="warning">Secret</Badge>
                     {/if}
                   </div>
-                  <p class="relation-description">{relation.description}</p>
+                  <p class="text-sm text-text-secondary m-0 mb-2">{relation.description}</p>
                   <form method="POST" action="?/removeRelation" use:enhance>
                     <input type="hidden" name="targetId" value={relation.targetId} />
                     <Button type="submit" size="sm" variant="danger">Remove</Button>
@@ -471,7 +470,7 @@
       resetRankForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Name"
         name="name"
@@ -505,7 +504,7 @@
         value={JSON.stringify(rankForm.privileges.split(',').map(p => p.trim()).filter(Boolean))}
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showRankDialog = false)}>
           Cancel
         </Button>
@@ -528,7 +527,7 @@
       resetMemberForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <Select
         label="Character"
         name="characterId"
@@ -562,7 +561,7 @@
         options={memberStatusOptions}
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showMemberDialog = false)}>
           Cancel
         </Button>
@@ -585,7 +584,7 @@
       resetRelationForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <Select
         label="Target Faction"
         name="targetId"
@@ -606,13 +605,13 @@
         rows={3}
         required
       />
-      <label class="checkbox-label">
-        <input type="checkbox" name="public-checkbox" bind:checked={relationForm.public} />
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" name="public-checkbox" bind:checked={relationForm.public} class="cursor-pointer" />
         Publicly known
       </label>
       <input type="hidden" name="public" value={relationForm.public.toString()} />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showRelationDialog = false)}>
           Cancel
         </Button>
@@ -635,7 +634,7 @@
       resetGoalForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextArea
         label="Goal"
         name="goal"
@@ -644,7 +643,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showGoalDialog = false)}>
           Cancel
         </Button>
@@ -670,226 +669,3 @@
   }}
   onCancel={() => (showDeleteConfirm = false)}
 />
-
-<style>
-  .faction-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .back-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .back-link:hover {
-    color: var(--color-primary);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .faction-badges {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .page-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-
-  .detail-grid {
-    display: grid;
-    gap: var(--space-4);
-    max-width: 1200px;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0 0 var(--space-4);
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .info-item.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .info-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    margin: 0;
-  }
-
-  .goal-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .goal-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-  }
-
-  .rank-list, .member-list, .relation-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .rank-item, .member-item, .relation-item {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-  }
-
-  .rank-header, .member-header, .relation-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-  }
-
-  .rank-description, .relation-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-2);
-  }
-
-  .rank-privileges {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    margin-bottom: var(--space-2);
-  }
-
-  .privileges-label {
-    font-weight: 600;
-  }
-
-  .member-name, .relation-target {
-    font-weight: 600;
-    color: var(--color-primary);
-    text-decoration: none;
-  }
-
-  .member-name:hover, .relation-target:hover {
-    text-decoration: underline;
-  }
-
-  .member-role {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-2);
-  }
-
-  .empty-message {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .form-full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-</style>

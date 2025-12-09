@@ -81,17 +81,17 @@
   <title>Spine - Projects</title>
 </svelte:head>
 
-<div class="page">
-  <header class="header">
-    <div class="header-content">
-      <h1 class="logo">Spine</h1>
-      <p class="tagline">AI-assisted web serial creation</p>
+<div class="min-h-screen flex flex-col">
+  <header class="bg-surface border-b border-border py-8 px-4">
+    <div class="max-w-7xl mx-auto text-center">
+      <h1 class="text-3xl font-bold text-primary m-0">Spine</h1>
+      <p class="text-base text-text-secondary mt-2">AI-assisted web serial creation</p>
     </div>
   </header>
 
-  <main class="main">
-    <div class="toolbar">
-      <h2 class="section-title">Projects</h2>
+  <main class="flex-1 max-w-7xl w-full mx-auto py-8 px-4">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold m-0">Projects</h2>
       <Button onclick={openCreateDialog}>
         <Plus size={16} />
         New Project
@@ -108,40 +108,44 @@
         {/snippet}
       </EmptyState>
     {:else}
-      <div class="projects-grid">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
         {#each data.projects as project}
           <Card hover padding="none">
-            <a href="/projects/{project.id}/bible" class="project-link">
-              <div class="project-content">
-                <div class="project-header">
-                  <h3 class="project-title">{project.title}</h3>
-                  <span class="project-format">{getFormatLabel(project.format)}</span>
+            <a href="/projects/{project.id}/bible" class="block no-underline text-inherit">
+              <div class="p-4">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                  <h3 class="text-lg font-semibold m-0 text-text">{project.title}</h3>
+                  <span class="text-xs text-text-secondary bg-bg-tertiary py-1 px-2 rounded-sm whitespace-nowrap">
+                    {getFormatLabel(project.format)}
+                  </span>
                 </div>
 
-                <div class="project-stats">
-                  <span class="stat">
+                <div class="flex gap-4 mb-3">
+                  <span class="flex items-center gap-1 text-sm text-text-secondary">
                     <BookOpen size={14} />
                     {project.chapterCount} chapters
                   </span>
-                  <span class="stat">
+                  <span class="flex items-center gap-1 text-sm text-text-secondary">
                     <Type size={14} />
                     {formatWordCount(project.wordCount)} words
                   </span>
                 </div>
 
-                <div class="project-meta">
-                  <span class="last-modified">
-                    Last modified {formatDate(project.lastModified)}
-                  </span>
+                <div class="text-xs text-text-tertiary">
+                  Last modified {formatDate(project.lastModified)}
                 </div>
               </div>
             </a>
-            <div class="project-actions">
-              <a href="/projects/{project.id}/settings" class="action-btn" title="Settings">
+            <div class="flex gap-1 py-2 px-4 border-t border-border-light bg-bg-secondary">
+              <a
+                href="/projects/{project.id}/settings"
+                class="flex items-center justify-center w-8 h-8 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
+                title="Settings"
+              >
                 <Settings size={16} />
               </a>
               <button
-                class="action-btn danger"
+                class="flex items-center justify-center w-8 h-8 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light hover:text-danger transition-all duration-150"
                 title="Delete"
                 onclick={() => openDeleteConfirm(project.id, project.title)}
               >
@@ -158,7 +162,7 @@
 <!-- Create Project Dialog -->
 <Dialog open={showCreateDialog} title="Create New Project" onClose={closeCreateDialog}>
   <form method="POST" action="?/create" use:enhance>
-    <div class="form-fields">
+    <div class="flex flex-col gap-4">
       <TextField
         label="Project Title"
         name="title"
@@ -191,10 +195,10 @@
     </div>
 
     {#if form?.error}
-      <p class="form-error">{form.error}</p>
+      <p class="mt-4 p-3 bg-danger-light text-danger rounded-md text-sm">{form.error}</p>
     {/if}
 
-    <div class="form-actions">
+    <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
       <Button type="button" variant="secondary" onclick={closeCreateDialog}>
         Cancel
       </Button>
@@ -228,173 +232,3 @@
     />
   </form>
 {/if}
-
-<style>
-  .page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .header {
-    background-color: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
-    padding: var(--space-8) var(--space-4);
-  }
-
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: center;
-  }
-
-  .logo {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--color-primary);
-    margin: 0;
-  }
-
-  .tagline {
-    font-size: var(--text-base);
-    color: var(--color-text-secondary);
-    margin: var(--space-2) 0 0;
-  }
-
-  .main {
-    flex: 1;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: var(--space-8) var(--space-4);
-  }
-
-  .toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-6);
-  }
-
-  .section-title {
-    font-size: var(--text-xl);
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-4);
-  }
-
-  .project-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .project-content {
-    padding: var(--space-4);
-  }
-
-  .project-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
-  }
-
-  .project-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .project-format {
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    background-color: var(--color-bg-tertiary);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-  }
-
-  .project-stats {
-    display: flex;
-    gap: var(--space-4);
-    margin-bottom: var(--space-3);
-  }
-
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .project-meta {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-  }
-
-  .project-actions {
-    display: flex;
-    gap: var(--space-1);
-    padding: var(--space-2) var(--space-4);
-    border-top: 1px solid var(--color-border-light);
-    background-color: var(--color-bg-secondary);
-  }
-
-  .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: none;
-    border-radius: var(--radius-md);
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-decoration: none;
-  }
-
-  .action-btn:hover {
-    background-color: var(--color-surface-hover);
-    color: var(--color-text);
-  }
-
-  .action-btn.danger:hover {
-    background-color: var(--color-danger-light);
-    color: var(--color-danger);
-  }
-
-  .form-fields {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .form-error {
-    margin-top: var(--space-4);
-    padding: var(--space-3);
-    background-color: var(--color-danger-light);
-    color: var(--color-danger);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-</style>

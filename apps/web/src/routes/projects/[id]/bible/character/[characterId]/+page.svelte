@@ -2,6 +2,7 @@
   import type { PageData } from './$types';
   import type { Trait, Relationship } from '@repo/types';
   import { enhance } from '$app/forms';
+  import { ArrowLeft } from 'lucide-svelte';
   import {
     Button,
     TextField,
@@ -109,17 +110,15 @@
   <title>{data.character.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="character-page">
-  <header class="page-header">
-    <div class="header-left">
-      <a href="/projects/{data.project.id}/bible" class="back-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
+<div class="flex-1 flex flex-col overflow-hidden">
+  <header class="flex items-center justify-between p-6 border-b border-border bg-surface">
+    <div class="flex flex-col gap-2">
+      <a href="/projects/{data.project.id}/bible" class="flex items-center gap-1 text-sm text-text-secondary no-underline transition-colors duration-150 hover:text-primary">
+        <ArrowLeft size={20} />
         Back to Bible
       </a>
-      <h1 class="page-title">{data.character.name}</h1>
-      <div class="character-badges">
+      <h1 class="text-2xl font-bold m-0">{data.character.name}</h1>
+      <div class="flex gap-2">
         <Badge variant={data.character.role === 'protagonist' ? 'primary' : 'default'}>
           {data.character.role}
         </Badge>
@@ -128,7 +127,7 @@
         </Badge>
       </div>
     </div>
-    <div class="header-actions">
+    <div class="flex gap-2">
       {#if !isEditing}
         <Button variant="secondary" onclick={() => (isEditing = true)}>Edit</Button>
         <Button variant="danger" onclick={() => (showDeleteConfirm = true)}>Delete</Button>
@@ -136,7 +135,7 @@
     </div>
   </header>
 
-  <div class="page-content">
+  <div class="flex-1 overflow-auto p-6 bg-bg">
     {#if isEditing}
       <Card>
         <form method="POST" action="?/update" use:enhance={() => {
@@ -145,7 +144,7 @@
             isEditing = false;
           };
         }}>
-          <div class="form-grid">
+          <div class="grid grid-cols-2 gap-4">
             <TextField
               label="Name"
               name="name"
@@ -180,7 +179,7 @@
               value={JSON.stringify(editForm.aliases.split(',').map(a => a.trim()).filter(Boolean))}
             />
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Description"
                 name="description"
@@ -190,7 +189,7 @@
               />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Voice Samples"
                 name="voiceSamples-display"
@@ -206,7 +205,7 @@
             </div>
           </div>
 
-          <div class="form-actions">
+          <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
             <Button type="button" variant="secondary" onclick={() => {
               isEditing = false;
               editForm = {
@@ -223,30 +222,30 @@
         </form>
       </Card>
     {:else}
-      <div class="detail-grid">
+      <div class="grid gap-4 max-w-screen-xl">
         <Card>
-          <h2 class="section-title">Basic Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Name</span>
-              <span class="info-value">{data.character.name}</span>
+          <h2 class="text-lg font-semibold m-0 mb-4">Basic Information</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-semibold uppercase text-text-secondary">Name</span>
+              <span class="text-sm text-text m-0">{data.character.name}</span>
             </div>
             {#if data.character.aliases.length > 0}
-              <div class="info-item">
-                <span class="info-label">Also known as</span>
-                <span class="info-value">{data.character.aliases.join(', ')}</span>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Also known as</span>
+                <span class="text-sm text-text m-0">{data.character.aliases.join(', ')}</span>
               </div>
             {/if}
-            <div class="info-item full-width">
-              <span class="info-label">Description</span>
-              <p class="info-value">{data.character.description}</p>
+            <div class="flex flex-col gap-1 col-span-2">
+              <span class="text-xs font-semibold uppercase text-text-secondary">Description</span>
+              <p class="text-sm text-text m-0">{data.character.description}</p>
             </div>
           </div>
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Traits ({data.character.traits.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Traits ({data.character.traits.length})</h2>
             <Button size="sm" onclick={() => {
               resetTraitForm();
               showTraitDialog = true;
@@ -254,16 +253,16 @@
           </div>
 
           {#if data.character.traits.length === 0}
-            <p class="empty-message">No traits defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No traits defined yet.</p>
           {:else}
-            <div class="trait-list">
+            <div class="flex flex-col gap-3">
               {#each data.character.traits as trait}
-                <div class="trait-item">
-                  <div class="trait-header">
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="flex items-center gap-2 mb-2">
                     <Badge size="sm" variant="info">{trait.category}</Badge>
                     <strong>{trait.name}</strong>
                   </div>
-                  <p class="trait-description">{trait.description}</p>
+                  <p class="text-sm text-text-secondary m-0 mb-2">{trait.description}</p>
                   <form method="POST" action="?/removeTrait" use:enhance>
                     <input type="hidden" name="traitName" value={trait.name} />
                     <Button type="submit" size="sm" variant="danger">Remove</Button>
@@ -275,8 +274,8 @@
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Relationships ({data.character.relationships.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Relationships ({data.character.relationships.length})</h2>
             <Button size="sm" onclick={() => {
               resetRelationshipForm();
               showRelationshipDialog = true;
@@ -284,19 +283,19 @@
           </div>
 
           {#if data.character.relationships.length === 0}
-            <p class="empty-message">No relationships defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No relationships defined yet.</p>
           {:else}
-            <div class="relationship-list">
+            <div class="flex flex-col gap-3">
               {#each data.character.relationships as rel}
-                <div class="relationship-item">
-                  <div class="relationship-header">
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="flex items-center gap-2 mb-2">
                     <Badge size="sm">{rel.type}</Badge>
                     <strong>{getRelationshipTargetName(rel.targetId)}</strong>
-                    <span class="intensity">Intensity: {rel.intensity}</span>
+                    <span class="text-xs text-text-secondary ml-auto">Intensity: {rel.intensity}</span>
                   </div>
-                  <p class="relationship-description">{rel.description}</p>
-                  <div class="relationship-footer">
-                    <span class="mutual-indicator">{rel.mutual ? '↔️ Mutual' : '→ One-sided'}</span>
+                  <p class="text-sm text-text-secondary m-0 mb-2">{rel.description}</p>
+                  <div class="flex items-center justify-between mt-2 pt-2 border-t border-border-light">
+                    <span class="text-xs text-text-secondary">{rel.mutual ? '↔️ Mutual' : '→ One-sided'}</span>
                     <form method="POST" action="?/removeRelationship" use:enhance>
                       <input type="hidden" name="targetId" value={rel.targetId} />
                       <Button type="submit" size="sm" variant="danger">Remove</Button>
@@ -310,10 +309,10 @@
 
         {#if data.character.voiceSamples.length > 0}
           <Card>
-            <h2 class="section-title">Voice Samples ({data.character.voiceSamples.length})</h2>
-            <div class="voice-samples">
+            <h2 class="text-lg font-semibold m-0 mb-4">Voice Samples ({data.character.voiceSamples.length})</h2>
+            <div class="flex flex-col gap-3">
               {#each data.character.voiceSamples as sample}
-                <blockquote class="voice-sample">
+                <blockquote class="p-3 m-0 bg-bg border-l-[3px] border-l-primary rounded-sm italic">
                   {sample}
                 </blockquote>
               {/each}
@@ -323,8 +322,8 @@
 
         {#if data.character.arc}
           <Card>
-            <h2 class="section-title">Character Arc</h2>
-            <div class="arc-info">
+            <h2 class="text-lg font-semibold m-0 mb-4">Character Arc</h2>
+            <div class="flex flex-col gap-2">
               <Badge>{data.character.arc.type}</Badge>
               <p><strong>Starting Point:</strong> {data.character.arc.startingPoint}</p>
               <p><strong>Destination:</strong> {data.character.arc.destination}</p>
@@ -350,7 +349,7 @@
       resetTraitForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <Select
         label="Category"
         name="category"
@@ -371,7 +370,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showTraitDialog = false)}>
           Cancel
         </Button>
@@ -394,7 +393,7 @@
       resetRelationshipForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <Select
         label="Character"
         name="targetId"
@@ -424,12 +423,12 @@
         max="100"
         required
       />
-      <label class="checkbox-label">
-        <input type="checkbox" name="mutual" bind:checked={relationshipForm.mutual} />
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" name="mutual" bind:checked={relationshipForm.mutual} class="cursor-pointer" />
         Mutual relationship
       </label>
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showRelationshipDialog = false)}>
           Cancel
         </Button>
@@ -455,231 +454,3 @@
   }}
   onCancel={() => (showDeleteConfirm = false)}
 />
-
-<style>
-  .character-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .back-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .back-link:hover {
-    color: var(--color-primary);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .character-badges {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .page-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-
-  .detail-grid {
-    display: grid;
-    gap: var(--space-4);
-    max-width: 1200px;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0 0 var(--space-4);
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .info-item.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .info-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    margin: 0;
-  }
-
-  .trait-list, .relationship-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .trait-item, .relationship-item {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-  }
-
-  .trait-header, .relationship-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
-  }
-
-  .trait-description, .relationship-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    margin: 0 0 var(--space-2);
-  }
-
-  .relationship-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: var(--space-2);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .mutual-indicator {
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-  }
-
-  .intensity {
-    font-size: var(--text-xs);
-    color: var(--color-text-secondary);
-    margin-left: auto;
-  }
-
-  .voice-samples {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .voice-sample {
-    padding: var(--space-3);
-    margin: 0;
-    background-color: var(--color-bg);
-    border-left: 3px solid var(--color-primary);
-    border-radius: var(--radius-sm);
-    font-style: italic;
-  }
-
-  .arc-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .empty-message {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .form-full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    margin-top: var(--space-2);
-  }
-</style>

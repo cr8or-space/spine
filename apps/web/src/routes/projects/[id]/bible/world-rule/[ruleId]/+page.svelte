@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { enhance } from '$app/forms';
+  import { ArrowLeft } from 'lucide-svelte';
   import {
     Button,
     TextField,
@@ -83,17 +84,15 @@
   <title>{data.worldRule.name} - {data.project.title} - Spine</title>
 </svelte:head>
 
-<div class="world-rule-page">
-  <header class="page-header">
-    <div class="header-left">
-      <a href="/projects/{data.project.id}/bible" class="back-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
+<div class="flex-1 flex flex-col overflow-hidden">
+  <header class="flex items-center justify-between p-6 border-b border-border bg-surface">
+    <div class="flex flex-col gap-2">
+      <a href="/projects/{data.project.id}/bible" class="flex items-center gap-1 text-sm text-text-secondary no-underline transition-colors duration-150 hover:text-primary">
+        <ArrowLeft size={20} />
         Back to Bible
       </a>
-      <h1 class="page-title">{data.worldRule.name}</h1>
-      <div class="rule-badges">
+      <h1 class="text-2xl font-bold m-0">{data.worldRule.name}</h1>
+      <div class="flex gap-2">
         <Badge variant={getCategoryBadgeVariant(data.worldRule.category)}>
           {data.worldRule.category}
         </Badge>
@@ -105,7 +104,7 @@
         </Badge>
       </div>
     </div>
-    <div class="header-actions">
+    <div class="flex gap-2">
       {#if !isEditing}
         <Button variant="secondary" onclick={() => (isEditing = true)}>Edit</Button>
         <Button variant="danger" onclick={() => (showDeleteConfirm = true)}>Delete</Button>
@@ -113,7 +112,7 @@
     </div>
   </header>
 
-  <div class="page-content">
+  <div class="flex-1 overflow-auto p-6 bg-bg">
     {#if isEditing}
       <Card>
         <form method="POST" action="?/update" use:enhance={() => {
@@ -122,7 +121,7 @@
             isEditing = false;
           };
         }}>
-          <div class="form-grid">
+          <div class="grid grid-cols-2 gap-4">
             <TextField
               label="Name"
               name="name"
@@ -146,21 +145,21 @@
               max="100"
             />
 
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" bind:checked={editForm.established} />
+            <div class="flex flex-col gap-2">
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" bind:checked={editForm.established} class="cursor-pointer" />
                 Established in story
               </label>
               <input type="hidden" name="established" value={editForm.established.toString()} />
 
-              <label class="checkbox-label">
-                <input type="checkbox" bind:checked={editForm.publicKnowledge} />
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" bind:checked={editForm.publicKnowledge} class="cursor-pointer" />
                 Public knowledge
               </label>
               <input type="hidden" name="publicKnowledge" value={editForm.publicKnowledge.toString()} />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Rule"
                 name="rule"
@@ -171,7 +170,7 @@
               />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Description"
                 name="description"
@@ -180,7 +179,7 @@
               />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Rationale"
                 name="rationale"
@@ -190,7 +189,7 @@
               />
             </div>
 
-            <div class="form-full-width">
+            <div class="col-span-2">
               <TextArea
                 label="Consequences"
                 name="consequences"
@@ -213,7 +212,7 @@
             />
           </div>
 
-          <div class="form-actions">
+          <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-border">
             <Button type="button" variant="secondary" onclick={() => {
               isEditing = false;
               editForm = {
@@ -233,44 +232,44 @@
         </form>
       </Card>
     {:else}
-      <div class="detail-grid">
+      <div class="grid gap-4 max-w-screen-xl">
         <Card>
-          <h2 class="section-title">Rule Statement</h2>
-          <div class="rule-statement">
+          <h2 class="text-lg font-semibold m-0 mb-4">Rule Statement</h2>
+          <div class="text-lg font-medium p-4 bg-bg-secondary border-l-4 border-l-primary rounded-sm mb-4">
             {data.worldRule.rule}
           </div>
-          <div class="rule-meta">
+          <div class="text-sm text-text-secondary">
             <span>Priority: {data.worldRule.priority}/100</span>
           </div>
         </Card>
 
         <Card>
-          <h2 class="section-title">Details</h2>
-          <div class="info-grid">
+          <h2 class="text-lg font-semibold m-0 mb-4">Details</h2>
+          <div class="grid gap-4">
             {#if data.worldRule.description}
-              <div class="info-item full-width">
-                <span class="info-label">Description</span>
-                <p class="info-value">{data.worldRule.description}</p>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Description</span>
+                <p class="text-sm text-text m-0 leading-relaxed">{data.worldRule.description}</p>
               </div>
             {/if}
             {#if data.worldRule.rationale}
-              <div class="info-item full-width">
-                <span class="info-label">Rationale</span>
-                <p class="info-value">{data.worldRule.rationale}</p>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Rationale</span>
+                <p class="text-sm text-text m-0 leading-relaxed">{data.worldRule.rationale}</p>
               </div>
             {/if}
             {#if data.worldRule.consequences}
-              <div class="info-item full-width">
-                <span class="info-label">Consequences</span>
-                <p class="info-value">{data.worldRule.consequences}</p>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase text-text-secondary">Consequences</span>
+                <p class="text-sm text-text m-0 leading-relaxed">{data.worldRule.consequences}</p>
               </div>
             {/if}
           </div>
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Exceptions ({data.worldRule.exceptions.length})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Exceptions ({data.worldRule.exceptions.length})</h2>
             <Button size="sm" onclick={() => {
               resetExceptionForm();
               showExceptionDialog = true;
@@ -278,22 +277,22 @@
           </div>
 
           {#if data.worldRule.exceptions.length === 0}
-            <p class="empty-message">No exceptions defined yet.</p>
+            <p class="text-text-secondary text-sm m-0">No exceptions defined yet.</p>
           {:else}
-            <div class="exception-list">
+            <div class="flex flex-col gap-3">
               {#each data.worldRule.exceptions as exception, i}
-                <div class="exception-item">
-                  <div class="exception-condition">
-                    <span class="exception-label">When:</span>
+                <div class="p-3 bg-bg border border-border rounded-md">
+                  <div class="text-sm mb-2">
+                    <span class="font-semibold text-text-secondary mr-1">When:</span>
                     {exception.condition}
                   </div>
-                  <div class="exception-effect">
-                    <span class="exception-label">Then:</span>
+                  <div class="text-sm mb-2">
+                    <span class="font-semibold text-text-secondary mr-1">Then:</span>
                     {exception.effect}
                   </div>
                   {#if exception.applicableTo && exception.applicableTo.length > 0}
-                    <div class="exception-applicable">
-                      <span class="exception-label">Applies to:</span>
+                    <div class="text-sm mb-2">
+                      <span class="font-semibold text-text-secondary mr-1">Applies to:</span>
                       {exception.applicableTo.join(', ')}
                     </div>
                   {/if}
@@ -308,8 +307,8 @@
         </Card>
 
         <Card>
-          <div class="section-header">
-            <h2 class="section-title">Related Rules ({data.worldRule.relatedRules?.length || 0})</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold m-0">Related Rules ({data.worldRule.relatedRules?.length || 0})</h2>
             <Button size="sm" onclick={() => {
               resetRelatedRuleForm();
               showRelatedRuleDialog = true;
@@ -317,12 +316,12 @@
           </div>
 
           {#if !data.worldRule.relatedRules || data.worldRule.relatedRules.length === 0}
-            <p class="empty-message">No related rules yet.</p>
+            <p class="text-text-secondary text-sm m-0">No related rules yet.</p>
           {:else}
-            <div class="related-list">
+            <div class="flex flex-col gap-2">
               {#each data.worldRule.relatedRules as relatedId}
-                <div class="related-item">
-                  <a href="/projects/{data.project.id}/bible/world-rule/{relatedId}" class="related-link">
+                <div class="flex items-center justify-between p-3 bg-bg border border-border rounded-md">
+                  <a href="/projects/{data.project.id}/bible/world-rule/{relatedId}" class="font-medium text-primary no-underline hover:underline">
                     {getRelatedRuleName(relatedId)}
                   </a>
                   <form method="POST" action="?/removeRelatedRule" use:enhance>
@@ -352,7 +351,7 @@
       resetExceptionForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <TextArea
         label="Condition"
         name="condition"
@@ -381,7 +380,7 @@
         value={JSON.stringify(exceptionForm.applicableTo.split(',').map(a => a.trim()).filter(Boolean))}
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showExceptionDialog = false)}>
           Cancel
         </Button>
@@ -404,7 +403,7 @@
       resetRelatedRuleForm();
     };
   }}>
-    <div class="dialog-form">
+    <div class="flex flex-col gap-4">
       <Select
         label="Related Rule"
         name="relatedRuleId"
@@ -413,7 +412,7 @@
         required
       />
 
-      <div class="dialog-actions">
+      <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
         <Button type="button" variant="secondary" onclick={() => (showRelatedRuleDialog = false)}>
           Cancel
         </Button>
@@ -439,226 +438,3 @@
   }}
   onCancel={() => (showDeleteConfirm = false)}
 />
-
-<style>
-  .world-rule-page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-6);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .back-link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-  }
-
-  .back-link:hover {
-    color: var(--color-primary);
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .rule-badges {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .page-content {
-    flex: 1;
-    overflow: auto;
-    padding: var(--space-6);
-    background-color: var(--color-bg);
-  }
-
-  .detail-grid {
-    display: grid;
-    gap: var(--space-4);
-    max-width: 1200px;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-  }
-
-  .section-title {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0 0 var(--space-4);
-  }
-
-  .rule-statement {
-    font-size: var(--text-lg);
-    font-weight: 500;
-    padding: var(--space-4);
-    background-color: var(--color-bg-secondary);
-    border-left: 4px solid var(--color-primary);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--space-4);
-  }
-
-  .rule-meta {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .info-grid {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .info-item.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .info-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
-  }
-
-  .info-value {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  .exception-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .exception-item {
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-  }
-
-  .exception-condition, .exception-effect, .exception-applicable {
-    font-size: var(--text-sm);
-    margin-bottom: var(--space-2);
-  }
-
-  .exception-label {
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    margin-right: var(--space-1);
-  }
-
-  .related-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .related-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-  }
-
-  .related-link {
-    font-weight: 500;
-    color: var(--color-primary);
-    text-decoration: none;
-  }
-
-  .related-link:hover {
-    text-decoration: underline;
-  }
-
-  .empty-message {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-    margin: 0;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .form-full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .dialog-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    cursor: pointer;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-  }
-
-  .checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-</style>

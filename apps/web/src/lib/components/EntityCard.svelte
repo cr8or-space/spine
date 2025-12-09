@@ -42,12 +42,12 @@
 </script>
 
 <Card hover padding="none">
-  <a {href} class="entity-link">
-    <div class="entity-content">
-      <div class="entity-header">
-        <h3 class="entity-name">{name}</h3>
+  <a {href} class="block no-underline text-inherit">
+    <div class="p-4 flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
+        <h3 class="text-lg font-semibold m-0 text-text">{name}</h3>
         {#if badges.length > 0}
-          <div class="entity-badges">
+          <div class="flex gap-2 shrink-0">
             {#each badges as badge}
               <Badge variant={badge.variant}>{badge.text}</Badge>
             {/each}
@@ -56,18 +56,18 @@
       </div>
 
       {#if aliases.length > 0}
-        <div class="entity-aliases">
-          <span class="aliases-label">Also known as:</span>
+        <div class="text-sm text-text-secondary">
+          <span class="italic mr-1">Also known as:</span>
           {aliases.join(', ')}
         </div>
       {/if}
 
-      <p class="entity-description">{truncatedDescription}</p>
+      <p class="text-sm text-text-secondary leading-relaxed m-0">{truncatedDescription}</p>
 
       {#if meta.length > 0}
-        <div class="entity-meta">
+        <div class="flex flex-wrap gap-4 text-xs text-text-tertiary pt-2 border-t border-border-light">
           {#each meta as item}
-            <span class="meta-item">
+            <span class="flex items-center gap-1">
               {#if item.icon}
                 {@render item.icon()}
               {/if}
@@ -79,71 +79,3 @@
     </div>
   </a>
 </Card>
-
-<style>
-  .entity-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .entity-content {
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .entity-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-
-  .entity-name {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  .entity-badges {
-    display: flex;
-    gap: var(--space-2);
-    flex-shrink: 0;
-  }
-
-  .entity-aliases {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .aliases-label {
-    font-style: italic;
-    margin-right: var(--space-1);
-  }
-
-  .entity-description {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .entity-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border-light);
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-</style>

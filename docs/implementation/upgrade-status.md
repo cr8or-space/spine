@@ -77,10 +77,11 @@ This is a pure checklist file. No comments other than this one.
   - [x] Migrate AnalysisPanel.svelte
   - [x] Migrate DraftHistory.svelte
   - [x] Update app.css comments documenting remaining legacy CSS usage
-- [ ] Final legacy CSS removal (blocked: 14 files still using CSS vars)
-  - Components: ValidationPanel, ValidationBadge, EntityCard, CreateEntityDialog
-  - Routes: +page.svelte, projects/[id]/+layout.svelte, projects/[id]/bible/+page.svelte, projects/[id]/settings/+page.svelte
-  - Bible pages: character, faction, location, plot-thread, timeline, world-rule
+- [x] Final legacy CSS removal (blocked: 14 files still using CSS vars)
+  - [x] Components: ValidationPanel, ValidationBadge, EntityCard, CreateEntityDialog
+  - [x] Routes: +page.svelte, projects/[id]/+layout.svelte, projects/[id]/bible/+page.svelte, projects/[id]/settings/+page.svelte
+  - [x] Bible pages: character, faction, location, plot-thread, timeline, world-rule
+  - [x] Removed legacy :root CSS vars from app.css
 
 ## Phase 4: UI Accessibility (UA)
 

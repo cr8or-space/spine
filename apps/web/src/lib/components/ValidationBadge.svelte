@@ -6,6 +6,8 @@
    * Useful for summarizing validation results at a glance.
    */
 
+  import { cn } from '$lib/utils/cn';
+
   interface Props {
     /** Number of passing validations */
     passCount?: number;
@@ -50,117 +52,40 @@
 
 {#if hasAny || showZero}
   <button
-    class="validation-badge badge-{size} status-{overallStatus}"
-    class:interactive={!!onclick}
+    class={cn(
+      'inline-flex items-center gap-2 rounded-md border font-sans disabled:cursor-default',
+      size === 'sm' && 'px-1 text-xs gap-1',
+      size === 'md' && 'py-1 px-2 text-sm',
+      overallStatus === 'fail' && 'border-danger bg-danger-light',
+      overallStatus === 'warn' && 'border-warning bg-warning-light',
+      overallStatus === 'pass' && 'border-success bg-success-light',
+      overallStatus === 'empty' && 'border-border-light bg-surface',
+      onclick && 'cursor-pointer transition-all duration-150 hover:border-primary hover:shadow-sm'
+    )}
     type="button"
     onclick={onclick}
     disabled={!onclick}
     aria-label="Validation status: {passCount} passed, {failCount} failed, {warnCount} warnings"
   >
     {#if showFail}
-      <span class="count count-fail" aria-label="{failCount} failed">
-        <span class="icon">✕</span>
-        <span class="value">{failCount}</span>
+      <span class="inline-flex items-center gap-0.5 text-danger" aria-label="{failCount} failed">
+        <span class="font-semibold leading-none">✕</span>
+        <span class="font-medium">{failCount}</span>
       </span>
     {/if}
 
     {#if showWarn}
-      <span class="count count-warn" aria-label="{warnCount} warnings">
-        <span class="icon">!</span>
-        <span class="value">{warnCount}</span>
+      <span class="inline-flex items-center gap-0.5 text-warning" aria-label="{warnCount} warnings">
+        <span class="font-semibold leading-none">!</span>
+        <span class="font-medium">{warnCount}</span>
       </span>
     {/if}
 
     {#if showPass}
-      <span class="count count-pass" aria-label="{passCount} passed">
-        <span class="icon">✓</span>
-        <span class="value">{passCount}</span>
+      <span class="inline-flex items-center gap-0.5 text-success" aria-label="{passCount} passed">
+        <span class="font-semibold leading-none">✓</span>
+        <span class="font-medium">{passCount}</span>
       </span>
     {/if}
   </button>
 {/if}
-
-<style>
-  .validation-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-    font-family: var(--font-sans);
-  }
-
-  .validation-badge:disabled {
-    cursor: default;
-  }
-
-  .validation-badge.interactive:not(:disabled) {
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .validation-badge.interactive:not(:disabled):hover {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .badge-sm {
-    padding: 0 var(--space-1);
-    font-size: var(--text-xs);
-    gap: var(--space-1);
-  }
-
-  .badge-md {
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-sm);
-  }
-
-  /* Overall status border colors */
-  .status-fail {
-    border-color: var(--color-danger);
-    background-color: var(--color-danger-light);
-  }
-
-  .status-warn {
-    border-color: var(--color-warning);
-    background-color: var(--color-warning-light);
-  }
-
-  .status-pass {
-    border-color: var(--color-success);
-    background-color: var(--color-success-light);
-  }
-
-  .status-empty {
-    border-color: var(--color-border-light);
-  }
-
-  .count {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .icon {
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  .value {
-    font-weight: 500;
-  }
-
-  .count-fail {
-    color: var(--color-danger);
-  }
-
-  .count-warn {
-    color: var(--color-warning);
-  }
-
-  .count-pass {
-    color: var(--color-success);
-  }
-</style>
