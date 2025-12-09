@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import ValidationPanel from './ValidationPanel.svelte';
-import type { ValidationResult } from '@spine/types';
+import type { ValidationResult } from '@repo/types';
 
 describe('ValidationPanel', () => {
 	const mockResults: ValidationResult[] = [

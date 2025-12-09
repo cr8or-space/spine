@@ -9,7 +9,7 @@
    * - Collapsible groups
    */
 
-  import type { ValidationResult, ValidationPhase, SpinePosition } from '@spine/types';
+  import type { ValidationResult, ValidationPhase, SpinePosition } from '@repo/types';
   import ValidationBadge from './ValidationBadge.svelte';
   import Card from './Card.svelte';
   import { cn } from '$lib/utils/cn';

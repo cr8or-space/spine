@@ -2,7 +2,7 @@
   import type { LayoutData } from './$types';
   import type { Snippet } from 'svelte';
   import { page } from '$app/stores';
-  import { ArrowLeft, BookOpen, SquarePen, Settings } from 'lucide-svelte';
+  import { ArrowLeft, BookOpen, SquarePen, Settings, ClipboardCheck } from 'lucide-svelte';
   import { cn } from '$lib/utils/cn';
 
   interface Props {
@@ -15,6 +15,7 @@
   const navItems = $derived([
     { href: `/projects/${data.project.id}/bible`, label: 'Bible', icon: 'book' },
     { href: `/projects/${data.project.id}/workspace`, label: 'Workspace', icon: 'edit' },
+    { href: `/projects/${data.project.id}/review`, label: 'Review', icon: 'review' },
     { href: `/projects/${data.project.id}/settings`, label: 'Settings', icon: 'settings' },
   ]);
 
@@ -52,6 +53,8 @@
             <BookOpen size={18} />
           {:else if item.icon === 'edit'}
             <SquarePen size={18} />
+          {:else if item.icon === 'review'}
+            <ClipboardCheck size={18} />
           {:else if item.icon === 'settings'}
             <Settings size={18} />
           {/if}

@@ -67,6 +67,10 @@ export {
   type ContentRepository,
   type CreateContentData,
   type UpdateContentData,
+  // Lock Point
+  createLockPointRepository,
+  type LockPointRepository,
+  type CreateLockPointData,
   // Project
   createProjectRepository,
   type ProjectRepository,

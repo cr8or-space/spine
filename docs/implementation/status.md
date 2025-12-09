@@ -117,13 +117,13 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Cascade preview
 
 ### 3.4 Review UI
-- [ ] Review queue page
-- [ ] Diff view
-- [ ] Annotation interface
-- [ ] Action buttons
-- [ ] Bulk actions
-- [ ] Lock visualization
-- [ ] Status indicators
+- [x] Review queue page
+- [x] Diff view
+- [x] Annotation interface
+- [x] Action buttons
+- [x] Bulk actions
+- [x] Lock visualization
+- [x] Status indicators
 
 ## Phase 4: Analytics
 
