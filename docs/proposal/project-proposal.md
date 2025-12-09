@@ -6,7 +6,7 @@ A system for writing, tracking, and iteratively refining LLM-generated novels wi
 
 Spine is a tool for authors to collaborate with LLMs on long-form fiction. It handles the mechanical aspects of novel creation—continuity tracking, pacing analysis, consistency checking—while keeping the human author in creative control. The system generates, reviews, and refines content iteratively, with the author as final arbiter.
 
-The primary target is web serial production (see `docs/examples/web.serial/The.Accident/proposal.md`), though the architecture supports shorter formats.
+The primary target is web serial production, though the architecture supports shorter formats. Spine is the first domain implementation of a broader framework pattern applicable to other structured authoring domains.
 
 ## Problem statement
 
@@ -19,6 +19,29 @@ Writing a web serial with 3-5 chapters per week at 2,000-3,000 words each is a p
 5. **Revision cascades** — Changing chapter 15 may invalidate chapters 16-30
 
 Current workflow: Author writes everything manually, uses spreadsheets for tracking, hopes nothing slips through. This doesn't scale.
+
+## Framework Vision
+
+Spine is one instance of a broader pattern. Several authoring domains share the same shape:
+
+| Domain | Spine | Entities | Content | Validation |
+|--------|-------|----------|---------|------------|
+| Serial fiction | Timeline/plot | Characters, locations, rules | Prose chapters | Continuity (LLM-judged) |
+| Technical book | Checkpoints | Concepts, symbols | Prose + code | Compiles, tests pass |
+| Interactive fiction | State graph | Characters, variables | Nodes + branches | Paths reachable, states valid |
+| API documentation | API spec | Types, endpoints | Guides + examples | Examples run, schemas match |
+| TTRPG | Rules + canon | Creatures, items, NPCs | Sessions, handouts | Math checks, rules consistent |
+| Course | Learning objectives | Skills, prerequisites | Lessons, assessments | Coverage, prerequisite order |
+
+Each has:
+1. A **spine** that structures everything else
+2. **Entities** that must remain consistent
+3. **Content** that references entities and hangs from the spine
+4. **Constraints** that can be validated
+5. **Cross-references** that should be automated
+6. **Multiple outputs** for different audiences
+
+The core abstractions (Spine, Entity, Content, Constraint, Validator, Renderer) can be extracted into a framework that these domains specialize.
 
 ## Proposed solution
 
@@ -37,7 +60,7 @@ A three-layer system:
                                  │
 ┌─────────────────────────────────────────────────────────────────┐
 │                        LLM Interface                             │
-│  Multi-model orchestration, prompt management, context assembly  │
+│  OpenAI-compatible API, prompt management, context assembly      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -77,28 +100,28 @@ packages/
 │   ├── continuity/         # Consistency checking, graph traversal
 │   ├── generation/         # Pipeline orchestration
 │   ├── analysis/           # Metrics, scoring, visualization data
+│   ├── review/             # Review workflow
+│   ├── release/            # Release planning
 │   └── storage/            # Persistence abstraction
 ├── llm/                    # LLM integration
-│   ├── providers/          # Anthropic, OpenAI, local models
-│   ├── prompts/            # Template management
+│   ├── client/             # OpenAI-compatible client
 │   └── context/            # Assembly and token budgeting
-├── ui/                     # Shared Svelte components
-│   ├── editor/             # Rich text editing
-│   ├── visualization/      # Charts, graphs, timelines
-│   └── review/             # Diff views, annotation
-└── types/                  # Shared TypeScript types
+├── types/                  # Shared TypeScript types and Zod schemas
+│   └── base/               # Framework base interfaces
+└── ui/                     # Shared Svelte components
 
 apps/
 └── web/                    # SvelteKit application
     ├── routes/
     │   ├── projects/       # Project management
-    │   ├── bible/          # Bible editing
-    │   ├── outline/        # Structure planning
-    │   ├── write/          # Generation and editing
-    │   ├── review/         # Quality review
-    │   └── analytics/      # Visualization dashboards
+    │   └── [id]/
+    │       ├── bible/      # Bible editing
+    │       ├── workspace/  # Writing workspace
+    │       └── settings/   # Project settings
     └── lib/
-        └── stores/         # Svelte stores for state
+        ├── components/     # UI primitives
+        ├── bible/          # Bible tab components
+        └── shell/          # App shell components
 ```
 
 ### Data model
@@ -128,16 +151,16 @@ interface Bible {
   timeline: TimelineEvent[];
 }
 
-interface Character {
-  id: string;
+interface Character extends BaseEntity {
+  type: 'character';
   name: string;
   aliases: string[];
   description: string;
   traits: Trait[];
   relationships: Relationship[];
   arc: CharacterArc;
-  voiceSamples: string[];        // Example dialogue for consistency
-  appearances: AppearanceRef[];  // Links to content
+  voiceSamples: string[];
+  appearances: AppearanceRef[];
 }
 ```
 
@@ -147,33 +170,60 @@ interface Structure {
   type: 'book' | 'arc' | 'chapter' | 'scene';
   title: string;
   summary: string;
-  beats: Beat[];                 // Story beats to hit
-  tensionTarget: number;         // 0-100 intended tension level
+  beats: Beat[];
+  tensionTarget: number;
   chapterType: 'action' | 'character' | 'worldbuilding';
-  hooks: Hook[];                 // End-of-section hooks
+  hooks: Hook[];
   children: Structure[];
 }
 ```
 
 **Content** (actual prose)
 ```typescript
-interface Content {
+interface Content extends BaseContent {
   id: string;
-  structureRef: string;          // Links to Structure
+  structureRef: string;
   version: number;
-  status: 'draft' | 'review' | 'approved' | 'published';
+  status: ContentStatus;  // draft | review | approved | published
   text: string;
   analysis: ContentAnalysis;
   reviews: Review[];
-  generationHistory: GenerationRecord[];
+  references: Reference[];
+}
+```
+
+### Base framework interfaces
+
+The framework provides base interfaces that enable future extraction:
+
+```typescript
+interface BaseEntity {
+  id: string;
+  type: string;
+  introducedAt?: SpinePosition;
+  retiredAt?: SpinePosition;
 }
 
-interface ContentAnalysis {
-  tensionScore: number;          // LLM-assessed tension level
-  hookStrength: number;          // How compelling is the ending
-  paceScore: number;             // Reading speed/engagement
-  characterVoiceScores: Record<string, number>;  // Per-character consistency
-  continuityIssues: ContinuityIssue[];
+interface BaseContent {
+  id: string;
+  type: string;
+  spineNode: string;
+  status: ContentStatus;
+  references: Reference[];
+}
+
+interface Spine<Node> {
+  roots(): Node[];
+  children(node: Node): Node[];
+  parent(node: Node): Node | null;
+  linearize(): Node[];
+  position(node: Node): number;
+}
+
+interface Validator<Context> {
+  name: string;
+  phase: ValidationPhase;  // structural | automated | computed
+  validate(context: Context): Promise<ValidationResult[]>;
 }
 ```
 
@@ -189,7 +239,6 @@ All LLM access uses the OpenAI-compatible API format. This supports:
 **Context assembly**
 ```typescript
 interface ContextAssembler {
-  // Builds prompt context from bible + recent content
   assemble(
     task: GenerationTask,
     bible: Bible,
@@ -204,7 +253,7 @@ interface AssembledContext {
   relevantPlotThreads: PlotThread[];
   previousChapters: ContentSummary[];
   currentOutline: Structure;
-  constraints: Constraint[];      // Things that must be true
+  constraints: Constraint[];
   tokenUsage: TokenBreakdown;
 }
 ```
@@ -216,6 +265,26 @@ Continuity Check → Human Review → Revision (if needed) → Approval
 ```
 
 Each stage can be re-run independently. Failed checks trigger targeted regeneration.
+
+## Tech stack
+
+### Frontend
+- **SvelteKit 2** with **Svelte 5** runes
+- **Tailwind CSS v4** — CSS-first configuration via @theme
+- **Bits UI** — Accessible headless components (Dialog, Tabs, Select)
+- **Lucide Svelte** — Consistent icon system
+- **vitest-browser-svelte** + **Playwright** — Component and integration tests
+
+### Backend/Core
+- **TypeScript** strict mode
+- **Zod** for runtime validation
+- **libsql** (SQLite) for structured data
+- File system for prose content (git-friendly)
+
+### Tooling
+- **Turborepo** + pnpm workspaces
+- **ESLint** + **Prettier** (with Tailwind and Svelte plugins)
+- **Vitest** for unit tests
 
 ## Web interface
 
@@ -230,14 +299,7 @@ Each stage can be re-run independently. Failed checks trigger targeted regenerat
 - Tabbed interface: Characters, Locations, Plot, World, Timeline
 - Search and filter across all entries
 - Relationship graph visualization
-- Automatic extraction: suggest bible entries from approved content
-
-### Outline planner
-
-- Hierarchical editor: Book → Arc → Chapter → Scene
-- Drag-and-drop reordering
-- Tension curve overlay: see planned pacing at a glance
-- Chapter type distribution chart
+- Generic components: EntityCard, EntityListPage, CreateEntityDialog
 
 ### Writing workspace
 
@@ -245,14 +307,6 @@ Each stage can be re-run independently. Failed checks trigger targeted regenerat
 - Generation controls: model selection, creativity settings, constraints
 - Real-time analysis panel: tension, pacing, voice consistency
 - Inline continuity warnings
-
-### Review interface
-
-- Queue of content awaiting review
-- Diff view: previous version vs. current
-- Inline commenting and annotation
-- Bulk actions: approve all, regenerate flagged sections
-- Analytics overlay: see scores for each paragraph
 
 ### Analytics dashboard
 
@@ -271,45 +325,25 @@ Tension
 ```
 
 - Interactive: click chapter to see details
-- Overlay controls: show both lines, planned only, actual only
-- Annotation markers for key plot points
-
-**Character presence heatmap**
-- Y-axis: characters
-- X-axis: chapters
-- Cell color: presence intensity (mention → scene → POV)
-
-**Plot thread tracker**
-- Gantt-style view of thread lifecycles
-- Status indicators: active, dormant, resolved
-- Dangling thread warnings
-
-**Quality trends**
-- Line charts over time: average tension, hook strength, voice consistency
-- Identify patterns: which chapter types score highest, which characters are hardest to voice
+- Character presence heatmap
+- Plot thread tracker (Gantt-style)
+- Quality trends over time
 
 ## Serialization technique controls
 
-Per the web serial proposal, specific controls for serial-specific concerns:
+Specific controls for serial-specific concerns:
 
 ### Tension cycle management
 
 - Define cycle length (e.g., 5-chapter arcs)
 - Set tension targets per position in cycle
 - Visual feedback when actual diverges from planned
-- Suggestions for rebalancing
 
 ### Hook configuration
 
 - End-of-chapter hook type selection: revelation, decision, cliffhanger, emotional
 - Hook strength targets and scoring
 - Pattern enforcement: avoid same hook type twice consecutively
-
-### Reader engagement tracking
-
-- Mystery layer status: short-term, medium-term, long-term
-- Promise/payoff ledger: what's been promised, what's been delivered
-- Pacing variety: ensure chapter type rotation
 
 ### Release planning
 
@@ -319,54 +353,52 @@ Per the web serial proposal, specific controls for serial-specific concerns:
 
 ## Implementation phases
 
-### Phase 1: Foundation
+### Phase 1: Foundation (Complete)
 
-- [ ] Core data models and storage (SQLite + file system)
-- [ ] Basic bible management (CRUD operations)
-- [ ] Simple LLM interface (single provider)
-- [ ] Minimal web UI: project list, bible editor
+- Core data models and storage (libsql + file system)
+- Bible management with all entity types
+- LLM interface with OpenAI-compatible client
+- Web UI foundation with Tailwind, Bits UI, Lucide
 
-### Phase 2: Generation
+### Phase 2: Generation (Complete)
 
-- [ ] Context assembly system
-- [ ] Generation pipeline (outline → draft)
-- [ ] Basic analysis (tension scoring, continuity checks)
-- [ ] Writing workspace UI
+- Context assembly system
+- Generation pipeline (outline → draft)
+- Basic analysis (tension scoring, continuity checks)
+- Writing workspace UI
 
-### Phase 3: Review
+### Phase 3: Review (In Progress)
 
-- [ ] Version tracking and diff generation
-- [ ] Review workflow UI
-- [ ] Inline annotation system
-- [ ] Revision targeting (regenerate specific sections)
+- Version tracking and diff generation
+- Review workflow with status transitions
+- Revision cascade with lock points
+- Review UI (pending)
 
-### Phase 4: Analytics
+### Phase 4: Analytics (In Progress)
 
-- [ ] Tension curve visualization
-- [ ] Character presence tracking
-- [ ] Plot thread management
-- [ ] Quality dashboards
+- Tension curve data and visualization components
+- Character and plot thread tracking
+- Analytics dashboard UI (pending)
 
-### Phase 5: Serial features
+### Phase 5: Serial features (Partial)
 
-- [ ] Release calendar and buffer tracking
-- [ ] Hook type management
-- [ ] Cycle enforcement
-- [ ] Reader engagement metrics
+- Hook and cycle management (complete)
+- Release planning (complete)
+- Mystery tracking and serial dashboard (pending)
 
-### Phase 6: Polish
+### Phase 6: Polish (Pending)
 
-- [ ] Multi-model orchestration
-- [ ] Offline mode with local models
-- [ ] Export formats (EPUB, Royal Road markdown)
-- [ ] Collaboration features (multiple reviewers)
+- Bible extraction from approved content
+- Export formats (EPUB, Royal Road)
+- Offline mode with local models
+- Performance optimization
 
 ## Technical decisions
 
 ### Storage
 
 **SQLite + File System hybrid**
-- SQLite for structured data: bible entries, metadata, analysis results
+- SQLite (libsql) for structured data: bible entries, metadata, analysis results
 - File system for content: version-controlled markdown files
 - Rationale: queryable structure + git-friendly content
 
@@ -377,35 +409,27 @@ Per the web serial proposal, specific controls for serial-specific concerns:
 - Server state: all persistent data, fetched via SvelteKit load functions
 - Optimistic updates with rollback on failure
 
-### LLM cost management
+### Validation pipeline
 
-- Token budget tracking per project
-- Cost estimates before generation
-- Caching: don't re-analyze unchanged content
-- Batching: combine small requests
+**Three-phase execution**
+1. Structural (fast, graph-based): reference integrity, prerequisite order
+2. Automated (deterministic): compile, run tests, execute examples
+3. Computed (LLM): quality judgments, consistency checks
 
-### Offline capability
+### Published content immutability
 
-- Service worker for static assets
-- Local SQLite replica (sql.js)
-- Queue generation requests when offline
-- Sync on reconnection
+Once content is marked as published, it cannot be modified. Author specifies revision horizon for cascade bounds. Lock points protect specific future content.
 
 ## Resolved decisions
 
-1. **Bible extraction automation** — Configurable. Author sets aggressiveness level per project.
-
-2. **Regeneration scope** — Published content is immutable. Author specifies revision horizon (e.g., 20 chapters, end of book X). Lock points protect specific future content from cascades.
-
-3. **Voice consistency measurement** — LLM judgment. Heuristics don't capture narrative quality; LLMs can explain their reasoning.
-
-4. **Multi-author support** — Single-author only. Collaboration is out of scope.
-
-5. **Version control integration** — No automatic commits. Author controls commit timing. Timer-based auto-save to a separate branch is acceptable.
+1. **Bible extraction automation** — Configurable aggressiveness per project
+2. **Voice consistency measurement** — LLM judgment with explanations
+3. **Multi-author support** — Single-author only (out of scope)
+4. **Version control integration** — No automatic commits; author controls timing
 
 ## Success criteria
 
-1. **Usable for The Accident web serial** — Can produce Book 1 (100 chapters, 250k words) with the system
+1. **Usable for web serial** — Can produce Book 1 (100 chapters, 250k words)
 2. **Continuity zero-defect** — No contradictions slip through to publication
 3. **Pacing visibility** — Author can see and adjust tension curves before writing
 4. **Review efficiency** — 10x faster than manual review for routine chapters
@@ -413,9 +437,8 @@ Per the web serial proposal, specific controls for serial-specific concerns:
 
 ## Related documents
 
-- [Project Goals](./goals.md)
+- [Project Goals](../goals.md)
 - [Design Rationale](../rationale.md)
-- [The Accident - Web Serial Proposal](../examples/web.serial/The.Accident/proposal.md)
-- [The Accident - Light Novel Proposal](../examples/light/The.Accident/proposal.md)
+- [Implementation Plan](../implementation/plan.md)
+- [Implementation Status](../implementation/status.md)
 - [Coding Style Guide](../development/coding-style.md)
-- [Documentation Style Guide](../development/documentation-style.md)

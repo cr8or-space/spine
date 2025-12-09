@@ -2,419 +2,308 @@
 
 Detailed implementation roadmap for Spine, organized into phases with concrete deliverables.
 
-## Phase 1: Foundation
+## Phase 1: Foundation (Complete)
 
-Establish core infrastructure, data models, and minimal UI.
+Core infrastructure, data models, and minimal UI.
 
 ### 1.1 Data models and types
 
-Create the shared type definitions that all packages will use.
-
 **Package**: `packages/types`
 
-**Deliverables**:
 - Project, Bible, Structure, Content interfaces
 - Character, Location, Faction, WorldRule, PlotThread types
 - Timeline and event types
 - Analysis and review types
 - Zod schemas for runtime validation
+- Base entity interfaces (BaseEntity, BaseContent, Spine, Validator)
 
 ### 1.2 Storage layer
 
-Implement persistence with SQLite for structured data and file system for content.
-
 **Package**: `packages/core/storage`
 
-**Deliverables**:
-- SQLite database schema and migrations
+- SQLite database schema and migrations (libsql)
 - Repository pattern for bible entities
+- Generic EntityRepository interface
 - File-based content storage (markdown)
 - Project save/load operations
-- Auto-save with configurable interval (separate branch support)
+- Auto-save implementation
 
 ### 1.3 Bible management
 
-Core CRUD operations for story bible entities.
-
 **Package**: `packages/core/bible`
 
-**Deliverables**:
-- Character management (create, read, update, delete, search)
-- Location management
-- Faction management
-- World rule management
-- Plot thread management
-- Timeline event management
+- Character, Location, Faction, WorldRule, PlotThread, Timeline CRUD
 - Relationship graph operations
-- Cross-reference tracking (which content mentions which entities)
+- Cross-reference tracking
+- Content status transitions
 
 ### 1.4 LLM interface
 
-OpenAI-compatible API client with provider abstraction.
-
 **Package**: `packages/llm`
 
-**Deliverables**:
-- OpenAI-compatible client (works with local servers)
-- Configuration: endpoint URL, API key, model selection
-- Request/response types
+- OpenAI-compatible client
+- Configuration management
 - Streaming support
-- Error handling and retry logic
 - Token counting utilities
+- Context assembly with relevance scoring
 
-### 1.5 Minimal web UI
-
-Basic project management and bible editing interface.
+### 1.5 Web UI foundation
 
 **App**: `apps/web`
 
-**Deliverables**:
-- Project list page (create, open, delete projects)
-- Project settings page
-- Bible editor with tabs (Characters, Locations, Factions, World, Plot, Timeline)
-- Entity create/edit forms
-- Search and filter within bible
-- Basic navigation and layout
+- SvelteKit application with Svelte 5 runes
+- Tailwind CSS v4 with CSS-first configuration
+- Bits UI for accessible components (Dialog, Tabs, Select)
+- Lucide icons
+- Generic components: EntityCard, EntityListPage, CreateEntityDialog
+- Project list and settings pages
+- Bible editor with all tabs
 
-## Phase 2: Generation
+## Phase 2: Generation (Complete)
 
 Content generation pipeline with context assembly.
 
 ### 2.1 Context assembly
 
-Build prompts with relevant bible context within token budgets.
-
 **Package**: `packages/llm/context`
 
-**Deliverables**:
-- Token budget allocation strategy
+- Token budget allocation
 - Relevance scoring for bible entities
-- Recent content summarization
-- Constraint extraction from bible
-- Context assembly for different task types (outline, draft, analysis)
+- Content summarization
+- Constraint extraction
+- Task-specific assembly
 
 ### 2.2 Structure management
 
-Hierarchical outline and beat sheet handling.
-
 **Package**: `packages/core/structure`
 
-**Deliverables**:
 - Structure tree operations (Book → Arc → Chapter → Scene)
-- Beat sheet management within structures
-- Tension target assignment
-- Chapter type assignment
+- Beat sheet management
+- Tension targets
+- Chapter types
 - Hook specification
-- Reordering and reorganization
 
 ### 2.3 Generation pipeline
 
-Orchestrate the outline → draft → review cycle.
-
 **Package**: `packages/core/generation`
 
-**Deliverables**:
 - Pipeline stage definitions
-- Outline generation from high-level description
-- Beat expansion from outline
-- Draft generation from beats
-- Self-review pass (LLM critiques own output)
-- Stage retry and regeneration
+- Outline generation
+- Beat expansion
+- Draft generation
+- Self-review pass
 - Generation history tracking
 
 ### 2.4 Basic analysis
 
-Initial quality analysis using LLM judgment.
-
 **Package**: `packages/core/analysis`
 
-**Deliverables**:
-- Tension scoring (0-100 scale with explanation)
+- Tension scoring
 - Hook strength scoring
 - Pacing assessment
-- Basic continuity checking (entity mentions vs. bible)
-- Analysis result storage
+- Continuity checking
+- Analysis storage
 
 ### 2.5 Writing workspace UI
 
-Interface for content generation and editing.
-
 **App**: `apps/web`
 
-**Deliverables**:
-- Outline editor (hierarchical tree view)
-- Writing workspace (split view: outline + editor)
-- Generation controls (model selection, temperature, constraints)
-- Real-time analysis panel
-- Inline continuity warnings
-- Draft history sidebar
+- Outline editor
+- Writing workspace layout
+- Generation controls
+- Analysis panel
+- Continuity warnings
+- Draft history
 
-## Phase 3: Review
+## Phase 3: Review (In Progress)
 
 Version tracking, diff generation, and review workflows.
 
-### 3.1 Version management
+### 3.1 Version management (Complete)
 
-Track content versions and changes.
-
-**Package**: `packages/core/storage`
-
-**Deliverables**:
 - Content version storage
-- Diff generation between versions
-- Version metadata (generation params, timestamps)
+- Diff generation
+- Version metadata
 - Rollback support
 
-### 3.2 Review workflow
+### 3.2 Review workflow (Complete)
 
-Structured review process with approval states.
-
-**Package**: `packages/core/review`
-
-**Deliverables**:
 - Review queue management
-- Status transitions (draft → review → approved → published)
-- Paragraph-level accept/reject/regenerate
-- Review comments and annotations
-- Lock point management
-- Published content immutability enforcement
+- Status transitions
+- Paragraph-level actions
+- Review comments
+- Lock points
+- Published immutability
 
-### 3.3 Revision cascade
+### 3.3 Revision cascade (Complete)
 
-Handle change propagation within configured bounds.
+- Horizon configuration
+- Impact analysis
+- Lock point detection
+- Cascade execution and preview
 
-**Package**: `packages/core/continuity`
+### 3.4 Review UI (Pending)
 
-**Deliverables**:
-- Revision horizon configuration
-- Impact analysis (what future content is affected)
-- Lock point detection and protection
-- Cascade execution (invalidate affected content)
-- Cascade preview (show what would be affected)
-
-### 3.4 Review UI
-
-Interface for reviewing and approving content.
-
-**App**: `apps/web`
-
-**Deliverables**:
 - Review queue page
 - Side-by-side diff view
 - Inline annotation interface
-- Paragraph-level action buttons
+- Action buttons
 - Bulk approval actions
 - Lock point visualization
-- Status indicators throughout UI
+- Status indicators
 
-## Phase 4: Analytics
+## Phase 4: Analytics (In Progress)
 
 Visualization and tracking dashboards.
 
-### 4.1 Tension curve data
+### 4.1 Tension curve data (Complete)
 
-Prepare data for pacing visualization.
-
-**Package**: `packages/core/analysis`
-
-**Deliverables**:
-- Planned tension extraction from structure
-- Actual tension aggregation from content analysis
-- Chapter-level tension data points
+- Planned tension extraction
+- Actual tension aggregation
+- Chapter data points
 - Divergence calculation
 
-### 4.2 Character tracking
+### 4.2 Character tracking (Complete)
 
-Track character presence and relationships over time.
+- Appearance tracking per chapter
+- Presence intensity levels
+- Relationship evolution
+- Arc progress indicators
 
-**Package**: `packages/core/analysis`
+### 4.3 Plot thread tracking (Complete)
 
-**Deliverables**:
-- Character appearance tracking per chapter
-- Presence intensity levels (mention, scene, POV)
-- Relationship evolution tracking
-- Character arc progress indicators
-
-### 4.3 Plot thread tracking
-
-Monitor plot thread lifecycles.
-
-**Package**: `packages/core/analysis`
-
-**Deliverables**:
-- Thread status tracking (active, dormant, resolved)
-- Thread timeline (when introduced, touched, resolved)
-- Dangling thread detection
+- Thread status tracking
+- Thread timeline
+- Dangling detection
 - Promise/payoff matching
 
-### 4.4 Visualization components
+### 4.4 Visualization components (Complete)
 
-Reusable chart components for analytics.
-
-**Package**: `packages/ui/visualization`
-
-**Deliverables**:
-- Tension curve chart (dual-line, interactive)
+- Tension curve chart
 - Character presence heatmap
 - Plot thread Gantt chart
-- Quality trend line charts
-- Chapter type distribution pie/bar chart
+- Quality trend charts
+- Chapter type distribution
 
-### 4.5 Analytics dashboard UI
+### 4.5 Analytics dashboard UI (Pending)
 
-Unified analytics view.
-
-**App**: `apps/web`
-
-**Deliverables**:
 - Analytics dashboard page
-- Tension curve with chapter drill-down
+- Tension curve view
 - Character presence view
 - Plot thread timeline
 - Quality metrics overview
-- Filtering and date range selection
+- Filtering controls
 
-## Phase 5: Serial features
+## Phase 5: Serial features (Partial)
 
 Web serial specific tooling.
 
-### 5.1 Hook management
+### 5.1 Hook management (Complete)
 
-Track and enforce chapter ending patterns.
+- Hook type classification
+- Pattern analysis
+- Strength trending
+- Variety warnings
 
-**Package**: `packages/core/analysis`
+### 5.2 Cycle enforcement (Complete)
 
-**Deliverables**:
-- Hook type classification (revelation, decision, cliffhanger, emotional)
-- Hook pattern analysis (detect repetition)
-- Hook strength trending
-- Variety enforcement warnings
-
-### 5.2 Cycle enforcement
-
-Tension cycle pattern management.
-
-**Package**: `packages/core/structure`
-
-**Deliverables**:
-- Cycle length configuration
-- Per-position tension targets
-- Cycle phase detection
+- Cycle configuration
+- Position targets
+- Phase detection
 - Rebalancing suggestions
 
-### 5.3 Release planning
+### 5.3 Release planning (Complete)
 
-Buffer and schedule management.
-
-**Package**: `packages/core/release`
-
-**Deliverables**:
-- Release schedule configuration
-- Buffer calculation (approved chapters - scheduled)
-- Buffer depletion projection
+- Schedule configuration
+- Buffer calculation
+- Depletion projection
 - Deadline tracking
 
-### 5.4 Mystery tracking
+### 5.4 Mystery tracking (Pending)
 
-Long-term narrative element management.
-
-**Package**: `packages/core/analysis`
-
-**Deliverables**:
-- Mystery layer classification (short, medium, long-term)
-- Mystery lifecycle tracking
+- Layer classification
+- Lifecycle tracking
 - Resolution detection
-- Unfulfilled promise warnings
+- Unfulfilled warnings
 
-### 5.5 Serial dashboard UI
+### 5.5 Serial dashboard UI (Pending)
 
-Serial-specific controls and views.
-
-**App**: `apps/web`
-
-**Deliverables**:
-- Release calendar view
+- Release calendar
 - Buffer status display
-- Hook pattern visualization
-- Cycle position indicator
-- Mystery status board
+- Hook patterns
+- Cycle indicator
+- Mystery board
 
-## Phase 6: Polish
+## Phase 6: Polish (Pending)
 
 Quality of life and production readiness.
 
 ### 6.1 Bible extraction
 
-Suggest bible entries from approved content.
-
-**Package**: `packages/core/bible`
-
-**Deliverables**:
-- Entity mention detection in content
-- New entity suggestion generation
-- Existing entity update suggestions
-- Configurable aggressiveness
+- Entity detection in content
+- New entity suggestions
+- Update suggestions
+- Aggressiveness config
 - Suggestion review workflow
 
 ### 6.2 Export
 
-Output formats for publishing platforms.
-
-**Package**: `packages/core/export`
-
-**Deliverables**:
 - EPUB generation
-- Royal Road markdown format
+- Royal Road format
 - Plain text export
-- Project backup (full data export)
+- Project backup
 
 ### 6.3 Offline support
 
-Work without network connectivity.
-
-**App**: `apps/web`
-
-**Deliverables**:
 - Service worker for static assets
 - Local SQLite via sql.js
-- Generation request queue
+- Request queue
 - Sync on reconnection
 - Offline indicator
 
 ### 6.4 Performance optimization
 
-Ensure smooth operation at scale.
+- Lazy loading
+- Virtual scrolling
+- Analysis caching
+- Incremental indexing
+- Background processing
 
-**Deliverables**:
-- Lazy loading for large projects
-- Virtual scrolling for long lists
-- Analysis result caching
-- Incremental bible indexing
-- Background processing for heavy operations
+### 6.5 Error handling
 
-### 6.5 Error handling and recovery
-
-Robust failure handling.
-
-**Deliverables**:
-- Graceful LLM failure handling
-- Auto-recovery from interrupted operations
-- Data corruption detection
+- LLM failure handling
+- Operation recovery
+- Corruption detection
 - Backup and restore
+
+## Tech Stack
+
+### Frontend
+- **SvelteKit 2** with **Svelte 5** runes
+- **Tailwind CSS v4** (CSS-first configuration via @theme)
+- **Bits UI** for accessible headless components
+- **Lucide Svelte** for icons
+- **vitest-browser-svelte** with Playwright for component tests
+- **Playwright** for integration tests
+
+### Backend/Core
+- **TypeScript** strict mode
+- **Zod** for runtime validation
+- **libsql** (SQLite) for structured data
+- File system for prose content
+
+### Tooling
+- **Turborepo** + pnpm workspaces
+- **ESLint** + **Prettier** (with Tailwind plugin)
+- **Vitest** for unit tests
 
 ## Dependencies
 
 ```
 Phase 1 ─┬─► Phase 2 ─┬─► Phase 3 ───► Phase 4 ───► Phase 5 ───► Phase 6
          │            │
-         └────────────┴─► (Can work on UI in parallel with core packages)
+         └────────────┴─► (UI can progress in parallel)
 ```
-
-- Phase 2 requires Phase 1 (needs storage, bible, LLM interface)
-- Phase 3 requires Phase 2 (needs content to review)
-- Phase 4 requires Phase 3 (needs approved content for analysis)
-- Phase 5 requires Phase 4 (builds on analytics)
-- Phase 6 can partially parallelize with Phase 4-5
 
 ## Related documents
 

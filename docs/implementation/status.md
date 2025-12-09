@@ -1,27 +1,21 @@
 # Implementation Status
-This is a pure checklist file.  No comments other than this one.
+
+Checklist tracking implementation progress. See [plan.md](./plan.md) for detailed descriptions.
 
 ## Phase 1: Foundation
 
 ### 1.1 Data models and types
-- [x] Project interface
-- [x] Bible interface
-- [x] Structure interface
-- [x] Content interface
-- [x] Character type
-- [x] Location type
-- [x] Faction type
-- [x] WorldRule type
-- [x] PlotThread type
-- [x] Timeline types
-- [x] Analysis types
-- [x] Review types
-- [x] Zod schemas
+- [x] Project, Bible, Structure, Content interfaces
+- [x] Character, Location, Faction, WorldRule, PlotThread types
+- [x] Timeline and event types
+- [x] Analysis and review types
+- [x] Zod schemas for runtime validation
+- [x] Base entity interfaces (BaseEntity, BaseContent, Spine, Validator)
 
 ### 1.2 Storage layer
-- [x] SQLite schema design
-- [x] Database migrations
+- [x] SQLite schema and migrations (libsql)
 - [x] Bible entity repositories
+- [x] Generic EntityRepository interface
 - [x] File-based content storage
 - [x] Project save/load
 - [x] Auto-save implementation
@@ -35,6 +29,7 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Timeline event CRUD
 - [x] Relationship graph
 - [x] Cross-reference tracking
+- [x] Content status transitions
 
 ### 1.4 LLM interface
 - [x] OpenAI-compatible client
@@ -44,18 +39,18 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Error handling
 - [x] Token counting
 
-### 1.5 Minimal web UI
+### 1.5 Web UI foundation
+- [x] SvelteKit app with Svelte 5 runes
+- [x] Tailwind CSS v4 configuration
+- [x] Bits UI components (Dialog, Tabs, Select)
+- [x] Lucide icons
+- [x] Generic components (EntityCard, EntityListPage, CreateEntityDialog)
 - [x] Project list page
 - [x] Project settings page
-- [x] Bible editor layout
-- [x] Character tab
-- [x] Location tab
-- [x] Faction tab
-- [x] World rules tab
-- [x] Plot threads tab
-- [x] Timeline tab
+- [x] Bible editor with all tabs
 - [x] Entity forms
 - [x] Search and filter
+- [x] Shell/Workspace separation
 
 ## Phase 2: Generation
 
@@ -156,6 +151,8 @@ This is a pure checklist file.  No comments other than this one.
 - [x] Plot thread Gantt
 - [x] Quality trend charts
 - [x] Chapter type distribution
+- [x] ValidationPanel component
+- [x] ValidationBadge component
 
 ### 4.5 Analytics dashboard UI
 - [ ] Dashboard page
@@ -232,3 +229,19 @@ This is a pure checklist file.  No comments other than this one.
 - [ ] Operation recovery
 - [ ] Corruption detection
 - [ ] Backup and restore
+
+## Testing Infrastructure
+
+### Component tests (vitest-browser-svelte)
+- [x] Button.test.ts
+- [x] Card.test.ts
+- [x] Dialog.test.ts
+- [x] TextField.test.ts
+- [x] Tabs.test.ts
+- [x] EntityCard.test.ts
+- [x] EntityListPage.test.ts
+- [x] CreateEntityDialog.test.ts
+
+### Integration tests (Playwright)
+- [x] Bible flow integration test
+- [x] Project flow integration test
