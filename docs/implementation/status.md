@@ -301,22 +301,22 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [ ] Actual analysis data display (requires LLM)
 
 #### Phase 3: Review
-- [ ] Review queue tests
-  - [ ] Review queue page display
-  - [ ] Content status filtering
-  - [ ] Queue item navigation
-- [ ] Review workflow tests
-  - [ ] Side-by-side diff view
-  - [ ] Paragraph-level accept/reject/regenerate
-  - [ ] Review comments
-  - [ ] Status transitions (draft → in_review → approved → published)
-  - [ ] Lock point creation and visualization
-  - [ ] Bulk approval actions
-- [ ] Revision cascade tests
-  - [ ] Horizon configuration
-  - [ ] Impact analysis display
-  - [ ] Cascade preview
-  - [ ] Cascade execution
+- [x] Review queue tests
+  - [x] Review queue page display
+  - [x] Content status filtering
+  - [x] Queue item navigation
+- [x] Review workflow tests
+  - [x] Side-by-side diff view
+  - [x] Paragraph-level accept/reject/regenerate
+  - [x] Review comments
+  - [x] Status transitions (draft → in_review → approved → published)
+  - [x] Lock point creation and visualization
+  - [x] Bulk approval actions
+- [x] Revision cascade tests
+  - [x] Horizon configuration
+  - [x] Impact analysis display
+  - [x] Cascade preview
+  - [x] Cascade execution
 
 #### Phase 4: Analytics
 - [ ] Analytics dashboard tests
