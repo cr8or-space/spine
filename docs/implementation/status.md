@@ -330,15 +330,30 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Structure filtering controls
 
 #### Phase 5: Serial Features
-- [ ] Serial dashboard tests
-  - [ ] Release calendar display
-  - [ ] Buffer status display
-  - [ ] Depletion projection
-  - [ ] Hook pattern visualization
-  - [ ] Hook variety warnings
-  - [ ] Cycle indicator and phase detection
-  - [ ] Mystery board display
-  - [ ] Mystery lifecycle tracking
+- [x] Serial dashboard tests (serial.spec.ts)
+  - [x] Dashboard page display
+  - [x] Structure selector
+  - [x] Empty state handling
+  - [x] Structure filter changes
+  - [x] Release calendar display
+  - [x] Release schedule display
+  - [x] Scheduled releases display
+  - [x] Buffer status display
+  - [x] Buffer health indicators
+  - [x] Depletion projection
+  - [x] Hook pattern visualization
+  - [x] Hook pattern display
+  - [x] Hook variety warnings
+  - [x] Cycle indicator and phase detection
+  - [x] Cycle enforcement display
+  - [x] Cycle indicator visualization
+  - [x] Mystery board display
+  - [x] Mystery lifecycle tracking
+  - [x] Mystery description display
+  - [x] Navigation from nav menu
+  - [x] Active nav state
+  - [x] Structure filtering from URL
+  - [x] Default structure selection
 
 #### Test Infrastructure
 - [x] Test stability improvements
