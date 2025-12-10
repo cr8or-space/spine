@@ -243,9 +243,21 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] CreateEntityDialog.test.ts
 
 ### Integration tests (Playwright)
-- [x] Bible flow integration test
-- [x] Project flow integration test
-- [x] Entity creation tests (Character, Location, Faction, etc.)
+
+#### Phase 1: Foundation
+- [x] Bible flow integration test (bible-management.spec.ts)
+  - [x] Bible editor display with all tabs
+  - [x] Tab switching and empty states
+  - [x] Tab counts display
+  - [x] Search functionality
+  - [x] Navigation and active state
+- [x] Project flow integration test (project-management.spec.ts)
+  - [x] Project creation
+  - [x] Project listing
+  - [x] Project settings update
+  - [x] Project deletion with confirmation
+  - [x] Cancel project creation
+- [x] Entity creation tests (entity-creation.spec.ts)
   - [x] Character creation and listing
   - [x] Location creation and listing
   - [x] Faction creation and listing
@@ -253,6 +265,75 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Plot Thread creation and listing
   - [x] Timeline Event creation and listing
   - [x] Tab count updates after entity creation
+- [x] Navigation tests (navigation.spec.ts)
+  - [x] Navigation between Bible and Settings
+  - [x] Return to project list
+  - [x] Active nav item highlighting
+  - [x] Project context maintenance
+
+#### Phase 2: Generation
+- [ ] Workspace integration tests
+  - [ ] Structure tree creation and navigation
+  - [ ] Book/Arc/Chapter/Scene hierarchy
+  - [ ] Outline editor functionality
+  - [ ] Beat sheet management
+  - [ ] Tension target configuration
+  - [ ] Chapter type selection
+  - [ ] Hook specification
+- [ ] Generation pipeline tests
+  - [ ] Outline generation flow
+  - [ ] Beat expansion flow
+  - [ ] Draft generation flow
+  - [ ] Self-review pass
+  - [ ] Generation history tracking
+  - [ ] Stage retry functionality
+- [ ] Analysis panel tests
+  - [ ] Tension score display
+  - [ ] Hook strength display
+  - [ ] Pacing assessment display
+  - [ ] Continuity warnings display
+
+#### Phase 3: Review
+- [ ] Review queue tests
+  - [ ] Review queue page display
+  - [ ] Content status filtering
+  - [ ] Queue item navigation
+- [ ] Review workflow tests
+  - [ ] Side-by-side diff view
+  - [ ] Paragraph-level accept/reject/regenerate
+  - [ ] Review comments
+  - [ ] Status transitions (draft → in_review → approved → published)
+  - [ ] Lock point creation and visualization
+  - [ ] Bulk approval actions
+- [ ] Revision cascade tests
+  - [ ] Horizon configuration
+  - [ ] Impact analysis display
+  - [ ] Cascade preview
+  - [ ] Cascade execution
+
+#### Phase 4: Analytics
+- [ ] Analytics dashboard tests
+  - [ ] Dashboard page display
+  - [ ] Tension curve visualization
+  - [ ] Planned vs actual tension divergence
+  - [ ] Character presence heatmap
+  - [ ] Plot thread Gantt timeline
+  - [ ] Quality metrics charts
+  - [ ] Chapter type distribution
+  - [ ] Structure filtering controls
+
+#### Phase 5: Serial Features
+- [ ] Serial dashboard tests
+  - [ ] Release calendar display
+  - [ ] Buffer status display
+  - [ ] Depletion projection
+  - [ ] Hook pattern visualization
+  - [ ] Hook variety warnings
+  - [ ] Cycle indicator and phase detection
+  - [ ] Mystery board display
+  - [ ] Mystery lifecycle tracking
+
+#### Test Infrastructure
 - [x] Test stability improvements (96% pass rate)
   - [x] Explicit dialog transition waits
   - [x] Selector specificity improvements
