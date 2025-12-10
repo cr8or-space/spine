@@ -625,3 +625,216 @@ export const ThreadActivityHeatmapSchema = z.object({
   generatedAt: TimestampSchema,
 });
 export type ThreadActivityHeatmap = z.infer<typeof ThreadActivityHeatmapSchema>;
+
+// ============================================================================
+// Hook Management Types (Phase 5.1)
+// ============================================================================
+
+/**
+ * Hook data point for visualization
+ */
+export const HookDataPointSchema = z.object({
+  /** Content ID */
+  contentId: z.string(),
+  /** Chapter title */
+  title: z.string().optional(),
+  /** Position in reading order (1-indexed) */
+  position: z.number().int().positive(),
+  /** Hook type */
+  hookType: z.enum([
+    'revelation',
+    'decision',
+    'cliffhanger',
+    'emotional',
+    'question',
+    'twist',
+    'promise',
+    'none',
+  ]),
+  /** Hook strength (0-100) */
+  strength: z.number().min(0).max(100),
+});
+export type HookDataPoint = z.infer<typeof HookDataPointSchema>;
+
+/**
+ * Strength trend information for hook analysis
+ */
+export const StrengthTrendInfoSchema = z.object({
+  /** Trend direction */
+  trend: z.enum(['improving', 'declining', 'stable']),
+  /** Average strength */
+  average: z.number().min(0).max(100),
+  /** Recent average (last N hooks) */
+  recentAverage: z.number().min(0).max(100),
+  /** Overall trend slope */
+  slope: z.number(),
+});
+export type StrengthTrendInfo = z.infer<typeof StrengthTrendInfoSchema>;
+
+/**
+ * Repetition detail for hook patterns
+ */
+export const RepetitionDetailSchema = z.object({
+  /** The repeated hook type */
+  hookType: z.string(),
+  /** Starting position of repetition */
+  startPosition: z.number().int().positive(),
+  /** Consecutive count */
+  count: z.number().int().positive(),
+  /** Severity level */
+  severity: z.enum(['minor', 'moderate', 'severe']),
+});
+export type RepetitionDetail = z.infer<typeof RepetitionDetailSchema>;
+
+/**
+ * Complete hook management result for visualization
+ */
+export const HookManagementResultSchema = z.object({
+  /** Hook type distribution (count per type) */
+  distribution: z.record(z.string(), z.number()),
+  /** Data points for visualization */
+  dataPoints: z.array(HookDataPointSchema),
+  /** Variety score (0-100) */
+  varietyScore: z.number().min(0).max(100),
+  /** Repetition details */
+  repetitionDetails: z.array(RepetitionDetailSchema),
+  /** Strength trend information */
+  strengthTrend: StrengthTrendInfoSchema,
+  /** Warnings about hook patterns */
+  warnings: z.array(z.string()),
+});
+export type HookManagementResult = z.infer<typeof HookManagementResultSchema>;
+
+// ============================================================================
+// Cycle Enforcement Types (Phase 5.2)
+// ============================================================================
+
+/**
+ * Data point for a chapter within a cycle
+ */
+export const CycleDataPointSchema = z.object({
+  /** Structure ID of the chapter */
+  structureId: z.string(),
+  /** Title of the chapter */
+  title: z.string(),
+  /** Global position (1-indexed, across all chapters) */
+  globalPosition: z.number().int().positive(),
+  /** Position within cycle (0-indexed, 0 to cycleLength-1) */
+  cyclePosition: z.number().int().min(0),
+  /** Cycle number (1-indexed) */
+  cycleNumber: z.number().int().positive(),
+  /** Target tension for this cycle position */
+  targetTension: z.number().min(0).max(100),
+  /** Planned tension from structure (if set) */
+  plannedTension: z.number().min(0).max(100).optional(),
+  /** Actual tension from analysis (if available) */
+  actualTension: z.number().min(0).max(100).optional(),
+  /** Deviation from cycle target */
+  deviationFromTarget: z.number().optional(),
+});
+export type CycleDataPoint = z.infer<typeof CycleDataPointSchema>;
+
+/**
+ * Result of cycle phase detection
+ */
+export const CyclePhaseResultSchema = z.object({
+  /** Current cycle number (1-indexed) */
+  currentCycle: z.number().int().positive(),
+  /** Position within current cycle (0-indexed) */
+  currentPosition: z.number().int().min(0),
+  /** Cycle length (number of positions per cycle) */
+  cycleLength: z.number().int().positive(),
+  /** Tension targets for each position in the cycle */
+  tensionTargets: z.array(z.number().min(0).max(100)),
+  /** Total chapters in the project */
+  totalChapters: z.number().int().min(0),
+  /** Chapters completed in current cycle */
+  chaptersInCurrentCycle: z.number().int().min(0),
+  /** Is current cycle complete */
+  isCycleComplete: z.boolean(),
+  /** Phase description (e.g., "rising", "peak", "falling") */
+  phaseDescription: z.string(),
+  /** Next position's target tension */
+  nextTargetTension: z.number().min(0).max(100).optional(),
+});
+export type CyclePhaseResult = z.infer<typeof CyclePhaseResultSchema>;
+
+/**
+ * A tension violation within a cycle
+ */
+export const CycleViolationSchema = z.object({
+  /** Structure ID of the chapter */
+  structureId: z.string(),
+  /** Title of the chapter */
+  title: z.string(),
+  /** Global position */
+  globalPosition: z.number().int().positive(),
+  /** Cycle position */
+  cyclePosition: z.number().int().min(0),
+  /** Expected tension for this position */
+  expectedTension: z.number().min(0).max(100),
+  /** Actual tension value (from analysis or planned) */
+  actualValue: z.number().min(0).max(100),
+  /** Deviation amount (actual - expected) */
+  deviation: z.number(),
+  /** Severity level */
+  severity: z.enum(['minor', 'moderate', 'severe']),
+});
+export type CycleViolation = z.infer<typeof CycleViolationSchema>;
+
+/**
+ * Rebalancing suggestion
+ */
+export const RebalancingSuggestionSchema = z.object({
+  /** Target structure ID */
+  structureId: z.string(),
+  /** Title of the chapter */
+  title: z.string(),
+  /** Current tension value */
+  currentTension: z.number().min(0).max(100),
+  /** Suggested tension value */
+  suggestedTension: z.number().min(0).max(100),
+  /** Direction of change needed */
+  direction: z.enum(['increase', 'decrease']),
+  /** Priority of this suggestion */
+  priority: z.enum(['low', 'medium', 'high']),
+  /** Explanation of the suggestion */
+  explanation: z.string(),
+});
+export type RebalancingSuggestion = z.infer<typeof RebalancingSuggestionSchema>;
+
+/**
+ * Statistics about cycle enforcement
+ */
+export const CycleEnforcementStatsSchema = z.object({
+  /** Total number of cycles (including partial) */
+  totalCycles: z.number().int().min(0),
+  /** Number of complete cycles */
+  completeCycles: z.number().int().min(0),
+  /** Average deviation from cycle targets */
+  averageDeviation: z.number(),
+  /** Number of violations */
+  violationCount: z.number().int().min(0),
+  /** Percentage of chapters within tolerance */
+  complianceRate: z.number().min(0).max(100),
+});
+export type CycleEnforcementStats = z.infer<typeof CycleEnforcementStatsSchema>;
+
+/**
+ * Complete cycle enforcement analysis result
+ */
+export const CycleEnforcementResultSchema = z.object({
+  /** All chapter data points with cycle information */
+  dataPoints: z.array(CycleDataPointSchema),
+  /** Current cycle phase information */
+  phaseInfo: CyclePhaseResultSchema,
+  /** Detected violations */
+  violations: z.array(CycleViolationSchema),
+  /** Rebalancing suggestions */
+  suggestions: z.array(RebalancingSuggestionSchema),
+  /** Summary statistics */
+  stats: CycleEnforcementStatsSchema,
+  /** Generated warnings */
+  warnings: z.array(z.string()),
+});
+export type CycleEnforcementResult = z.infer<typeof CycleEnforcementResultSchema>;

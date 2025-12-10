@@ -12,6 +12,7 @@
 
 export {
   analyzeReleasePlanning,
+  analyzeReleasePlanningWithDeps,
   calculateBufferDepletion,
   calculateBufferStatus,
   calculateChaptersNeeded,
@@ -24,4 +25,6 @@ export {
   getReleasePlanningSummary,
   suggestReleaseInterval,
   validateReleaseScheduleConfig,
+  type ReleasePlanningDependencies,
+  type ReleasePlanningInput,
 } from './release-planning';

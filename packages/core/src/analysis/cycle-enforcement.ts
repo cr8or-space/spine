@@ -12,6 +12,8 @@
 
 import type { ContentAnalysis, SerialSettings, Structure } from '@repo/types';
 
+import type { AnalysisRepository } from './repository';
+import type { ContentRepository } from '../storage/repositories';
 import { extractPlannedTension } from './tension-curve';
 
 /**
@@ -58,6 +60,10 @@ export interface CyclePhaseResult {
   currentCycle: number;
   /** Position within current cycle (0-indexed) */
   currentPosition: number;
+  /** Cycle length (number of positions per cycle) */
+  cycleLength: number;
+  /** Tension targets for each position in the cycle */
+  tensionTargets: number[];
   /** Total chapters in the project */
   totalChapters: number;
   /** Chapters completed in current cycle */
@@ -369,6 +375,8 @@ export function detectCyclePhase(
     return {
       currentCycle: 1,
       currentPosition: 0,
+      cycleLength,
+      tensionTargets: settings.cycleTensionTargets,
       totalChapters: 0,
       chaptersInCurrentCycle: 0,
       isCycleComplete: false,
@@ -389,6 +397,8 @@ export function detectCyclePhase(
   return {
     currentCycle,
     currentPosition,
+    cycleLength,
+    tensionTargets: settings.cycleTensionTargets,
     totalChapters,
     chaptersInCurrentCycle,
     isCycleComplete,
@@ -807,4 +817,108 @@ export function validateCycleConfiguration(settings: SerialSettings): string[] {
   }
 
   return errors;
+}
+
+// ============================================================================
+// High-level wrapper with Input/Dependencies pattern
+// ============================================================================
+
+/**
+ * Input for cycle enforcement analysis
+ */
+export interface CycleEnforcementInput {
+  /** Project ID */
+  projectId: string;
+  /** Root structure (book or arc) */
+  rootStructure: Structure;
+  /** Cycle configuration */
+  cycleConfig: {
+    cycleLength: number;
+    tensionTargets: number[];
+  };
+}
+
+/**
+ * Dependencies for cycle enforcement
+ */
+export interface CycleEnforcementDependencies {
+  /** Analysis repository for getting tension data */
+  analysisRepository: AnalysisRepository;
+  /** Content repository for getting content linked to structures */
+  contentRepository: ContentRepository;
+}
+
+/**
+ * Extract chapters and get their analyses
+ */
+function extractChaptersWithAnalysis(
+  projectId: string,
+  rootStructure: Structure,
+  deps: CycleEnforcementDependencies
+): Map<string, ContentAnalysis> {
+  const analyses = new Map<string, ContentAnalysis>();
+
+  function traverse(node: Structure): void {
+    if (node.type === 'chapter') {
+      const content = deps.contentRepository.findByStructure(projectId, node.id);
+      if (content) {
+        const analysis = deps.analysisRepository.findLatest(projectId, content.id);
+        if (analysis) {
+          analyses.set(node.id, analysis);
+        }
+      }
+    }
+    // Guard against missing children array
+    if (!node.children || !Array.isArray(node.children)) {
+      return;
+    }
+    const sortedChildren = [...node.children].sort((a, b) => a.order - b.order);
+    for (const child of sortedChildren) {
+      traverse(child);
+    }
+  }
+
+  traverse(rootStructure);
+  return analyses;
+}
+
+/**
+ * Analyze cycle enforcement with Input/Dependencies pattern
+ *
+ * This is the high-level wrapper function that:
+ * 1. Gets analyses from the repository
+ * 2. Builds serial settings from input
+ * 3. Calls the core analysis function
+ *
+ * @param input - Cycle enforcement input
+ * @param deps - Dependencies (repositories)
+ * @returns Complete cycle enforcement result
+ */
+export function analyzeCycleEnforcementWithDeps(
+  input: CycleEnforcementInput,
+  deps: CycleEnforcementDependencies
+): CycleEnforcementResult {
+  // Get analyses for each chapter
+  const analyses = extractChaptersWithAnalysis(
+    input.projectId,
+    input.rootStructure,
+    deps
+  );
+
+  // Build serial settings from input
+  const serialSettings: SerialSettings = {
+    cycleLength: input.cycleConfig.cycleLength,
+    cycleTensionTargets: input.cycleConfig.tensionTargets,
+    minimumBuffer: 5,
+    releaseInterval: 2,
+    enforceHookVariety: true,
+    maxConsecutiveSameHook: 2,
+  };
+
+  // Call the core analysis function
+  return analyzeCycleEnforcement(
+    input.rootStructure,
+    serialSettings,
+    analyses
+  );
 }

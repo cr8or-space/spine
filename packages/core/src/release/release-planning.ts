@@ -27,6 +27,8 @@ import type {
   Structure,
 } from '@repo/types';
 
+import type { ContentRepository } from '../storage/repositories';
+
 /**
  * Default configuration for release planning analysis
  */
@@ -49,6 +51,11 @@ export function extractChaptersInOrder(rootStructure: Structure): Structure[] {
   function traverse(structure: Structure): void {
     if (structure.type === 'chapter') {
       chapters.push(structure);
+    }
+
+    // Guard against missing children array
+    if (!structure.children || !Array.isArray(structure.children)) {
+      return;
     }
 
     // Sort children by order before traversing
@@ -751,4 +758,72 @@ export function suggestReleaseInterval(chaptersPerWeek: number, desiredBuffer: n
   const suggestedInterval = Math.max(minIntervalDays, Math.ceil(7 / (chaptersPerWeek * bufferFactor)));
 
   return Math.min(suggestedInterval, 7); // Cap at weekly
+}
+
+// ============================================================================
+// High-level wrapper with Input/Dependencies pattern
+// ============================================================================
+
+/**
+ * Input for release planning analysis
+ */
+export interface ReleasePlanningInput {
+  /** Project ID */
+  projectId: string;
+  /** Root structure (book or arc) */
+  rootStructure: Structure;
+  /** Release schedule configuration */
+  releaseSchedule: {
+    minimumBuffer: number;
+    releaseInterval: number;
+  };
+}
+
+/**
+ * Dependencies for release planning
+ */
+export interface ReleasePlanningDependencies {
+  /** Content repository for getting content status */
+  contentRepository: ContentRepository;
+}
+
+/**
+ * Analyze release planning with Input/Dependencies pattern
+ *
+ * This is the high-level wrapper function that:
+ * 1. Gets all content for chapters from the repository
+ * 2. Builds the content map
+ * 3. Calls the core analysis function
+ *
+ * @param input - Release planning input
+ * @param deps - Dependencies (repositories)
+ * @returns Complete release planning result
+ */
+export function analyzeReleasePlanningWithDeps(
+  input: ReleasePlanningInput,
+  deps: ReleasePlanningDependencies
+): ReleasePlanningResult {
+  // Build content map for all chapters
+  const contentMap = new Map<string, Content>();
+  const chapters = extractChaptersInOrder(input.rootStructure);
+
+  for (const chapter of chapters) {
+    const content = deps.contentRepository.findByStructure(input.projectId, chapter.id);
+    if (content) {
+      contentMap.set(chapter.id, content);
+    }
+  }
+
+  // Build serial settings from input
+  const serialSettings: SerialSettings = {
+    cycleLength: 5,
+    cycleTensionTargets: [40, 60, 70, 80, 50],
+    minimumBuffer: input.releaseSchedule.minimumBuffer,
+    releaseInterval: input.releaseSchedule.releaseInterval,
+    enforceHookVariety: true,
+    maxConsecutiveSameHook: 2,
+  };
+
+  // Call the core analysis function
+  return analyzeReleasePlanning(input.rootStructure, serialSettings, contentMap);
 }

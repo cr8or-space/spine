@@ -109,6 +109,7 @@ export {
 // Hook management (Phase 5.1)
 export {
   analyzeHookPatterns,
+  analyzeHookPatternsWithDeps,
   calculateHookDistribution,
   calculateStrengthTrend,
   calculateVarietyScore,
@@ -122,6 +123,9 @@ export {
   suggestNextHookType,
   type HookAnalysisConfig,
   type HookDataPoint,
+  type HookManagementDependencies,
+  type HookManagementInput,
+  type HookManagementResult,
   type HookPatternResult,
   type RepetitionDetail,
   type StrengthTrendInfo,
@@ -130,6 +134,7 @@ export {
 // Cycle enforcement (Phase 5.2)
 export {
   analyzeCycleEnforcement,
+  analyzeCycleEnforcementWithDeps,
   buildCyclePositionConfigs,
   buildPositionTargetMap,
   DEFAULT_CYCLE_ENFORCEMENT_CONFIG,
@@ -149,6 +154,8 @@ export {
   validateCycleConfiguration,
   type CycleDataPoint,
   type CycleEnforcementConfig,
+  type CycleEnforcementDependencies,
+  type CycleEnforcementInput,
   type CycleEnforcementResult,
   type CycleEnforcementStats,
   type CyclePhaseResult,

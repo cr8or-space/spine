@@ -15,7 +15,11 @@ import type {
   HookPatternAnalysis,
   HookType,
   SerialSettings,
+  Structure,
 } from '@repo/types';
+
+import type { AnalysisRepository } from './repository';
+import type { ContentRepository } from '../storage/repositories';
 
 /**
  * Hook data point extracted from content analysis
@@ -648,4 +652,157 @@ export function suggestNextHookType(
   typeScores.sort((a, b) => b.score - a.score);
 
   return typeScores.map((t) => t.type);
+}
+
+// ============================================================================
+// High-level wrapper with Input/Dependencies pattern
+// ============================================================================
+
+/**
+ * Input for hook management analysis
+ */
+export interface HookManagementInput {
+  /** Project ID */
+  projectId: string;
+  /** Root structure (book or arc) */
+  rootStructure: Structure;
+  /** Hook variety settings */
+  settings?: {
+    enforceVariety?: boolean;
+    maxConsecutiveSameHook?: number;
+  };
+}
+
+/**
+ * Dependencies for hook management
+ */
+export interface HookManagementDependencies {
+  /** Analysis repository for getting hook data */
+  analysisRepository: AnalysisRepository;
+  /** Content repository for getting content linked to structures */
+  contentRepository: ContentRepository;
+}
+
+/**
+ * Complete hook management result
+ *
+ * This interface matches what the HookPatterns visualization component expects
+ */
+export interface HookManagementResult {
+  /** Hook type distribution (count per type) */
+  distribution: Record<string, number>;
+  /** Data points for visualization */
+  dataPoints: HookDataPoint[];
+  /** Variety score (0-100) */
+  varietyScore: number;
+  /** Repetition details */
+  repetitionDetails: RepetitionDetail[];
+  /** Strength trend information */
+  strengthTrend: StrengthTrendInfo;
+  /** Warnings about hook patterns */
+  warnings: string[];
+}
+
+/**
+ * Extract chapters from structure in reading order
+ */
+function extractChaptersForHooks(rootStructure: Structure): Array<{
+  structureId: string;
+  title: string;
+  position: number;
+}> {
+  const chapters: Array<{
+    structureId: string;
+    title: string;
+    position: number;
+  }> = [];
+
+  function traverse(node: Structure): void {
+    if (node.type === 'chapter') {
+      chapters.push({
+        structureId: node.id,
+        title: node.title,
+        position: chapters.length + 1,
+      });
+    }
+    // Guard against missing children array
+    if (!node.children || !Array.isArray(node.children)) {
+      return;
+    }
+    const sortedChildren = [...node.children].sort((a, b) => a.order - b.order);
+    for (const child of sortedChildren) {
+      traverse(child);
+    }
+  }
+
+  traverse(rootStructure);
+  return chapters;
+}
+
+/**
+ * Analyze hook patterns with Input/Dependencies pattern
+ *
+ * This is the high-level wrapper function that:
+ * 1. Extracts chapters from the structure
+ * 2. Gets analyses from the repository
+ * 3. Builds position and title maps
+ * 4. Calls the core analysis function
+ *
+ * @param input - Hook management input
+ * @param deps - Dependencies (repositories)
+ * @returns Complete hook management result
+ */
+export function analyzeHookPatternsWithDeps(
+  input: HookManagementInput,
+  deps: HookManagementDependencies
+): HookManagementResult {
+  // Extract chapters from structure
+  const chapters = extractChaptersForHooks(input.rootStructure);
+
+  // Get analyses for each chapter
+  const analyses: ContentAnalysis[] = [];
+  const positionMap = new Map<string, number>();
+  const titleMap = new Map<string, string>();
+
+  for (const chapter of chapters) {
+    // Get content for this structure
+    const content = deps.contentRepository.findByStructure(input.projectId, chapter.structureId);
+    if (!content) continue;
+
+    // Get latest analysis for this content
+    const analysis = deps.analysisRepository.findLatest(input.projectId, content.id);
+    if (!analysis) continue;
+
+    analyses.push(analysis);
+    positionMap.set(analysis.contentId, chapter.position);
+    titleMap.set(analysis.contentId, chapter.title);
+  }
+
+  // Build serial settings from input
+  const serialSettings: SerialSettings | undefined = input.settings
+    ? {
+        cycleLength: 5,
+        cycleTensionTargets: [40, 60, 70, 80, 50],
+        minimumBuffer: 5,
+        releaseInterval: 2,
+        enforceHookVariety: input.settings.enforceVariety ?? true,
+        maxConsecutiveSameHook: input.settings.maxConsecutiveSameHook ?? 2,
+      }
+    : undefined;
+
+  // Call the core analysis function
+  const result = analyzeHookPatterns(analyses, positionMap, serialSettings);
+
+  // Extract data points for the result
+  const dataPoints = extractHookDataPoints(analyses, positionMap, titleMap);
+
+  // Return flat structure matching HookManagementResult interface
+  return {
+    distribution: result.analysis.distribution,
+    dataPoints,
+    varietyScore: result.analysis.varietyScore,
+    repetitionDetails: result.repetitionDetails,
+    strengthTrend: result.strengthTrend,
+    warnings: result.analysis.warnings,
+  };
 }

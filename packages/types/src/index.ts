@@ -204,6 +204,28 @@ export {
   type DormantPeriod,
   type PlotThreadTrackingData,
   type ThreadActivityHeatmap,
+  // Hook management types (Phase 5.1)
+  HookDataPointSchema,
+  StrengthTrendInfoSchema,
+  RepetitionDetailSchema,
+  HookManagementResultSchema,
+  type HookDataPoint,
+  type StrengthTrendInfo,
+  type RepetitionDetail,
+  type HookManagementResult,
+  // Cycle enforcement types (Phase 5.2)
+  CycleDataPointSchema,
+  CyclePhaseResultSchema,
+  CycleViolationSchema,
+  RebalancingSuggestionSchema,
+  CycleEnforcementStatsSchema,
+  CycleEnforcementResultSchema,
+  type CycleDataPoint,
+  type CyclePhaseResult,
+  type CycleViolation,
+  type RebalancingSuggestion,
+  type CycleEnforcementStats,
+  type CycleEnforcementResult,
 } from './analysis';
 
 // Review types

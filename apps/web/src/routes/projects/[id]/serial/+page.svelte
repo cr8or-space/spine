@@ -15,7 +15,7 @@
 
   // Get available structures for filtering
   const availableStructures = $derived(
-    data.structureTree.filter((s: Structure) => s.type === 'book' || s.type === 'arc')
+    data.allStructures.filter((s: Structure) => s.type === 'book' || s.type === 'arc')
   );
 
   // Handle structure selection
