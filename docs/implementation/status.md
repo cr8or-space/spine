@@ -272,26 +272,33 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Project context maintenance
 
 #### Phase 2: Generation
-- [ ] Workspace integration tests
-  - [ ] Structure tree creation and navigation
-  - [ ] Book/Arc/Chapter/Scene hierarchy
-  - [ ] Outline editor functionality
-  - [ ] Beat sheet management
-  - [ ] Tension target configuration
-  - [ ] Chapter type selection
-  - [ ] Hook specification
-- [ ] Generation pipeline tests
-  - [ ] Outline generation flow
-  - [ ] Beat expansion flow
-  - [ ] Draft generation flow
-  - [ ] Self-review pass
-  - [ ] Generation history tracking
-  - [ ] Stage retry functionality
-- [ ] Analysis panel tests
-  - [ ] Tension score display
-  - [ ] Hook strength display
-  - [ ] Pacing assessment display
-  - [ ] Continuity warnings display
+- [x] Workspace integration tests
+  - [x] Structure tree creation and navigation
+  - [x] Book/Arc/Chapter/Scene hierarchy
+  - [x] Outline editor functionality
+  - [x] Beat sheet management
+  - [x] Tension target configuration
+  - [x] Chapter type selection
+  - [x] Hook specification
+- [x] Generation pipeline tests
+  - [x] Content editor display
+  - [x] Manual content editing and saving
+  - [x] Draft history display
+  - [x] Version tracking
+  - [x] Content status badges
+  - [ ] Outline generation flow (requires LLM)
+  - [ ] Beat expansion flow (requires LLM)
+  - [ ] Draft generation flow (requires LLM)
+  - [ ] Self-review pass (requires LLM)
+  - [ ] Generation history tracking (requires LLM)
+  - [ ] Stage retry functionality (requires LLM)
+- [x] Analysis panel tests
+  - [x] Analysis panel display and toggle
+  - [x] Tension score UI structure
+  - [x] Hook strength UI structure
+  - [x] Pacing assessment UI structure
+  - [x] Continuity warnings UI structure
+  - [ ] Actual analysis data display (requires LLM)
 
 #### Phase 3: Review
 - [ ] Review queue tests
