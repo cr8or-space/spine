@@ -48,10 +48,15 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   if (selectedStructureId) {
     rootStructure = structureService.getWithChildren(selectedStructureId);
   } else {
-    // Default to first book in the structure tree
-    const firstBook = structureTree.find((s) => s.type === 'book');
-    if (firstBook) {
-      rootStructure = structureService.getWithChildren(firstBook.id);
+    // Default to first book - getFullTree returns the root (usually a book), not an array
+    if (structureTree && structureTree.type === 'book') {
+      rootStructure = structureTree;
+    } else {
+      // If the tree root is not a book, find the first book in all structures
+      const firstBook = allStructures.find((s) => s.type === 'book');
+      if (firstBook) {
+        rootStructure = structureService.getWithChildren(firstBook.id);
+      }
     }
   }
 

@@ -328,6 +328,8 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Quality metrics charts
   - [x] Chapter type distribution
   - [x] Structure filtering controls
+- [x] Bug fixes
+  - [x] Fix analytics page error when structureTree is accessed as array (getFullTree returns Structure, not Structure[])
 
 #### Phase 5: Serial Features
 - [x] Serial dashboard tests (serial.spec.ts)
