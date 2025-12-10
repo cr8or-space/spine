@@ -319,15 +319,15 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Cascade execution
 
 #### Phase 4: Analytics
-- [ ] Analytics dashboard tests
-  - [ ] Dashboard page display
-  - [ ] Tension curve visualization
-  - [ ] Planned vs actual tension divergence
-  - [ ] Character presence heatmap
-  - [ ] Plot thread Gantt timeline
-  - [ ] Quality metrics charts
-  - [ ] Chapter type distribution
-  - [ ] Structure filtering controls
+- [x] Analytics dashboard tests
+  - [x] Dashboard page display
+  - [x] Tension curve visualization
+  - [x] Planned vs actual tension divergence
+  - [x] Character presence heatmap
+  - [x] Plot thread Gantt timeline
+  - [x] Quality metrics charts
+  - [x] Chapter type distribution
+  - [x] Structure filtering controls
 
 #### Phase 5: Serial Features
 - [ ] Serial dashboard tests
