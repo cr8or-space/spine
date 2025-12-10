@@ -5,23 +5,6 @@ async function waitForDialogTransition(page: Page) {
 	await page.waitForTimeout(400);
 }
 
-// Helper function to interact with Select component with retry logic
-async function selectOption(page: Page, labelText: string, optionName: string, retries = 3) {
-	for (let i = 0; i < retries; i++) {
-		try {
-			const dialog = page.getByRole('dialog');
-			await dialog.getByLabel(labelText).first().click();
-			await waitForDialogTransition(page);
-			await page.getByRole('option', { name: optionName }).first().click();
-			await waitForDialogTransition(page);
-			return;
-		} catch (error) {
-			if (i === retries - 1) throw error;
-			await page.waitForTimeout(500);
-		}
-	}
-}
-
 // Helper to create a test project with content ready for review
 async function setupReviewProject(page: Page): Promise<{ projectId: string; contentId: string }> {
 	await page.goto('/');
@@ -58,7 +41,7 @@ async function setupReviewProject(page: Page): Promise<{ projectId: string; cont
 	dialog = page.getByRole('dialog');
 	await dialog.getByLabel('Title').fill('Chapter 1');
 	await dialog.getByLabel('Summary').fill('Opening chapter');
-	await selectOption(page, 'Type', 'Chapter');
+	// Note: Type defaults to "Chapter" when creating under a Book, so no need to select it
 	await dialog.getByRole('button', { name: 'Create' }).click();
 	await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=([^&]+)/);
 
@@ -672,7 +655,7 @@ test.describe('Bulk Actions', () => {
 
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 2');
-		await selectOption(page, 'Type', 'Chapter');
+		// Note: Type defaults to "Chapter" when creating under a Book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
@@ -728,7 +711,7 @@ test.describe('Bulk Actions', () => {
 
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 2');
-		await selectOption(page, 'Type', 'Chapter');
+		// Note: Type defaults to "Chapter" when creating under a Book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
@@ -794,7 +777,7 @@ test.describe('Revision Cascade', () => {
 
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 2');
-		await selectOption(page, 'Type', 'Chapter');
+		// Note: Type defaults to "Chapter" when creating under a Book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 

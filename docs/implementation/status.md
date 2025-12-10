@@ -349,7 +349,7 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Fixed navigation dialog visibility tests (waitForDialogTransition helper)
   - [x] Fixed project management dialog transitions
   - [x] Fixed settings page SQL foreign key error (use updateSettings/updateMetadata)
+  - [x] Fixed review test dialog timeout issues in setupReviewProject
+  - [x] Fixed Select component timeout issues (removed unnecessary selectOption calls)
   - [ ] Fix workspace empty state test (serial mode state persistence)
-  - [ ] Fix remaining review test dialog timeout issues in setupReviewProject
-  - [ ] Fix remaining Select component timeout issues
 
