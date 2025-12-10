@@ -53,7 +53,7 @@ test.describe('Workspace - Structure Tree', () => {
 
 	test('should display empty outline state', async ({ page }) => {
 		// Verify empty state message
-		await expect(page.getByText('No outline yet')).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'No outline yet' })).toBeVisible();
 		await expect(page.getByText('Create your first book to start planning your story.')).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Create Book' })).toBeVisible();
 	});

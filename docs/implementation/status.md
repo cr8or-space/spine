@@ -341,10 +341,15 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [ ] Mystery lifecycle tracking
 
 #### Test Infrastructure
-- [x] Test stability improvements (96% pass rate)
+- [x] Test stability improvements
   - [x] Explicit dialog transition waits
   - [x] Selector specificity improvements
   - [x] Serial test execution to avoid database conflicts
   - [x] Retry logic for Select components
-  - [ ] Fix remaining Select component timeout issues (2 tests)
+  - [x] Fixed navigation dialog visibility tests (waitForDialogTransition helper)
+  - [x] Fixed project management dialog transitions
+  - [x] Fixed settings page SQL foreign key error (use updateSettings/updateMetadata)
+  - [ ] Fix workspace empty state test (serial mode state persistence)
+  - [ ] Fix remaining review test dialog timeout issues in setupReviewProject
+  - [ ] Fix remaining Select component timeout issues
 

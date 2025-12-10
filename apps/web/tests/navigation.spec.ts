@@ -1,4 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// Helper function to wait for dialog transitions
+async function waitForDialogTransition(page: Page) {
+	await page.waitForTimeout(400); // Wait for CSS transitions and DOM updates
+}
 
 test.describe('Navigation', () => {
 	test.beforeEach(async ({ page }) => {
@@ -8,8 +13,9 @@ test.describe('Navigation', () => {
 		// Click New Project button
 		await page.getByRole('button', { name: 'New Project' }).click();
 
-		// Wait for dialog
+		// Wait for dialog and transitions
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 
 		// Fill and submit form
 		await page.getByLabel('Project Title').fill('Navigation Test Project');

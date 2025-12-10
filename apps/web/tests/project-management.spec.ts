@@ -1,4 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// Helper function to wait for dialog transitions
+async function waitForDialogTransition(page: Page) {
+	await page.waitForTimeout(400); // Wait for CSS transitions and DOM updates
+}
 
 test.describe('Project Management', () => {
 	test.beforeEach(async ({ page }) => {
@@ -27,6 +32,7 @@ test.describe('Project Management', () => {
 
 		// Wait for dialog to appear
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 
 		// Fill in project form
 		await page.getByLabel('Project Title').fill('My Test Project');
@@ -47,6 +53,7 @@ test.describe('Project Management', () => {
 		// First create a project to ensure one exists
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 		await page.getByLabel('Project Title').fill('List Test Project');
 		await page.getByRole('button', { name: 'Create Project' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/bible/);
@@ -70,6 +77,7 @@ test.describe('Project Management', () => {
 		// Create a project first
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 		await page.getByLabel('Project Title').fill('Settings Test Project');
 		await page.getByRole('button', { name: 'Create Project' }).click();
 
@@ -88,6 +96,7 @@ test.describe('Project Management', () => {
 		// Create a project first to ensure we have one
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 		await page.getByLabel('Project Title').fill('Update Settings Project');
 		await page.getByRole('button', { name: 'Create Project' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/bible/);
@@ -119,6 +128,7 @@ test.describe('Project Management', () => {
 		const uniqueName = `Delete Test ${Date.now()}`;
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 		await page.getByLabel('Project Title').fill(uniqueName);
 		await page.getByRole('button', { name: 'Create Project' }).click();
 
@@ -159,6 +169,7 @@ test.describe('Project Management', () => {
 
 		// Wait for dialog to appear
 		await expect(page.getByRole('dialog')).toBeVisible();
+		await waitForDialogTransition(page);
 		await expect(page.getByText('Create New Project')).toBeVisible();
 
 		// Fill in some data

@@ -31,23 +31,32 @@ export const actions: Actions = {
       return fail(404, { error: 'Project not found', success: false });
     }
 
-    // Update project
-    project.title = title.trim();
-    project.format = format || 'web-serial';
+    // Update project settings
+    const updatedSettings = {
+      ...project.settings,
+      title: title.trim(),
+      format: format || 'web-serial',
+    };
+
+    const updatedMetadata = {
+      ...project.metadata,
+    };
 
     if (author) {
-      project.metadata.author = author;
+      updatedMetadata.author = author;
     } else {
-      delete project.metadata.author;
+      delete updatedMetadata.author;
     }
 
     if (description) {
-      project.metadata.description = description;
+      updatedMetadata.description = description;
     } else {
-      delete project.metadata.description;
+      delete updatedMetadata.description;
     }
 
-    locals.projectService.saveProject(project);
+    // Use specific update methods instead of saveProject to avoid structure/content issues
+    locals.projectService.updateSettings(params.id, updatedSettings);
+    locals.projectService.updateMetadata(params.id, updatedMetadata);
 
     return { success: true };
   },
