@@ -12,3 +12,5 @@ export { default as Header } from './Header.svelte';
 export { default as Sidebar } from './Sidebar.svelte';
 export { default as NavItem } from './NavItem.svelte';
 export { default as StatusBar } from './StatusBar.svelte';
+export { default as TopBar } from './TopBar.svelte';
+export { default as NavRail } from './NavRail.svelte';

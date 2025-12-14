@@ -15,3 +15,8 @@ export { default as TextArea } from './TextArea.svelte';
 export { default as TextField } from './TextField.svelte';
 export { default as ValidationBadge } from './ValidationBadge.svelte';
 export { default as ValidationPanel } from './ValidationPanel.svelte';
+export { default as PageSection } from './PageSection.svelte';
+export { default as StatCard } from './StatCard.svelte';
+export { default as Drawer } from './Drawer.svelte';
+export { default as PillFilters } from './PillFilters.svelte';
+export { default as DataList } from './DataList.svelte';
