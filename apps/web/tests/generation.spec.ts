@@ -1,22 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { waitForDialogTransition } from './helpers';
-
-// Helper function to interact with Select component with retry logic
-async function selectOption(page: Page, labelText: string, optionName: string, retries = 3) {
-	for (let i = 0; i < retries; i++) {
-		try {
-			const dialog = page.getByRole('dialog');
-			await dialog.getByLabel(labelText).first().click();
-			await waitForDialogTransition(page);
-			await page.getByRole('option', { name: optionName }).first().click();
-			await waitForDialogTransition(page);
-			return;
-		} catch (error) {
-			if (i === retries - 1) throw error;
-			await page.waitForTimeout(500);
-		}
-	}
-}
+import { waitForDialogTransition, selectOption } from './helpers';
 
 test.describe('Generation Pipeline', () => {
 	test.describe.configure({ mode: 'serial' });

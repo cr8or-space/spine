@@ -31,8 +31,12 @@ test.describe('Workspace - Structure Tree', () => {
 	});
 
 	test('should display empty outline state', async ({ page }) => {
+		// Wait for the page to fully load
+		await page.waitForLoadState('networkidle');
+		
 		// Verify empty state message
-		await expect(page.getByText('No outline yet')).toBeVisible({ timeout: 10000 });
+		const emptyStateTitle = page.getByText('No outline yet');
+		await expect(emptyStateTitle).toBeVisible({ timeout: 10000 });
 		await expect(page.getByText(/create your first book/i)).toBeVisible();
 		await expect(page.getByRole('button', { name: /create book/i })).toBeVisible();
 	});
