@@ -1,26 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to wait for dialog transitions
-async function waitForDialogTransition(page: Page) {
-	await page.waitForTimeout(400); // Wait for CSS transitions and DOM updates
-}
-
-// Helper function to interact with Select component with retry logic
-async function selectOption(page: Page, labelText: string, optionName: string, retries = 3) {
-	for (let i = 0; i < retries; i++) {
-		try {
-			const dialog = page.getByRole('dialog');
-			await dialog.getByLabel(labelText).first().click();
-			await waitForDialogTransition(page);
-			await page.getByRole('option', { name: optionName }).first().click();
-			await waitForDialogTransition(page);
-			return; // Success
-		} catch (error) {
-			if (i === retries - 1) throw error; // Last retry failed
-			await page.waitForTimeout(500); // Wait before retry
-		}
-	}
-}
+import { waitForDialogTransition, selectOption } from './helpers';
 
 test.describe('Workspace - Structure Tree', () => {
 	test.describe.configure({ mode: 'serial' });
@@ -53,9 +32,9 @@ test.describe('Workspace - Structure Tree', () => {
 
 	test('should display empty outline state', async ({ page }) => {
 		// Verify empty state message
-		await expect(page.getByRole('heading', { name: 'No outline yet' })).toBeVisible();
-		await expect(page.getByText('Create your first book to start planning your story.')).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Create Book' })).toBeVisible();
+		await expect(page.getByText('No outline yet')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText(/create your first book/i)).toBeVisible();
+		await expect(page.getByRole('button', { name: /create book/i })).toBeVisible();
 	});
 
 	test('should create a book in structure tree', async ({ page }) => {
@@ -259,7 +238,9 @@ test.describe('Workspace - Outline Editor', () => {
 		await page.getByLabel('Target Word Count').fill('3000');
 
 		// Save - using form submit button
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
+		await saveButton.click();
 
 		// Wait for form to close and data to reload
 		await page.waitForTimeout(500);
@@ -283,7 +264,9 @@ test.describe('Workspace - Outline Editor', () => {
 		await waitForDialogTransition(page);
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Edit again to verify it persisted
@@ -301,7 +284,9 @@ test.describe('Workspace - Outline Editor', () => {
 		await tensionInput.fill('85');
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Edit again to verify

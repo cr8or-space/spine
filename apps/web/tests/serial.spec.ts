@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to wait for dialog transitions
-async function waitForDialogTransition(page: Page) {
-	await page.waitForTimeout(400);
-}
+import { waitForDialogTransition } from './helpers';
 
 // Helper to create a project with structure and content for serial analytics
 async function setupSerialProject(page: Page): Promise<{ projectId: string; bookId: string }> {
@@ -49,8 +45,12 @@ async function setupSerialProject(page: Page): Promise<{ projectId: string; book
 
 	// Add content to Chapter 1
 	const contentTextarea = page.locator('textarea').last();
+	await contentTextarea.waitFor({ state: 'visible' });
 	await contentTextarea.fill('Chapter 1 content with some text.');
-	await page.getByRole('button', { name: 'Save' }).click();
+	// Wait for Save button to become enabled (it's disabled until content changes)
+	const saveButton = page.getByRole('button', { name: 'Save' });
+	await expect(saveButton).toBeEnabled({ timeout: 10000 });
+	await saveButton.click();
 	await page.waitForTimeout(500);
 
 	// Go back to book to create Chapter 2
@@ -70,8 +70,12 @@ async function setupSerialProject(page: Page): Promise<{ projectId: string; book
 	await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
 	// Add content to Chapter 2
+	await contentTextarea.waitFor({ state: 'visible' });
 	await contentTextarea.fill('Chapter 2 content with more text.');
-	await page.getByRole('button', { name: 'Save' }).click();
+	// Wait for Save button to become enabled (it's disabled until content changes)
+	const saveButton2 = page.getByRole('button', { name: 'Save' });
+	await expect(saveButton2).toBeEnabled({ timeout: 10000 });
+	await saveButton2.click();
 	await page.waitForTimeout(500);
 
 	return { projectId, bookId };

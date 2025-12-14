@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to wait for dialog transitions
-async function waitForDialogTransition(page: Page) {
-	await page.waitForTimeout(400); // Wait for CSS transitions and DOM updates
-}
+import { waitForDialogTransition } from './helpers';
 
 test.describe('Project Management', () => {
 	test.beforeEach(async ({ page }) => {

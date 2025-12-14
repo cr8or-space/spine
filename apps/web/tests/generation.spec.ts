@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to wait for dialog transitions
-async function waitForDialogTransition(page: Page) {
-	await page.waitForTimeout(400);
-}
+import { waitForDialogTransition } from './helpers';
 
 // Helper function to interact with Select component with retry logic
 async function selectOption(page: Page, labelText: string, optionName: string, retries = 3) {
@@ -174,7 +170,9 @@ test.describe('Generation Pipeline', () => {
 		await contentTextarea.fill('Manual content that should persist.');
 
 		// Save
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Reload page
@@ -220,7 +218,9 @@ test.describe('Generation Pipeline', () => {
 		// After creating content, status badge should appear
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Test content');
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Reload to see status
@@ -236,7 +236,9 @@ test.describe('Generation Pipeline', () => {
 		// Create and save content
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Version 1 content');
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Reload
@@ -292,7 +294,9 @@ test.describe('Analysis Panel', () => {
 		// Add some content for analysis
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('This is test content for analysis. It has some tension and pacing.');
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 	});
 
@@ -430,7 +434,9 @@ test.describe('Generation History Tracking', () => {
 		// Create content
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('First version of content');
-		await page.getByRole('button', { name: 'Save' }).click();
+		const saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Open history
@@ -447,12 +453,16 @@ test.describe('Generation History Tracking', () => {
 		// Create first version
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Version 1');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Edit and create second version
 		await contentTextarea.fill('Version 2 with changes');
-		await page.getByRole('button', { name: 'Save' }).click();
+		saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Open history
@@ -469,11 +479,15 @@ test.describe('Generation History Tracking', () => {
 		// Create versions
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('First version content');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		await contentTextarea.fill('Second version content');
-		await page.getByRole('button', { name: 'Save' }).click();
+		saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Open history

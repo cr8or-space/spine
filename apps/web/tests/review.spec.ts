@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to wait for dialog transitions
-async function waitForDialogTransition(page: Page) {
-	await page.waitForTimeout(400);
-}
+import { waitForDialogTransition } from './helpers';
 
 // Helper to create a test project with content ready for review
 async function setupReviewProject(page: Page): Promise<{ projectId: string; contentId: string }> {
@@ -49,12 +45,16 @@ async function setupReviewProject(page: Page): Promise<{ projectId: string; cont
 
 	// Add content to review
 	const contentTextarea = page.locator('textarea').last();
+	await contentTextarea.waitFor({ state: 'visible' });
 	await contentTextarea.fill(
 		'This is the first paragraph of the chapter. It sets the scene.\n\n' +
 			'This is the second paragraph with more details.\n\n' +
 			'This is the third paragraph that advances the plot.'
 	);
-	await page.getByRole('button', { name: 'Save' }).click();
+	// Wait for Save button to become enabled (it's disabled until content changes)
+	const saveButton = page.getByRole('button', { name: 'Save' });
+	await expect(saveButton).toBeEnabled({ timeout: 10000 });
+	await saveButton.click();
 	await page.waitForTimeout(500);
 
 	return { projectId, contentId };
@@ -508,7 +508,9 @@ test.describe('Diff View', () => {
 				'This is the second paragraph with more details.\n\n' +
 				'This is an entirely NEW third paragraph.'
 		);
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Go to review page
@@ -530,7 +532,9 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Modified content for diff testing.\n\nSecond paragraph here.');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/review/${contentId}`);
@@ -552,7 +556,9 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('COMPLETELY NEW CONTENT that is different.');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/review/${contentId}`);
@@ -575,7 +581,9 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Changed text for statistics.');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/review/${contentId}`);
@@ -662,7 +670,9 @@ test.describe('Bulk Actions', () => {
 		// Add content to second chapter
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Content for chapter 2');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Go to review queue
@@ -717,7 +727,9 @@ test.describe('Bulk Actions', () => {
 
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Content 2');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Go to review queue
@@ -783,7 +795,9 @@ test.describe('Revision Cascade', () => {
 
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('This chapter references events from Chapter 1');
-		await page.getByRole('button', { name: 'Save' }).click();
+		let saveButton = page.getByRole('button', { name: 'Save' });
+		await expect(saveButton).toBeEnabled({ timeout: 10000 });
+		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Go back to Chapter 1 review
