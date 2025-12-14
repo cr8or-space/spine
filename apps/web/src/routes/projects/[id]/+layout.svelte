@@ -3,7 +3,7 @@
   import type { Snippet } from 'svelte';
   import { page } from '$app/stores';
   import { ArrowLeft, BookOpen, SquarePen, Settings, ClipboardCheck, BarChart3, Radio } from 'lucide-svelte';
-  import { cn } from '$lib/utils/cn';
+  import { AppShell, NavRail, TopBar, NavItem } from '$lib/shell';
 
   interface Props {
     data: LayoutData;
@@ -13,12 +13,12 @@
   let { data, children }: Props = $props();
 
   const navItems = $derived([
-    { href: `/projects/${data.project.id}/bible`, label: 'Bible', icon: 'book' },
-    { href: `/projects/${data.project.id}/workspace`, label: 'Workspace', icon: 'edit' },
-    { href: `/projects/${data.project.id}/review`, label: 'Review', icon: 'review' },
-    { href: `/projects/${data.project.id}/analytics`, label: 'Analytics', icon: 'analytics' },
-    { href: `/projects/${data.project.id}/serial`, label: 'Serial', icon: 'serial' },
-    { href: `/projects/${data.project.id}/settings`, label: 'Settings', icon: 'settings' },
+    { href: `/projects/${data.project.id}/bible`, label: 'Bible', icon: BookOpen },
+    { href: `/projects/${data.project.id}/workspace`, label: 'Workspace', icon: SquarePen },
+    { href: `/projects/${data.project.id}/review`, label: 'Review', icon: ClipboardCheck },
+    { href: `/projects/${data.project.id}/analytics`, label: 'Analytics', icon: BarChart3 },
+    { href: `/projects/${data.project.id}/serial`, label: 'Serial', icon: Radio },
+    { href: `/projects/${data.project.id}/settings`, label: 'Settings', icon: Settings },
   ]);
 
   function isActive(href: string): boolean {
@@ -26,51 +26,51 @@
   }
 </script>
 
-<div class="min-h-screen flex flex-col">
-  <header class="flex items-center justify-between gap-4 px-4 h-14 bg-surface border-b border-border">
-    <div class="flex items-center gap-3">
-      <a
-        href="/"
-        class="back-link flex items-center justify-center w-9 h-9 rounded-md text-text-secondary transition-all duration-150 hover:bg-surface-hover hover:text-text"
-        title="Back to projects"
-      >
-        <ArrowLeft size={20} />
-      </a>
-      <div class="flex items-center gap-2">
-        <h1 class="project-title text-lg font-semibold m-0">{data.project.title}</h1>
-      </div>
-    </div>
+<AppShell class="bg-transparent">
+  <div class="flex min-h-screen">
+    <NavRail>
+      {#snippet header()}
+        <div class="flex items-center gap-2">
+          <a
+            href="/"
+            class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-colors"
+            aria-label="Back to projects"
+            title="Back to projects"
+          >
+            <ArrowLeft size={18} />
+          </a>
+          <div class="flex flex-col min-w-0">
+            <span class="text-sm font-semibold text-text truncate">{data.project.title}</span>
+            <span class="text-xs text-text-tertiary truncate">Project</span>
+          </div>
+        </div>
+      {/snippet}
 
-    <nav class="flex gap-1">
       {#each navItems as item}
-        <a
-          href={item.href}
-          class={cn(
-            'nav-item flex items-center gap-2 py-2 px-4 text-sm font-medium text-text-secondary no-underline rounded-md transition-all duration-150',
-            'hover:bg-surface-hover hover:text-text',
-            isActive(item.href) && 'active bg-primary-light text-primary'
-          )}
-        >
-          {#if item.icon === 'book'}
-            <BookOpen size={18} />
-          {:else if item.icon === 'edit'}
-            <SquarePen size={18} />
-          {:else if item.icon === 'review'}
-            <ClipboardCheck size={18} />
-          {:else if item.icon === 'analytics'}
-            <BarChart3 size={18} />
-          {:else if item.icon === 'serial'}
-            <Radio size={18} />
-          {:else if item.icon === 'settings'}
-            <Settings size={18} />
-          {/if}
-          {item.label}
-        </a>
+        <NavItem href={item.href} active={isActive(item.href)} class="w-full">
+          {#snippet children()}
+            <span class="flex items-center gap-2">
+              <item.icon size={18} />
+              <span>{item.label}</span>
+            </span>
+          {/snippet}
+        </NavItem>
       {/each}
-    </nav>
-  </header>
+    </NavRail>
 
-  <main class="flex-1 flex flex-col">
-    {@render children()}
-  </main>
-</div>
+    <div class="flex-1 flex flex-col min-w-0">
+      <TopBar>
+        {#snippet left()}
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-text-secondary">Project</span>
+            <span class="text-base font-semibold text-text truncate">{data.project.title}</span>
+          </div>
+        {/snippet}
+      </TopBar>
+
+      <main class="flex-1 flex flex-col">
+        {@render children()}
+      </main>
+    </div>
+  </div>
+</AppShell>

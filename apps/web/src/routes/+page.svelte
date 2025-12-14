@@ -3,6 +3,7 @@
   import type { PageData, ActionData } from './$types';
   import type { ProjectFormat } from '@repo/types';
   import { Button, Card, Dialog, TextField, Select, TextArea, EmptyState, ConfirmDialog } from '$lib/components';
+  import { AppShell, TopBar } from '$lib/shell';
   import { Plus, BookOpen, Type, Settings, Trash2 } from 'lucide-svelte';
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -81,83 +82,104 @@
   <title>Spine - Projects</title>
 </svelte:head>
 
-<div class="min-h-screen flex flex-col">
-  <header class="bg-surface border-b border-border py-8 px-4">
-    <div class="max-w-7xl mx-auto text-center">
-      <h1 class="logo text-3xl font-bold text-primary m-0">Spine</h1>
-      <p class="text-base text-text-secondary mt-2">AI-assisted web serial creation</p>
-    </div>
-  </header>
+<AppShell class="bg-transparent">
+  <div class="min-h-screen flex flex-col">
+    <TopBar>
+      {#snippet left()}
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-md bg-primary-light/40 text-primary flex items-center justify-center font-semibold">
+            S
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-text-tertiary m-0">Spine</p>
+            <p class="text-sm font-semibold text-text m-0">Projects</p>
+          </div>
+        </div>
+      {/snippet}
 
-  <main class="flex-1 max-w-7xl w-full mx-auto py-8 px-4">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-semibold m-0">Projects</h2>
-      <Button onclick={openCreateDialog}>
-        <Plus size={16} />
-        New Project
-      </Button>
-    </div>
+      {#snippet right()}
+        <Button onclick={openCreateDialog}>
+          <Plus size={16} />
+          New Project
+        </Button>
+      {/snippet}
+    </TopBar>
 
-    {#if data.projects.length === 0}
-      <EmptyState
-        title="No projects yet"
-        description="Create your first project to start writing your web serial with AI assistance."
-      >
-        {#snippet action()}
-          <Button onclick={openCreateDialog}>Create Your First Project</Button>
-        {/snippet}
-      </EmptyState>
-    {:else}
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
-        {#each data.projects as project}
-          <Card hover padding="none">
-            <a href="/projects/{project.id}/bible" class="project-link block no-underline text-inherit">
-              <div class="p-4">
-                <div class="flex items-start justify-between gap-2 mb-3">
-                  <h3 class="project-title text-lg font-semibold m-0 text-text">{project.title}</h3>
-                  <span class="text-xs text-text-secondary bg-bg-tertiary py-1 px-2 rounded-sm whitespace-nowrap">
-                    {getFormatLabel(project.format)}
-                  </span>
-                </div>
-
-                <div class="project-stats flex gap-4 mb-3">
-                  <span class="flex items-center gap-1 text-sm text-text-secondary">
-                    <BookOpen size={14} />
-                    {project.chapterCount} chapters
-                  </span>
-                  <span class="flex items-center gap-1 text-sm text-text-secondary">
-                    <Type size={14} />
-                    {formatWordCount(project.wordCount)} words
-                  </span>
-                </div>
-
-                <div class="text-xs text-text-tertiary">
-                  Last modified {formatDate(project.lastModified)}
-                </div>
-              </div>
-            </a>
-            <div class="flex gap-1 py-2 px-4 border-t border-border-light bg-bg-secondary">
-              <a
-                href="/projects/{project.id}/settings"
-                class="action-btn flex items-center justify-center w-8 h-8 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
-                title="Settings"
-              >
-                <Settings size={16} />
-              </a>
-              <button
-                class="action-btn danger flex items-center justify-center w-8 h-8 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light hover:text-danger transition-all duration-150"
-                title="Delete"
-                onclick={() => openDeleteConfirm(project.id, project.title)}
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          </Card>
-        {/each}
+    <main class="flex-1 max-w-6xl w-full mx-auto py-10 px-6 space-y-6">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="space-y-1">
+          <h1 class="text-2xl font-semibold m-0">Your projects</h1>
+          <p class="text-sm text-text-secondary m-0">Create, continue, or manage your serials.</p>
+        </div>
+        {#if data.projects.length > 0}
+          <Button variant="secondary" onclick={openCreateDialog}>
+            <Plus size={14} />
+            Create
+          </Button>
+        {/if}
       </div>
-    {/if}
-  </main>
-</div>
+
+      {#if data.projects.length === 0}
+        <EmptyState
+          title="No projects yet"
+          description="Create your first project to start writing your web serial with AI assistance."
+        >
+          {#snippet action()}
+            <Button onclick={openCreateDialog}>Create Your First Project</Button>
+          {/snippet}
+        </EmptyState>
+      {:else}
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+          {#each data.projects as project}
+            <Card hover padding="none" class="border-border bg-surface/90">
+              <a href="/projects/{project.id}/bible" class="project-link block no-underline text-inherit">
+                <div class="p-4 space-y-3">
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="project-title text-lg font-semibold m-0 text-text truncate">{project.title}</h3>
+                    <span class="text-xs text-text-secondary bg-surface-hover py-1 px-2 rounded-sm whitespace-nowrap border border-border">
+                      {getFormatLabel(project.format)}
+                    </span>
+                  </div>
+
+                  <div class="project-stats flex gap-4 text-sm text-text-secondary">
+                    <span class="flex items-center gap-1">
+                      <BookOpen size={14} />
+                      {project.chapterCount} chapters
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <Type size={14} />
+                      {formatWordCount(project.wordCount)} words
+                    </span>
+                  </div>
+
+                  <div class="text-xs text-text-tertiary">
+                    Last modified {formatDate(project.lastModified)}
+                  </div>
+                </div>
+              </a>
+              <div class="flex gap-1 py-2 px-4 border-t border-border bg-surface-muted">
+                <a
+                  href="/projects/{project.id}/settings"
+                  class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
+                  title="Settings"
+                >
+                  <Settings size={16} />
+                </a>
+                <button
+                  class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light/40 hover:text-danger transition-all duration-150"
+                  title="Delete"
+                  onclick={() => openDeleteConfirm(project.id, project.title)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </Card>
+          {/each}
+        </div>
+      {/if}
+    </main>
+  </div>
+</AppShell>
 
 <!-- Create Project Dialog -->
 <Dialog open={showCreateDialog} title="Create New Project" onClose={closeCreateDialog}>
