@@ -35,7 +35,7 @@
     className
   )}
 >
-  {(title || description || actions) && (
+  {#if title || description || actions}
     <header class={cn('flex items-start gap-3 mb-4', padding === 'none' && 'px-5 pt-5')}>
       <div class="flex-1 min-w-0">
         {#if title}
@@ -49,7 +49,7 @@
         <div class="flex items-center gap-2 shrink-0">{@render actions()}</div>
       {/if}
     </header>
-  )}
+  {/if}
 
   <div class={cn(padding === 'none' ? 'px-5 pb-5' : '')}>{@render children()}</div>
 </section>

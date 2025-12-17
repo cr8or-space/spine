@@ -45,10 +45,14 @@
 <div class={cn('fixed inset-0 z-40', open ? 'pointer-events-auto' : 'pointer-events-none')} aria-hidden={!open}>
   <div
     class={cn('absolute inset-0 bg-black/40 transition-opacity', open ? 'opacity-100' : 'opacity-0')}
-    onclick={handleClose}
-  />
+    on:click={handleClose}
+    role="button"
+    tabindex="0"
+    on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') handleClose(); }}
+    aria-label="Close overlay"
+  ></div>
 
-  <aside
+  <div
     class={cn(
       'absolute top-0 h-full bg-surface shadow-md border-l border-border w-full max-w-[90vw]',
       'transition-transform duration-300 ease-in-out backdrop-blur',
@@ -73,7 +77,7 @@
           <button
             type="button"
             class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-colors"
-            onclick={handleClose}
+            on:click={handleClose}
             aria-label="Close panel"
           >
             <X size={18} />
@@ -89,5 +93,5 @@
         <div class="border-t border-border p-4 bg-surface/90">{@render footer()}</div>
       {/if}
     </div>
-  </aside>
+  </div>
 </div>
