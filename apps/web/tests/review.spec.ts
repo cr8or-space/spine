@@ -508,7 +508,7 @@ test.describe('Diff View', () => {
 				'This is the second paragraph with more details.\n\n' +
 				'This is an entirely NEW third paragraph.'
 		);
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -532,7 +532,7 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Modified content for diff testing.\n\nSecond paragraph here.');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -556,7 +556,7 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('COMPLETELY NEW CONTENT that is different.');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -581,7 +581,7 @@ test.describe('Diff View', () => {
 		await page.goto(`/projects/${projectId}/workspace?structure=${contentId}`);
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Changed text for statistics.');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -670,7 +670,7 @@ test.describe('Bulk Actions', () => {
 		// Add content to second chapter
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Content for chapter 2');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -727,7 +727,7 @@ test.describe('Bulk Actions', () => {
 
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Content 2');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -795,7 +795,7 @@ test.describe('Revision Cascade', () => {
 
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('This chapter references events from Chapter 1');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save' });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);

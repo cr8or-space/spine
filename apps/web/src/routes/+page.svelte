@@ -91,7 +91,7 @@
             S
           </div>
           <div>
-            <p class="text-xs uppercase tracking-wide text-text-tertiary m-0">Spine</p>
+            <p class="logo text-xs uppercase tracking-wide text-text-tertiary m-0">Spine</p>
             <p class="text-sm font-semibold text-text m-0">Projects</p>
           </div>
         </div>
@@ -131,7 +131,7 @@
       {:else}
         <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
           {#each data.projects as project}
-            <Card hover padding="none" class="border-border bg-surface/90">
+            <Card hover padding="none" class="border-border bg-surface/90" data-project-card={project.id}>
               <a href="/projects/{project.id}/bible" class="project-link block no-underline text-inherit">
                 <div class="p-4 space-y-3">
                   <div class="flex items-start justify-between gap-2">
@@ -160,13 +160,13 @@
               <div class="flex gap-1 py-2 px-4 border-t border-border bg-surface-muted">
                 <a
                   href="/projects/{project.id}/settings"
-                  class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
+                  class="action-btn flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-all duration-150 no-underline"
                   title="Settings"
                 >
                   <Settings size={16} />
                 </a>
                 <button
-                  class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light/40 hover:text-danger transition-all duration-150"
+                  class="action-btn danger flex items-center justify-center w-9 h-9 rounded-md text-text-secondary bg-transparent border-none cursor-pointer hover:bg-danger-light/40 hover:text-danger transition-all duration-150"
                   title="Delete"
                   onclick={() => openDeleteConfirm(project.id, project.title)}
                 >

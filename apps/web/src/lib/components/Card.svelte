@@ -1,15 +1,17 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils/cn';
 
-  interface Props {
+  interface Props extends HTMLAttributes<HTMLDivElement> {
     padding?: 'none' | 'sm' | 'md' | 'lg';
     hover?: boolean;
     children: Snippet;
     class?: string;
   }
 
-  let { padding = 'md', hover = false, children, class: className }: Props = $props();
+  // svelte-ignore custom_element_props_identifier
+  let { padding = 'md', hover = false, children, class: className, ...rest }: Props = $props();
 
   const baseClasses = 'bg-surface border border-border rounded-lg';
 
@@ -27,6 +29,6 @@
   );
 </script>
 
-<div class={cn(baseClasses, paddingClasses[padding], hoverClasses, className)}>
+<div class={cn(baseClasses, paddingClasses[padding], hoverClasses, className)} {...rest}>
   {@render children()}
 </div>

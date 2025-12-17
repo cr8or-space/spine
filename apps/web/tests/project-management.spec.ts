@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { waitForDialogTransition } from './helpers';
 
 test.describe('Project Management', () => {
@@ -139,9 +139,9 @@ test.describe('Project Management', () => {
 		await expect(projectCard).toBeVisible();
 
 		// Find and click delete button for our specific project
-		// The Card component has bg-surface class, so use that
-		const cardContainer = page.locator('.bg-surface').filter({ hasText: uniqueName });
-		const deleteBtn = cardContainer.locator('button.action-btn.danger');
+		// Find the card container that contains our project and locate the delete button within it
+		const cardWithProject = page.locator('[data-project-card]').filter({ hasText: uniqueName });
+		const deleteBtn = cardWithProject.locator('button[title="Delete"]');
 		await deleteBtn.click();
 
 		// Wait for confirmation dialog to appear

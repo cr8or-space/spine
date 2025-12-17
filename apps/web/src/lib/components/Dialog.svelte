@@ -51,6 +51,8 @@
       class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface rounded-xl shadow-lg w-[calc(100%-2rem)] max-w-[480px] max-h-[calc(100vh-2rem)] flex flex-col z-[1001] animate-[dialogIn_0.2s_ease-out]"
       interactOutsideBehavior={closeOnBackdropClick ? 'close' : 'ignore'}
       escapeKeydownBehavior={closeOnEscape ? 'close' : 'ignore'}
+      role="dialog"
+      aria-modal="true"
     >
       <header class="flex items-center justify-between px-6 py-4 border-b border-border">
         <Dialog.Title class="text-lg font-semibold m-0">{title}</Dialog.Title>

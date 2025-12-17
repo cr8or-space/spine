@@ -23,11 +23,12 @@
 <a
   {href}
   class={cn(
-    'flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-secondary no-underline rounded-md transition-all duration-150',
+    'nav-item flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-secondary no-underline rounded-md transition-all duration-150',
     'hover:bg-surface-hover hover:text-text',
-    active && 'bg-primary-light text-primary',
+    active && 'active bg-primary-light text-primary',
     className
   )}
+  data-testid="nav-item"
 >
   {#if icon}
     <span class="flex items-center justify-center w-[18px] h-[18px]">

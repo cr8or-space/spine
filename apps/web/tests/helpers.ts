@@ -44,7 +44,7 @@ export async function selectOption(
 			
 			// Find the option - it renders in a portal outside the dialog
 			// Try multiple strategies to find it
-			let option = page.getByRole('option', { name: optionName, exact: false }).first();
+			const option = page.getByRole('option', { name: optionName, exact: false }).first();
 			
 			// Wait for it to appear
 			await option.waitFor({ state: 'visible', timeout: 10000 });

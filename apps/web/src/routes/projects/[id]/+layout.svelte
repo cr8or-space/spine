@@ -33,14 +33,15 @@
         <div class="flex items-center gap-2">
           <a
             href="/"
-            class="flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-colors"
+            class="back-link flex items-center justify-center w-9 h-9 rounded-md text-text-secondary hover:bg-surface-hover hover:text-text transition-colors"
             aria-label="Back to projects"
             title="Back to projects"
+            data-testid="back-to-projects"
           >
             <ArrowLeft size={18} />
           </a>
           <div class="flex flex-col min-w-0">
-            <span class="text-sm font-semibold text-text truncate">{data.project.title}</span>
+            <span class="project-title text-sm font-semibold text-text truncate" data-testid="project-title">{data.project.title}</span>
             <span class="text-xs text-text-tertiary truncate">Project</span>
           </div>
         </div>
