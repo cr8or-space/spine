@@ -1,6 +1,7 @@
 export { default as Badge } from './Badge.svelte';
 export { default as Button } from './Button.svelte';
 export { default as Card } from './Card.svelte';
+export { default as CommandPalette } from './CommandPalette.svelte';
 export { default as ConfirmDialog } from './ConfirmDialog.svelte';
 export { default as CreateEntityDialog } from './CreateEntityDialog.svelte';
 export { default as Dialog } from './Dialog.svelte';

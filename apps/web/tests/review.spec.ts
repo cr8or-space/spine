@@ -36,23 +36,35 @@ async function setupReviewProject(page: Page): Promise<{ projectId: string; cont
 
 	// Add content to review
 	// Wait for page to stabilize after chapter creation
-	await page.waitForTimeout(500);
+	await page.waitForTimeout(1000);
+
+	// Wait for Content section header to be visible, indicating the editor is ready
+	await expect(page.getByRole('heading', { name: 'Content' })).toBeVisible({ timeout: 10000 });
+
 	const contentTextarea = page.locator('textarea').last();
-	await contentTextarea.waitFor({ state: 'visible' });
+	await contentTextarea.waitFor({ state: 'visible', timeout: 10000 });
+
 	// Click to focus first, then fill
 	await contentTextarea.click();
+	await page.waitForTimeout(200);
+
+	// Clear any existing content and fill with new content
 	await contentTextarea.fill(
 		'This is the first paragraph of the chapter. It sets the scene.\n\n' +
 			'This is the second paragraph with more details.\n\n' +
 			'This is the third paragraph that advances the plot.'
 	);
+
 	// Wait for Svelte reactivity to update isDirty state
-	await page.waitForTimeout(300);
+	await page.waitForTimeout(500);
+
 	// Wait for Save button to become enabled (it's disabled until content changes)
 	const saveButton = page.getByRole('button', { name: 'Save', exact: true });
-	await expect(saveButton).toBeEnabled({ timeout: 10000 });
+	await expect(saveButton).toBeEnabled({ timeout: 15000 });
 	await saveButton.click();
-	await page.waitForTimeout(500);
+
+	// Wait for save to complete and state to stabilize
+	await page.waitForTimeout(1000);
 
 	return { projectId, contentId };
 }

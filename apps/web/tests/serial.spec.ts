@@ -111,15 +111,15 @@ test.describe('Serial Dashboard', () => {
 		await expect(page.getByText(/viewing serial analytics for/i)).toBeVisible();
 	});
 
-	test('should show empty state when no structure exists', async ({ page }) => {
-		// Create project without structure
+	test('should show auto-created book when project is new', async ({ page }) => {
+		// Create a fresh project - it will auto-create a book with project title
 		await page.goto('/');
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		const dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Project Title').fill('Empty Serial Project');
+		await dialog.getByLabel('Project Title').fill('New Serial Project');
 		await dialog.getByRole('button', { name: 'Create Project' }).click();
 		await page.waitForURL(/\/projects\/([^/]+)\/bible/);
 
@@ -128,11 +128,11 @@ test.describe('Serial Dashboard', () => {
 		// Navigate to serial dashboard
 		await page.goto(`/projects/${projectId}/serial`);
 
-		// Should show empty state
-		await expect(page.getByRole('heading', { name: /no structure available/i })).toBeVisible();
-		await expect(
-			page.getByText(/create a book or arc structure in the workspace/i)
-		).toBeVisible();
+		// Should show the auto-created book (project title becomes book name)
+		// The structure selector should have the auto-created book
+		const structureSelect = page.locator('#structure-select, select.structure-select').first();
+		await expect(structureSelect).toBeVisible();
+		await expect(structureSelect.locator('option')).toHaveCount(1);
 	});
 
 	test('should allow changing structure filter', async ({ page }) => {
@@ -384,8 +384,10 @@ test.describe('Mystery Board', () => {
 
 		// Create a mystery-type plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
+		await page.waitForTimeout(500);
 
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		// Button is either "New Thread" (in header) or "Create Thread" (in empty state)
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -395,7 +397,7 @@ test.describe('Mystery Board', () => {
 		await dialog.getByLabel('Description').fill('A mystery to solve');
 		// Note: We'd need to set type to 'mystery', but the form might not have that field
 		// For now, we'll test the UI structure
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		// Go to serial dashboard
@@ -419,7 +421,8 @@ test.describe('Mystery Board', () => {
 
 		// Create a plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		await page.waitForTimeout(500);
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -427,7 +430,7 @@ test.describe('Mystery Board', () => {
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Name').fill('Another Mystery');
 		await dialog.getByLabel('Description').fill('Clue tracking');
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/serial`);
@@ -491,13 +494,15 @@ test.describe('Serial Dashboard Navigation', () => {
 		// Navigate with structure filter
 		await page.goto(`/projects/${projectId}/serial?structure=${bookId}`);
 
-		// Should show the selected book (auto-created from project title)
-		await expect(page.getByText(/serial test project/i)).toBeVisible();
-
 		// Structure selector should have the correct value
 		const structureSelect = page.locator('#structure-select, select.structure-select').first();
+		await expect(structureSelect).toBeVisible();
 		const selectedValue = await structureSelect.inputValue();
 		expect(selectedValue).toBe(bookId);
+
+		// The selected option in the dropdown should contain the project name
+		const selectedOption = structureSelect.locator('option:checked');
+		await expect(selectedOption).toContainText(/serial test project/i);
 	});
 
 	test('should default to first book when no structure specified', async ({ page }) => {
@@ -506,12 +511,14 @@ test.describe('Serial Dashboard Navigation', () => {
 		// Navigate without structure parameter
 		await page.goto(`/projects/${projectId}/serial`);
 
-		// Should automatically select first book (auto-created from project title)
-		await expect(page.getByText(/serial test project/i)).toBeVisible();
-
-		// Structure selector should have a value selected
+		// Structure selector should have a value selected (auto-selects first book)
 		const structureSelect = page.locator('#structure-select, select.structure-select').first();
+		await expect(structureSelect).toBeVisible();
 		const selectedValue = await structureSelect.inputValue();
 		expect(selectedValue).toBeTruthy();
+
+		// The selected option should contain the project name
+		const selectedOption = structureSelect.locator('option:checked');
+		await expect(selectedOption).toContainText(/serial test project/i);
 	});
 });

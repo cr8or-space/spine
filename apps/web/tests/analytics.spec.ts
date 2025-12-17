@@ -136,15 +136,15 @@ test.describe('Analytics Dashboard', () => {
 		expect(optionCount).toBeGreaterThanOrEqual(2);
 	});
 
-	test('should show empty state when no structure exists', async ({ page }) => {
-		// Create project without structure
+	test('should show auto-created book when project is new', async ({ page }) => {
+		// Create a fresh project - it will auto-create a book with project title
 		await page.goto('/');
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		const dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Project Title').fill('Empty Analytics Project');
+		await dialog.getByLabel('Project Title').fill('New Analytics Project');
 		await dialog.getByRole('button', { name: 'Create Project' }).click();
 		await page.waitForURL(/\/projects\/([^/]+)\/bible/);
 
@@ -153,11 +153,11 @@ test.describe('Analytics Dashboard', () => {
 		// Navigate to analytics
 		await page.goto(`/projects/${projectId}/analytics`);
 
-		// Should show empty state
-		await expect(page.getByRole('heading', { name: /no structure available/i })).toBeVisible();
-		await expect(
-			page.getByText(/create a book or arc structure in the workspace/i)
-		).toBeVisible();
+		// Should show the auto-created book (project title becomes book name)
+		// The structure selector should have the auto-created book
+		const structureSelect = page.locator('#structure-select, select.structure-select').first();
+		await expect(structureSelect).toBeVisible();
+		await expect(structureSelect.locator('option')).toHaveCount(1);
 	});
 
 	test('should display analytics sections when data exists', async ({ page }) => {
@@ -418,7 +418,11 @@ test.describe('Plot Thread Timeline', () => {
 		// Create a plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
 
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		// Wait for tab to be active and loaded
+		await page.waitForTimeout(500);
+
+		// Button is either "New Thread" (in header) or "Create Thread" (in empty state)
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -426,7 +430,7 @@ test.describe('Plot Thread Timeline', () => {
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Name').fill('Main Quest');
 		await dialog.getByLabel('Description').fill('The primary storyline');
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		// Go to analytics
@@ -452,7 +456,8 @@ test.describe('Plot Thread Timeline', () => {
 
 		// Create a plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		await page.waitForTimeout(500);
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -460,7 +465,7 @@ test.describe('Plot Thread Timeline', () => {
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Name').fill('Romance Arc');
 		await dialog.getByLabel('Description').fill('Love story');
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/analytics`);
@@ -481,7 +486,8 @@ test.describe('Plot Thread Timeline', () => {
 
 		// Create a plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		await page.waitForTimeout(500);
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -489,7 +495,7 @@ test.describe('Plot Thread Timeline', () => {
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Name').fill('Mystery Thread');
 		await dialog.getByLabel('Description').fill('Whodunit');
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/analytics`);
@@ -511,7 +517,8 @@ test.describe('Plot Thread Timeline', () => {
 
 		// Create a plot thread
 		await page.goto(`/projects/${projectId}/bible?tab=plot-threads`);
-		const createButton = page.getByRole('button', { name: /create plot thread/i }).first();
+		await page.waitForTimeout(500);
+		const createButton = page.getByRole('button', { name: /new thread|create thread/i }).first();
 		await createButton.click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
@@ -519,7 +526,7 @@ test.describe('Plot Thread Timeline', () => {
 		const dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Name').fill('Unresolved Thread');
 		await dialog.getByLabel('Description').fill('Never finished');
-		await dialog.getByRole('button', { name: /create/i }).click();
+		await dialog.getByRole('button', { name: /create thread/i }).click();
 		await page.waitForTimeout(500);
 
 		await page.goto(`/projects/${projectId}/analytics`);
@@ -633,16 +640,19 @@ test.describe('Structure Filtering', () => {
 		// Go to analytics with first book (auto-created from project title)
 		await page.goto(`/projects/${projectId}/analytics?structure=${bookId}`);
 
-		// Should show first book (auto-created from project title)
-		await expect(page.getByText(/analytics test project/i)).toBeVisible();
+		// Structure selector should show first book selected
+		const structureSelect = page.locator('#structure-select, select.structure-select').first();
+		await expect(structureSelect).toBeVisible();
+		const selectedOption1 = structureSelect.locator('option:checked');
+		await expect(selectedOption1).toContainText(/analytics test project/i);
 
 		// Change to second book
-		const structureSelect = page.locator('#structure-select, select.structure-select').first();
 		await structureSelect.selectOption({ value: book2Id });
 		await page.waitForTimeout(500);
 
-		// Should show second book
-		await expect(page.getByText(/book 2/i)).toBeVisible();
+		// Selected option should now be Book 2
+		const selectedOption2 = structureSelect.locator('option:checked');
+		await expect(selectedOption2).toContainText(/book 2/i);
 	});
 
 	test('should update analytics when structure filter changes', async ({ page }) => {

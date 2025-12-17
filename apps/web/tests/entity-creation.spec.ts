@@ -140,8 +140,8 @@ test.describe('Entity Creation', () => {
 			// Wait for redirect
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/character\/[^/]+/);
 
-			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			// Navigate back to bible page using "Back to Bible" link
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Verify character appears in list
@@ -227,7 +227,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/location\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch to Locations tab
@@ -320,7 +320,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/faction\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch to Factions tab
@@ -412,7 +412,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/world-rule\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch to World Rules tab
@@ -504,7 +504,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/plot-thread\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch to Plot Threads tab
@@ -593,15 +593,15 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/timeline\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch to Timeline tab
 			await page.getByRole('tab', { name: /Timeline/ }).first().click();
 			await waitForDialogTransition(page);
 
-			// Verify event appears in list
-			await expect(page.getByText('First Contact')).toBeVisible();
+			// Verify event appears in list (use first() to avoid strict mode violation from title + description)
+			await expect(page.getByText('First Contact').first()).toBeVisible();
 		});
 	});
 
@@ -625,7 +625,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/character\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Verify count is now 1
@@ -655,7 +655,7 @@ test.describe('Entity Creation', () => {
 			await page.waitForURL(/\/projects\/[^/]+\/bible\/location\/[^/]+/);
 
 			// Navigate back to bible page
-			await page.locator('a.back-link').first().click();
+			await page.getByRole('link', { name: /back to bible/i }).click();
 			await expect(page).toHaveURL(/\/bible$/);
 
 			// Switch back to Locations tab

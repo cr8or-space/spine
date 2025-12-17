@@ -4,10 +4,10 @@
 ## Phase 1: Foundations
 - [x] Define design tokens (colors, spacing, typography, radii, shadows, motion) - in app.css with Tailwind v4 @theme
 - [x] Build layout primitives (AppShell, TopBar, NavRail, PageSection, StatCard, Drawer, PillFilters, EmptyState, DataList)
-- [ ] Wire command palette and keyboard shortcuts
+- [x] Wire command palette and keyboard shortcuts - CommandPalette component with Ctrl/Cmd+K shortcut
 
 ## Phase 2-8: Page Implementations
-- [ ] Implement redesigned Dashboard (continue writing CTA, queue summary, buffer/health, activity feed, quick filters)
+- [x] Implement redesigned Dashboard (continue writing CTA, queue summary, buffer/health, activity feed, quick filters)
 - [x] Implement Workspace layout (structure rail, editor tabs: Draft/Outline/Beats/Analysis, context drawer tabs) - basic structure done
 - [x] Implement Review queue and diff split view (filters as pills, gutter actions, comment drawer) - basic implementation exists
 - [x] Implement Analytics dashboard visuals - basic implementation exists
@@ -21,27 +21,26 @@
 - [ ] Fix remaining Playwright test failures for Workspace, Analytics, Serial, Review pages
 
 ### Playwright Test Status (after refactor)
-Passing (88 tests):
+Passing (98 tests):
 - bible-management.spec.ts: 11/11 tests ✓
 - navigation.spec.ts: 5/5 tests ✓
 - project-management.spec.ts: 7/7 tests ✓
 - entity-creation.spec.ts: 21/22 tests ✓
 - workspace.spec.ts: 17/17 tests ✓
-- analytics.spec.ts: 18/21 tests ✓
+- analytics.spec.ts: partial passing
 - serial.spec.ts: partial passing
 - review.spec.ts: partial passing
 - generation.spec.ts: partial passing
 
-Flaky (2 tests):
-- analytics.spec.ts: tension statistics test intermittently fails
-- serial.spec.ts: hook patterns section test intermittently fails
+Flaky (1 test):
+- serial.spec.ts: hook variety warnings test intermittently fails
 
-Failing (15 tests):
-- analytics.spec.ts: 3 failures (empty state test needs update for auto-created book, plot thread test, structure filtering)
-- serial.spec.ts: 3 failures (empty state test, mystery board, structure filtering)
-- review.spec.ts: 5 failures (content fill timing issues in Diff View and Bulk Actions tests)
-- generation.spec.ts: 3 failures (content fill timing issues)
-- entity-creation.spec.ts: 1 failure (back-link navigation issue)
+Failing (16 tests):
+- analytics.spec.ts: 7 failures (timing and server issues)
+- serial.spec.ts: 1 failure (mystery board timing)
+- review.spec.ts: 5 failures (content fill timing issues)
+- generation.spec.ts: 2 failures (analysis panel, version saving timing)
+- entity-creation.spec.ts: 1 failure (location list display timing)
 
 ### Test Fixes Completed
 - Fixed `selectOption` helper to work with Bits UI Select components (uses getByRole('listbox') and getByRole('option'))
@@ -58,11 +57,22 @@ Failing (15 tests):
 - Fixed hook type assertion from toHaveValue to toHaveText
 - Added click-to-focus before textarea fill for content editor tests
 - Added wait times for Svelte reactivity after content changes
+- Fixed History button locator to use exact match to avoid tree item conflicts
+- Fixed "Generation Options" dialog title to "Generate Content"
+- Fixed empty state tests to account for auto-created book
+- Fixed plot thread button selectors from "Create Plot Thread" to "New Thread|Create Thread"
+- Fixed back-link navigation selector to use role link
+- Fixed strict mode violations for structure filter tests
+- Improved content editor fill timing with explicit Content header wait
+- Fixed entity-creation.spec.ts back-link selectors to use `getByRole('link', { name: /back to bible/i })` instead of `a.back-link`
+- Fixed timeline event list strict mode violation with `.first()` selector
 
 ### Known Issues
 - Project creation auto-creates a root book with the project title (affects empty state tests)
 - Content editor fill timing can be flaky - need click-to-focus and wait for Svelte reactivity
 - Some tests need longer stabilization waits after chapter creation
+- Server timeouts can cause test flakiness in CI environments
+- Parallel test execution (16 workers) causes database contention - tests pass individually but fail when run together
 
 # Implementation Status
 
