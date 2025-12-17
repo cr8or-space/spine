@@ -21,18 +21,48 @@
 - [ ] Fix remaining Playwright test failures for Workspace, Analytics, Serial, Review pages
 
 ### Playwright Test Status (after refactor)
-Passing:
+Passing (88 tests):
 - bible-management.spec.ts: 11/11 tests ✓
 - navigation.spec.ts: 5/5 tests ✓
 - project-management.spec.ts: 7/7 tests ✓
+- entity-creation.spec.ts: 21/22 tests ✓
+- workspace.spec.ts: 17/17 tests ✓
+- analytics.spec.ts: 18/21 tests ✓
+- serial.spec.ts: partial passing
+- review.spec.ts: partial passing
+- generation.spec.ts: partial passing
 
-Failing (need selector/assertion updates):
-- analytics.spec.ts: 0/11 tests (workspace setup issues)
-- serial.spec.ts: 0/7 tests (workspace setup issues)
-- review.spec.ts: 0/7 tests (workspace setup issues)
-- generation.spec.ts: 0/3 tests (workspace setup issues)
-- workspace.spec.ts: 0/4 main tests (structure creation/selection issues)
-- entity-creation.spec.ts: 1/2 tests (role/status selection issue)
+Flaky (2 tests):
+- analytics.spec.ts: tension statistics test intermittently fails
+- serial.spec.ts: hook patterns section test intermittently fails
+
+Failing (15 tests):
+- analytics.spec.ts: 3 failures (empty state test needs update for auto-created book, plot thread test, structure filtering)
+- serial.spec.ts: 3 failures (empty state test, mystery board, structure filtering)
+- review.spec.ts: 5 failures (content fill timing issues in Diff View and Bulk Actions tests)
+- generation.spec.ts: 3 failures (content fill timing issues)
+- entity-creation.spec.ts: 1 failure (back-link navigation issue)
+
+### Test Fixes Completed
+- Fixed `selectOption` helper to work with Bits UI Select components (uses getByRole('listbox') and getByRole('option'))
+- Fixed workspace structure creation to use tree item "Add child" button instead of header button
+- Updated workspace test beforeEach blocks to use auto-created root book (project title) as parent
+- Fixed button name selectors to use "Save Changes" instead of ambiguous "Save"
+- Fixed assertions to use toHaveText instead of toHaveValue for Bits UI Select components
+- Added `clickAddChildOnTreeItem` helper for creating child structures via tree item hover
+- Updated all setup helpers in analytics/serial/review/generation to use `clickAddChildOnTreeItem`
+- Fixed Save button selector from `{ name: 'Save' }` to `{ name: 'Save', exact: true }` to avoid matching "Save Hook"
+- Fixed beat placeholder from "Beat description..." to "Add a beat..."
+- Fixed "Add Beat" button to "Add" button
+- Fixed "Hook" heading to "Chapter Hook" heading
+- Fixed hook type assertion from toHaveValue to toHaveText
+- Added click-to-focus before textarea fill for content editor tests
+- Added wait times for Svelte reactivity after content changes
+
+### Known Issues
+- Project creation auto-creates a root book with the project title (affects empty state tests)
+- Content editor fill timing can be flaky - need click-to-focus and wait for Svelte reactivity
+- Some tests need longer stabilization waits after chapter creation
 
 # Implementation Status
 

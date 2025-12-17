@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { waitForDialogTransition, selectOption } from './helpers';
+import { waitForDialogTransition, selectOption, clickAddChildOnTreeItem } from './helpers';
 
 test.describe('Workspace - Structure Tree', () => {
 	test.describe.configure({ mode: 'serial' });
@@ -30,20 +30,22 @@ test.describe('Workspace - Structure Tree', () => {
 		await expect(page.locator('h2:has-text("Outline")')).toBeVisible();
 	});
 
-	test('should display empty outline state', async ({ page }) => {
+	test('should display select structure state when no structure selected', async ({ page }) => {
 		// Wait for the page to fully load
 		await page.waitForLoadState('networkidle');
-		
-		// Verify empty state message
-		const emptyStateTitle = page.getByText('No outline yet');
-		await expect(emptyStateTitle).toBeVisible({ timeout: 10000 });
-		await expect(page.getByText(/create your first book/i)).toBeVisible();
-		await expect(page.getByRole('button', { name: /create book/i })).toBeVisible();
+
+		// Project creation auto-creates a root book, so outline is not empty
+		// But without selecting a structure, main area shows "Select a structure"
+		await expect(page.getByRole('heading', { name: 'Select a structure' })).toBeVisible();
+		await expect(page.getByText(/choose a book, chapter, or scene from the outline/i)).toBeVisible();
+
+		// The auto-created root book should appear in the outline as a clickable button
+		await expect(page.getByRole('button', { name: 'Workspace Test Project', exact: true })).toBeVisible();
 	});
 
 	test('should create a book in structure tree', async ({ page }) => {
 		// Click create book button (in outline panel header)
-		await page.locator('aside').getByRole('button').first().click();
+		await page.locator('aside header').getByRole('button').click();
 
 		// Wait for dialog
 		await expect(page.getByRole('dialog')).toBeVisible();
@@ -54,8 +56,8 @@ test.describe('Workspace - Structure Tree', () => {
 		await dialog.getByLabel('Title').fill('Book 1: The Beginning');
 		await dialog.getByLabel('Summary').fill('The first book of our epic saga.');
 
-		// Type should default to "book"
-		await expect(dialog.getByLabel('Type')).toHaveValue('book');
+		// Type should default to "Book" (Bits UI Select shows text, not value)
+		await expect(dialog.getByLabel('Type')).toHaveText('Book');
 
 		// Submit form
 		await dialog.getByRole('button', { name: 'Create' }).click();
@@ -63,75 +65,64 @@ test.describe('Workspace - Structure Tree', () => {
 		// Should navigate to workspace with structure selected
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
-		// Verify book appears in outline tree
-		await expect(page.locator('aside').getByText('Book 1: The Beginning')).toBeVisible();
-
-		// Verify book is displayed in main area
+		// Note: Creating a book via header creates a new root-level structure
+		// The outline tree only displays one root structure at a time (the first one)
+		// So we verify the book is created and selected (shown in main area)
 		await expect(page.getByRole('heading', { name: 'Book 1: The Beginning' })).toBeVisible();
-		await expect(page.getByText('book', { exact: false })).toBeVisible(); // Badge showing type
+		await expect(page.getByText('book', { exact: false }).first()).toBeVisible(); // Badge showing type
 	});
 
 	test('should create book → arc → chapter → scene hierarchy', async ({ page }) => {
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with the project title ("Workspace Test Project")
+		// We'll use that as the root for our hierarchy
+
+		// Create arc under auto-created book - use tree item "Add child" button
+		await clickAddChildOnTreeItem(page, 'Workspace Test Project');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		let dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByLabel('Summary').fill('A test book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-		await expect(page.getByRole('heading', { name: 'Test Book' })).toBeVisible();
-
-		// Create arc under book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Test Arc');
 		await dialog.getByLabel('Summary').fill('A test arc');
 
-		// Change type to arc
+		// Select arc type (default is chapter when parent is book)
 		await selectOption(page, 'Type', 'Arc');
 
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 		await expect(page.getByRole('heading', { name: 'Test Arc' })).toBeVisible();
 
-		// Create chapter under arc
-		await page.locator('aside').getByRole('button').first().click();
+		// Create chapter under arc - use tree item "Add child" button
+		await clickAddChildOnTreeItem(page, 'Test Arc');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
 		await dialog.getByLabel('Summary').fill('The first chapter');
-		// Type should default to chapter
+		// Type defaults to chapter when parent is arc
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 		await expect(page.getByRole('heading', { name: 'Chapter 1' })).toBeVisible();
 
-		// Create scene under chapter
-		await page.locator('aside').getByRole('button').first().click();
+		// Create scene under chapter - use tree item "Add child" button
+		await clickAddChildOnTreeItem(page, 'Chapter 1');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Scene 1');
 		await dialog.getByLabel('Summary').fill('The opening scene');
-		// Type should default to scene
+		// Type defaults to scene when parent is chapter
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 		await expect(page.getByRole('heading', { name: 'Scene 1' })).toBeVisible();
 
-		// Verify all items in tree
-		await expect(page.locator('aside').getByText('Test Book')).toBeVisible();
-		await expect(page.locator('aside').getByText('Test Arc')).toBeVisible();
-		await expect(page.locator('aside').getByText('Chapter 1')).toBeVisible();
-		await expect(page.locator('aside').getByText('Scene 1')).toBeVisible();
+		// Verify all items in tree (buttons may have "Collapse" prefix when they have children)
+		await expect(page.getByRole('button', { name: /Workspace Test Project/ }).first()).toBeVisible();
+		await expect(page.getByRole('button', { name: /Test Arc/ }).first()).toBeVisible();
+		await expect(page.getByRole('button', { name: /Chapter 1/ }).first()).toBeVisible();
+		await expect(page.getByRole('button', { name: /Scene 1/ }).first()).toBeVisible();
 	});
 
 	test('should show workspace stats in outline footer', async ({ page }) => {
@@ -167,7 +158,7 @@ test.describe('Workspace - Outline Editor', () => {
 	test.setTimeout(60000);
 
 	test.beforeEach(async ({ page }) => {
-		// Create a test project with a book and chapter
+		// Create a test project - this auto-creates a root book with the project title
 		await page.goto('/');
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
@@ -182,25 +173,16 @@ test.describe('Workspace - Outline Editor', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		// Create chapter
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'Outline Test Project');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
 		await dialog.getByLabel('Summary').fill('Test chapter');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 	});
@@ -210,8 +192,8 @@ test.describe('Workspace - Outline Editor', () => {
 		await expect(page.getByRole('heading', { name: 'Structure Details' })).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Edit' })).toBeVisible();
 
-		// Should show title and summary
-		await expect(page.getByText('Chapter 1')).toBeVisible();
+		// Should show title as heading and summary
+		await expect(page.getByRole('heading', { name: 'Chapter 1' })).toBeVisible();
 		await expect(page.getByText('Test chapter')).toBeVisible();
 	});
 
@@ -242,7 +224,7 @@ test.describe('Workspace - Outline Editor', () => {
 		await page.getByLabel('Target Word Count').fill('3000');
 
 		// Save - using form submit button
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save Changes' });
 		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
 		await saveButton.click();
 
@@ -267,15 +249,15 @@ test.describe('Workspace - Outline Editor', () => {
 		await page.getByRole('option', { name: 'Character' }).click();
 		await waitForDialogTransition(page);
 
-		// Save
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		// Save - use specific button name
+		const saveButton = page.getByRole('button', { name: 'Save Changes' });
 		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
 
-		// Edit again to verify it persisted
+		// Edit again to verify it persisted (check text content, not value - Bits UI Select)
 		await page.getByRole('button', { name: 'Edit' }).click();
-		await expect(page.getByLabel('Chapter Type')).toHaveValue('character');
+		await expect(page.getByLabel('Chapter Type')).toHaveText('Character');
 	});
 
 	test('should set tension target', async ({ page }) => {
@@ -287,8 +269,8 @@ test.describe('Workspace - Outline Editor', () => {
 		await expect(tensionInput).toBeVisible();
 		await tensionInput.fill('85');
 
-		// Save
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		// Save - use specific button name
+		const saveButton = page.getByRole('button', { name: 'Save Changes' });
 		await saveButton.waitFor({ state: 'visible', timeout: 5000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -304,7 +286,7 @@ test.describe('Workspace - Beat Sheet Management', () => {
 	test.setTimeout(60000);
 
 	test.beforeEach(async ({ page }) => {
-		// Create project with book and chapter
+		// Create project - this auto-creates a root book with the project title
 		await page.goto('/');
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
@@ -318,51 +300,41 @@ test.describe('Workspace - Beat Sheet Management', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		// Create chapter
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'Beat Sheet Test');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 	});
 
-	test('should display beat sheet section', async ({ page }) => {
-		// Look for beat sheet heading
-		await expect(page.getByRole('heading', { name: 'Beat Sheet' })).toBeVisible();
+	test('should display beats section', async ({ page }) => {
+		// Look for story beats heading
+		await expect(page.getByRole('heading', { name: 'Story Beats' })).toBeVisible();
 
-		// Should show empty state
-		await expect(page.getByText('No beats yet')).toBeVisible();
-		await expect(page.getByText('Add beats to outline the narrative flow')).toBeVisible();
+		// Should show empty state when no beats
+		await expect(page.getByText('No beats defined yet')).toBeVisible();
 	});
 
 	test('should add a beat to chapter', async ({ page }) => {
-		// Find the "Add Beat" button or form
+		// Find the "Add" button or form
 		// Based on StructureEditor.svelte, there should be a beat description field and add button
 
 		// Scroll to beat section if needed
-		await page.getByRole('heading', { name: 'Beat Sheet' }).scrollIntoViewIfNeeded();
+		await page.getByRole('heading', { name: 'Story Beats' }).scrollIntoViewIfNeeded();
 
 		// Fill in new beat description
-		const beatDescInput = page.getByPlaceholder('Beat description...');
+		const beatDescInput = page.getByPlaceholder('Add a beat...');
 		await expect(beatDescInput).toBeVisible();
 		await beatDescInput.fill('Hero receives the call to adventure');
 
-		// Click Add Beat button
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		// Click Add button
+		await page.getByRole('button', { name: 'Add' }).click();
 
 		// Wait for form submission
 		await page.waitForTimeout(500);
@@ -373,18 +345,18 @@ test.describe('Workspace - Beat Sheet Management', () => {
 
 	test('should add multiple beats', async ({ page }) => {
 		// Add first beat
-		await page.getByPlaceholder('Beat description...').fill('Opening scene establishes the status quo');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Opening scene establishes the status quo');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
 		// Add second beat
-		await page.getByPlaceholder('Beat description...').fill('Inciting incident disrupts normalcy');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Inciting incident disrupts normalcy');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
 		// Add third beat
-		await page.getByPlaceholder('Beat description...').fill('Hero refuses the call');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Hero refuses the call');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
 		// Verify all beats appear
@@ -395,8 +367,8 @@ test.describe('Workspace - Beat Sheet Management', () => {
 
 	test('should remove a beat', async ({ page }) => {
 		// Add a beat
-		await page.getByPlaceholder('Beat description...').fill('Beat to be removed');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Beat to be removed');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
 		// Verify it appears
@@ -416,21 +388,22 @@ test.describe('Workspace - Beat Sheet Management', () => {
 
 	test('should mark beat as completed', async ({ page }) => {
 		// Add a beat
-		await page.getByPlaceholder('Beat description...').fill('Completable beat');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Completable beat');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
-		// Find checkbox for the beat
+		// Find the completion button for the beat (styled as checkbox)
 		const beatItem = page.locator('li:has-text("Completable beat")');
-		const checkbox = beatItem.locator('input[type="checkbox"]');
-		await expect(checkbox).toBeVisible();
+		// The completion button is the first button in the list item
+		const checkButton = beatItem.getByRole('button', { name: 'Mark as complete' });
+		await expect(checkButton).toBeVisible();
 
-		// Check the checkbox
-		await checkbox.check();
+		// Click to mark as complete
+		await checkButton.click();
 		await page.waitForTimeout(300);
 
-		// Verify it's checked
-		await expect(checkbox).toBeChecked();
+		// Verify it's marked as complete - the button label changes to "Mark as incomplete"
+		await expect(beatItem.getByRole('button', { name: 'Mark as incomplete' })).toBeVisible();
 	});
 });
 
@@ -439,7 +412,7 @@ test.describe('Workspace - Hook Specification', () => {
 	test.setTimeout(60000);
 
 	test.beforeEach(async ({ page }) => {
-		// Create project with book and chapter
+		// Create project - this auto-creates a root book with the project title
 		await page.goto('/');
 		await page.getByRole('button', { name: 'New Project' }).click();
 		await expect(page.getByRole('dialog')).toBeVisible();
@@ -453,31 +426,22 @@ test.describe('Workspace - Hook Specification', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		// Create chapter
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'Hook Test');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 	});
 
 	test('should display hook configuration section', async ({ page }) => {
-		// Look for hook section
-		await expect(page.getByRole('heading', { name: 'Hook' })).toBeVisible();
+		// Look for hook section - heading is "Chapter Hook"
+		await expect(page.getByRole('heading', { name: 'Chapter Hook' })).toBeVisible();
 	});
 
 	test('should set hook type', async ({ page }) => {
@@ -495,8 +459,8 @@ test.describe('Workspace - Hook Specification', () => {
 		await page.getByRole('button', { name: 'Save Hook' }).click();
 		await page.waitForTimeout(300);
 
-		// Reload or verify persistence
-		await expect(hookTypeSelect).toHaveValue('cliffhanger');
+		// Verify persistence - Bits UI Select uses text content, not value
+		await expect(hookTypeSelect).toHaveText('Cliffhanger');
 	});
 
 	test('should set hook description', async ({ page }) => {

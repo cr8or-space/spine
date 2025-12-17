@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { waitForDialogTransition } from './helpers';
+import { waitForDialogTransition, clickAddChildOnTreeItem } from './helpers';
 
 // Helper to create a project with structure and content for analytics
 async function setupAnalyticsProject(page: Page): Promise<{ projectId: string; bookId: string }> {
@@ -19,61 +19,64 @@ async function setupAnalyticsProject(page: Page): Promise<{ projectId: string; b
 	await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 	await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-	// Create book
-	await page.locator('aside').getByRole('button').first().click();
-	await expect(page.getByRole('dialog')).toBeVisible();
-	await waitForDialogTransition(page);
-
-	dialog = page.getByRole('dialog');
-	await dialog.getByLabel('Title').fill('Test Book');
-	await dialog.getByLabel('Summary').fill('A test book for analytics');
-	await dialog.getByRole('button', { name: 'Create' }).click();
+	// Project creation auto-creates a root book with project title ("Analytics Test Project")
+	// Click on it to select it and get its ID
+	await page.getByRole('button', { name: 'Analytics Test Project', exact: true }).click();
 	await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=([^&]+)/);
-
 	const bookId = page.url().match(/structure=([^&]+)/)?.[1] || '';
 
-	// Create Chapter 1
-	await page.locator('aside').getByRole('button').first().click();
+	// Create Chapter 1 using tree item "Add child" button
+	await clickAddChildOnTreeItem(page, 'Analytics Test Project');
 	await expect(page.getByRole('dialog')).toBeVisible();
 	await waitForDialogTransition(page);
 
 	dialog = page.getByRole('dialog');
 	await dialog.getByLabel('Title').fill('Chapter 1');
 	await dialog.getByLabel('Summary').fill('Opening chapter');
+	// Type defaults to chapter when parent is book
 	await dialog.getByRole('button', { name: 'Create' }).click();
 	await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
 	// Add content to Chapter 1
+	// Wait for page to stabilize after chapter creation
+	await page.waitForTimeout(500);
 	const contentTextarea = page.locator('textarea').last();
 	await contentTextarea.waitFor({ state: 'visible' });
+	// Click to focus first, then fill
+	await contentTextarea.click();
 	await contentTextarea.fill('Chapter 1 content with some text.');
+	// Wait for Svelte reactivity to update isDirty state
+	await page.waitForTimeout(300);
 	// Wait for Save button to become enabled (it's disabled until content changes)
-	const saveButton = page.getByRole('button', { name: 'Save' });
+	const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 	await expect(saveButton).toBeEnabled({ timeout: 10000 });
 	await saveButton.click();
 	await page.waitForTimeout(500);
 
-	// Go back to book to create Chapter 2
-	const bookNode = page.locator('aside').getByText('Test Book').first();
-	await bookNode.click();
-	await page.waitForTimeout(300);
-
-	// Create Chapter 2
-	await page.locator('aside').getByRole('button').first().click();
+	// Create Chapter 2 using tree item "Add child" button on parent book
+	await clickAddChildOnTreeItem(page, 'Analytics Test Project');
 	await expect(page.getByRole('dialog')).toBeVisible();
 	await waitForDialogTransition(page);
 
 	dialog = page.getByRole('dialog');
 	await dialog.getByLabel('Title').fill('Chapter 2');
 	await dialog.getByLabel('Summary').fill('Second chapter');
+	// Type defaults to chapter when parent is book
 	await dialog.getByRole('button', { name: 'Create' }).click();
 	await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
 	// Add content to Chapter 2
-	await contentTextarea.waitFor({ state: 'visible' });
-	await contentTextarea.fill('Chapter 2 content with more text.');
+	// Wait for page to stabilize after chapter creation
+	await page.waitForTimeout(500);
+	const contentTextarea2 = page.locator('textarea').last();
+	await contentTextarea2.waitFor({ state: 'visible' });
+	// Click to focus first, then fill
+	await contentTextarea2.click();
+	await contentTextarea2.fill('Chapter 2 content with more text.');
+	// Wait for Svelte reactivity to update isDirty state
+	await page.waitForTimeout(300);
 	// Wait for Save button to become enabled (it's disabled until content changes)
-	const saveButton2 = page.getByRole('button', { name: 'Save' });
+	const saveButton2 = page.getByRole('button', { name: 'Save', exact: true });
 	await expect(saveButton2).toBeEnabled({ timeout: 10000 });
 	await saveButton2.click();
 	await page.waitForTimeout(500);
@@ -111,9 +114,9 @@ test.describe('Analytics Dashboard', () => {
 	test('should allow changing structure filter', async ({ page }) => {
 		const { projectId } = await setupAnalyticsProject(page);
 
-		// Create a second book
+		// Create a second book (root-level via header button)
 		await page.goto(`/projects/${projectId}/workspace`);
-		await page.locator('aside').getByRole('button').first().click();
+		await page.locator('aside header').getByRole('button').click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
@@ -613,9 +616,9 @@ test.describe('Structure Filtering', () => {
 	test('should filter analytics by selected structure', async ({ page }) => {
 		const { projectId, bookId } = await setupAnalyticsProject(page);
 
-		// Create a second book
+		// Create a second book (root-level via header button)
 		await page.goto(`/projects/${projectId}/workspace`);
-		await page.locator('aside').getByRole('button').first().click();
+		await page.locator('aside header').getByRole('button').click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
@@ -627,11 +630,11 @@ test.describe('Structure Filtering', () => {
 
 		const book2Id = page.url().match(/structure=([^&]+)/)?.[1] || '';
 
-		// Go to analytics with first book
+		// Go to analytics with first book (auto-created from project title)
 		await page.goto(`/projects/${projectId}/analytics?structure=${bookId}`);
 
-		// Should show first book
-		await expect(page.getByText(/test book/i)).toBeVisible();
+		// Should show first book (auto-created from project title)
+		await expect(page.getByText(/analytics test project/i)).toBeVisible();
 
 		// Change to second book
 		const structureSelect = page.locator('#structure-select, select.structure-select').first();
@@ -645,9 +648,9 @@ test.describe('Structure Filtering', () => {
 	test('should update analytics when structure filter changes', async ({ page }) => {
 		const { projectId, bookId } = await setupAnalyticsProject(page);
 
-		// Create second book with different content
+		// Create second book (root-level via header button)
 		await page.goto(`/projects/${projectId}/workspace`);
-		await page.locator('aside').getByRole('button').first().click();
+		await page.locator('aside header').getByRole('button').click();
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
@@ -659,14 +662,15 @@ test.describe('Structure Filtering', () => {
 
 		const book2Id = page.url().match(/structure=([^&]+)/)?.[1] || '';
 
-		// Create chapter in second book
-		await page.locator('aside').getByRole('button').first().click();
+		// Create chapter in second book using tree item "Add child" button
+		await clickAddChildOnTreeItem(page, 'Different Book');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Different Chapter');
 		await dialog.getByLabel('Summary').fill('Unique content');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
@@ -692,8 +696,8 @@ test.describe('Structure Filtering', () => {
 		// Navigate without structure parameter
 		await page.goto(`/projects/${projectId}/analytics`);
 
-		// Should automatically select first book
-		await expect(page.getByText(/test book/i)).toBeVisible();
+		// Should automatically select first book (auto-created from project title)
+		await expect(page.getByText(/analytics test project/i)).toBeVisible();
 
 		// Structure selector should have a value selected
 		const structureSelect = page.locator('#structure-select, select.structure-select').first();

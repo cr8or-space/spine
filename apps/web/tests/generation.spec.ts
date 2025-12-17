@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { waitForDialogTransition, selectOption } from './helpers';
+import { waitForDialogTransition, clickAddChildOnTreeItem } from './helpers';
 
 test.describe('Generation Pipeline', () => {
 	test.describe.configure({ mode: 'serial' });
@@ -23,41 +23,32 @@ test.describe('Generation Pipeline', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		// Create chapter with beats for generation
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title ("Generation Test")
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'Generation Test');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
 		await dialog.getByLabel('Summary').fill('The hero discovers their destiny');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
 		chapterUrl = page.url();
 
 		// Add some beats for content generation
-		await page.getByPlaceholder('Beat description...').fill('Opening scene in the village');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Opening scene in the village');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
-		await page.getByPlaceholder('Beat description...').fill('Mysterious stranger arrives');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Mysterious stranger arrives');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 
-		await page.getByPlaceholder('Beat description...').fill('Hero learns of ancient prophecy');
-		await page.getByRole('button', { name: 'Add Beat' }).click();
+		await page.getByPlaceholder('Add a beat...').fill('Hero learns of ancient prophecy');
+		await page.getByRole('button', { name: 'Add' }).click();
 		await page.waitForTimeout(300);
 	});
 
@@ -142,7 +133,7 @@ test.describe('Generation Pipeline', () => {
 		await expect(page.getByText('8 words', { exact: false })).toBeVisible();
 
 		// Should show as dirty/unsaved - look for Save button
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeVisible();
 	});
 
@@ -153,7 +144,7 @@ test.describe('Generation Pipeline', () => {
 		await contentTextarea.fill('Manual content that should persist.');
 
 		// Save
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -201,7 +192,7 @@ test.describe('Generation Pipeline', () => {
 		// After creating content, status badge should appear
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Test content');
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -219,7 +210,7 @@ test.describe('Generation Pipeline', () => {
 		// Create and save content
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Version 1 content');
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -253,31 +244,22 @@ test.describe('Analysis Panel', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		// Create chapter
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title ("Analysis Test")
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'Analysis Test');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Analysis Chapter');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 
 		// Add some content for analysis
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('This is test content for analysis. It has some tension and pacing.');
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -381,23 +363,15 @@ test.describe('Generation History Tracking', () => {
 		await page.locator('.nav-item').filter({ hasText: 'Workspace' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace/);
 
-		// Create book and chapter
-		await page.locator('aside').getByRole('button').first().click();
-		await expect(page.getByRole('dialog')).toBeVisible();
-		await waitForDialogTransition(page);
-
-		dialog = page.getByRole('dialog');
-		await dialog.getByLabel('Title').fill('Test Book');
-		await dialog.getByRole('button', { name: 'Create' }).click();
-		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
-
-		await page.locator('aside').getByRole('button').first().click();
+		// Project creation auto-creates a root book with project title ("History Test")
+		// Create chapter using tree item "Add child" button on the auto-created book
+		await clickAddChildOnTreeItem(page, 'History Test');
 		await expect(page.getByRole('dialog')).toBeVisible();
 		await waitForDialogTransition(page);
 
 		dialog = page.getByRole('dialog');
 		await dialog.getByLabel('Title').fill('Chapter 1');
-		await selectOption(page, 'Type', 'Chapter');
+		// Type defaults to chapter when parent is book
 		await dialog.getByRole('button', { name: 'Create' }).click();
 		await page.waitForURL(/\/projects\/[^/]+\/workspace\?structure=/);
 	});
@@ -417,7 +391,7 @@ test.describe('Generation History Tracking', () => {
 		// Create content
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('First version of content');
-		const saveButton = page.getByRole('button', { name: 'Save' });
+		const saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -436,14 +410,14 @@ test.describe('Generation History Tracking', () => {
 		// Create first version
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('Version 1');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		let saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		// Edit and create second version
 		await contentTextarea.fill('Version 2 with changes');
-		saveButton = page.getByRole('button', { name: 'Save' });
+		saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
@@ -462,13 +436,13 @@ test.describe('Generation History Tracking', () => {
 		// Create versions
 		const contentTextarea = page.locator('textarea').last();
 		await contentTextarea.fill('First version content');
-		let saveButton = page.getByRole('button', { name: 'Save' });
+		let saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
 
 		await contentTextarea.fill('Second version content');
-		saveButton = page.getByRole('button', { name: 'Save' });
+		saveButton = page.getByRole('button', { name: 'Save', exact: true });
 		await expect(saveButton).toBeEnabled({ timeout: 10000 });
 		await saveButton.click();
 		await page.waitForTimeout(500);
