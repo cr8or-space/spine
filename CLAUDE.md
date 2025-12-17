@@ -77,5 +77,5 @@ Key docs in `docs/`:
 - `rationale.md` — Design decisions with justifications
 - `proposal/project-proposal.md` — Full system design
 - `implementation/plan.md` — Phased implementation roadmap
-- `implementation/status.md` — Checklist of completed work
+- `implementation/tasks.md` — Checklist of completed work
 - `development/coding-style.md` — Detailed code conventions
