@@ -30,5 +30,5 @@ yarn-error.log*
 .turbo
 
 dist
-.bookgen-data
+.spine-data
 worker.sh

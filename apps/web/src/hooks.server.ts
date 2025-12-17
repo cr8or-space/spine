@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 // Data directory for storing projects
-const DATA_DIR = process.env.SPINE_DATA_DIR || path.join(process.cwd(), '.bookgen-data');
+const DATA_DIR = process.env.SPINE_DATA_DIR || path.join(process.cwd(), '.spine-data');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
