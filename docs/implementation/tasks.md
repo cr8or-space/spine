@@ -495,10 +495,22 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [x] Main index.ts with createFullClient convenience function
 - [x] Unit tests for all components (116 tests passing)
 
-### 7.5 CLI Application - Future
-- [ ] CLI package setup (@repo/cli)
-- [ ] Interactive project selection
-- [ ] Content viewing commands
-- [ ] Status and progress display
-- [ ] TUI workspace (optional)
+### 7.5 CLI Application (@repo/cli) ✓
+- [x] CLI package setup (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
+- [x] Configuration management (~/.config/spine/cli.json)
+- [x] WebSocket client integration (@repo/client)
+- [x] Core commands:
+  - [x] `project` - list, create, show, select, delete
+  - [x] `bible` - show, characters, locations, threads, add-character
+  - [x] `structure` - tree, list, create, show
+  - [x] `content` - view, edit, history, rollback
+  - [x] `generate` - start, status, cancel (with streaming)
+  - [x] `review` - queue, show, transition, approve, bulk-approve, locks
+  - [x] `config` - show, set, get, reset, path
+- [x] Interactive prompts (@inquirer/prompts)
+- [x] Output formatting (cli-table3, chalk, ora)
+- [x] Streaming generation output with progress indicators
+- [x] Unit tests (24 tests passing)
+- [x] User documentation (docs/user/cli.md)
+- [ ] TUI workspace (optional, future)
 

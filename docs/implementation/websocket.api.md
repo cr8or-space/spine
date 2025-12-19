@@ -439,12 +439,14 @@ apps/cli/
 - [ ] Migrate settings page
 - [ ] Update tests
 
-### Phase 6: CLI App
-- [ ] Create `apps/cli` package structure
-- [ ] Implement core commands
-- [ ] Add interactive prompts
-- [ ] Add streaming output
-- [ ] Add configuration
+### Phase 6: CLI App ✓
+- [x] Create `apps/cli` package structure
+- [x] Implement core commands (project, bible, structure, content, generate, review, config)
+- [x] Add interactive prompts (@inquirer/prompts)
+- [x] Add streaming output (ora spinners, chalk colors)
+- [x] Add configuration (~/.config/spine/cli.json)
+- [x] Unit tests (24 tests passing)
+- [x] User documentation (docs/user/cli.md)
 
 ## Technical Decisions
 
