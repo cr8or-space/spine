@@ -13,6 +13,8 @@ import { createStructureCommand } from './commands/structure.js';
 import { createContentCommand } from './commands/content.js';
 import { createGenerateCommand } from './commands/generate.js';
 import { createReviewCommand } from './commands/review.js';
+import { createAnalyticsCommand } from './commands/analytics.js';
+import { createSerialCommand } from './commands/serial.js';
 import { createConfigCommand } from './commands/config.js';
 
 const program = new Command();
@@ -29,6 +31,8 @@ program.addCommand(createStructureCommand());
 program.addCommand(createContentCommand());
 program.addCommand(createGenerateCommand());
 program.addCommand(createReviewCommand());
+program.addCommand(createAnalyticsCommand());
+program.addCommand(createSerialCommand());
 program.addCommand(createConfigCommand());
 
 // Parse and execute

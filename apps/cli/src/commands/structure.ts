@@ -23,7 +23,16 @@ function getProjectId(options: { project?: string }): string {
 /**
  * Print structure tree recursively
  */
-function printTree(structure: Structure, indent = 0, config: { color: boolean }): void {
+function printTree(
+  structure: Structure,
+  indent = 0,
+  config: { color: boolean },
+  maxDepth?: number
+): void {
+  if (maxDepth !== undefined && indent > maxDepth) {
+    return;
+  }
+
   const prefix = '  '.repeat(indent);
   const typeLabel = config.color ? dim(`[${structure.type}]`) : `[${structure.type}]`;
   const tensionLabel = structure.tensionTarget
@@ -33,7 +42,7 @@ function printTree(structure: Structure, indent = 0, config: { color: boolean })
   console.log(`${prefix}${structure.title} ${typeLabel}${tensionLabel}`);
 
   for (const child of structure.children) {
-    printTree(child, indent + 1, config);
+    printTree(child, indent + 1, config, maxDepth);
   }
 }
 
@@ -47,10 +56,12 @@ export function createStructureCommand(): Command {
   structure
     .command('tree')
     .description('Show structure tree')
-    .action(async function (this: Command) {
+    .option('-d, --depth <depth>', 'Maximum depth to display (0 = root only)')
+    .action(async function (this: Command, options) {
       try {
         const projectId = getProjectId(this.parent?.opts() ?? {});
         const config = loadConfig();
+        const maxDepth = options.depth !== undefined ? parseInt(options.depth, 10) : undefined;
 
         const tree = await withClient(async (client) => {
           return withSpinner('Loading structure...', () =>
@@ -59,7 +70,7 @@ export function createStructureCommand(): Command {
         });
 
         console.log();
-        printTree(tree, 0, config);
+        printTree(tree, 0, config, maxDepth);
         console.log();
       } catch (err) {
         console.error(error(err instanceof Error ? err.message : 'Failed to load structure'));
@@ -73,6 +84,7 @@ export function createStructureCommand(): Command {
     .alias('ls')
     .description('List all structures')
     .option('-t, --type <type>', 'Filter by type (book, arc, chapter, scene)')
+    .option('--parent <id>', 'Filter by parent structure ID')
     .action(async function (this: Command, options) {
       try {
         const projectId = getProjectId(this.parent?.opts() ?? {});
@@ -85,6 +97,10 @@ export function createStructureCommand(): Command {
 
         if (options.type) {
           structures = structures.filter((s) => s.type === options.type);
+        }
+
+        if (options.parent) {
+          structures = structures.filter((s) => s.parentId === options.parent);
         }
 
         if (structures.length === 0) {
@@ -204,6 +220,70 @@ export function createStructureCommand(): Command {
         console.log();
       } catch (err) {
         console.error(error(err instanceof Error ? err.message : 'Failed to load structure'));
+        process.exit(1);
+      }
+    });
+
+  // Update structure
+  structure
+    .command('update <id>')
+    .description('Update structure properties')
+    .option('-t, --title <title>', 'New title')
+    .option('-s, --synopsis <synopsis>', 'New synopsis')
+    .option('--tension <tension>', 'Tension target (0-100)')
+    .option('--chapter-type <type>', 'Chapter type (action, character, worldbuilding, transition)')
+    .action(async function (this: Command, id: string, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        // Build update data from provided options
+        const updateData: {
+          title?: string;
+          synopsis?: string;
+          tensionTarget?: number;
+          chapterType?: 'action' | 'character' | 'worldbuilding' | 'transition';
+        } = {};
+
+        if (options.title) {
+          updateData.title = options.title;
+        }
+
+        if (options.synopsis) {
+          updateData.synopsis = options.synopsis;
+        }
+
+        if (options.tension !== undefined) {
+          const tension = parseInt(options.tension, 10);
+          if (isNaN(tension) || tension < 0 || tension > 100) {
+            console.error(error('Tension must be a number between 0 and 100'));
+            process.exit(1);
+          }
+          updateData.tensionTarget = tension;
+        }
+
+        if (options.chapterType) {
+          const validTypes = ['action', 'character', 'worldbuilding', 'transition'];
+          if (!validTypes.includes(options.chapterType)) {
+            console.error(error(`Chapter type must be one of: ${validTypes.join(', ')}`));
+            process.exit(1);
+          }
+          updateData.chapterType = options.chapterType as typeof updateData.chapterType;
+        }
+
+        if (Object.keys(updateData).length === 0) {
+          console.error(error('No update options provided. Use --title, --synopsis, --tension, or --chapter-type'));
+          process.exit(1);
+        }
+
+        const updated = await withClient(async (client) => {
+          return withSpinner('Updating structure...', () =>
+            client.structure.update(projectId, id, updateData)
+          );
+        });
+
+        console.log(success(`Updated: ${updated.title} (${updated.id})`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to update structure'));
         process.exit(1);
       }
     });

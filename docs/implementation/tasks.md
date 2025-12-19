@@ -514,30 +514,30 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [x] User documentation (docs/user/cli.md)
 - [ ] TUI workspace (optional, future)
 
-### 7.6 CLI Extended Commands (Web Serial Support)
-- [ ] `analytics` command:
-  - [ ] `tension` - display tension curve data
-  - [ ] `characters` - display character presence heatmap
-  - [ ] `threads` - display plot thread timeline
-  - [ ] `quality` - display quality metrics
-- [ ] `serial` command:
-  - [ ] `buffer` - display buffer status and health
-  - [ ] `schedule` - display release schedule and deadlines
-  - [ ] `hooks` - display hook patterns and variety warnings
-  - [ ] `cycle` - display tension cycle status
-  - [ ] `mysteries` - display mystery board with clue tracking
-- [ ] Extended `bible` commands:
-  - [ ] `add-location` - create location entity
-  - [ ] `add-thread` - create plot thread entity
-  - [ ] `factions` - list faction entities
-  - [ ] `add-faction` - create faction entity
-  - [ ] `rules` - list world rule entities
-  - [ ] `add-rule` - create world rule entity
-  - [ ] `timeline` - list timeline events
-  - [ ] `add-event` - create timeline event
-- [ ] Extended `structure` commands:
-  - [ ] `update` - update structure properties (tension, hook, chapter type)
-  - [ ] `--depth` option for tree command
-  - [ ] `--parent` filter for list command
-- [ ] Documentation sync with implemented features
+### 7.6 CLI Extended Commands (Web Serial Support) ✓
+- [x] `analytics` command:
+  - [x] `tension` - display tension curve data
+  - [x] `characters` - display character presence heatmap
+  - [x] `threads` - display plot thread timeline
+  - [x] `quality` - display quality metrics
+- [x] `serial` command:
+  - [x] `buffer` - display buffer status and health
+  - [x] `schedule` - display release schedule and deadlines
+  - [x] `hooks` - display hook patterns and variety warnings
+  - [x] `cycle` - display tension cycle status
+  - [x] `mysteries` - display mystery board with clue tracking
+- [x] Extended `bible` commands:
+  - [x] `add-location` - create location entity
+  - [x] `add-thread` - create plot thread entity
+  - [x] `factions` - list faction entities
+  - [x] `add-faction` - create faction entity
+  - [x] `rules` - list world rule entities
+  - [x] `add-rule` - create world rule entity
+  - [x] `timeline` - list timeline events
+  - [x] `add-event` - create timeline event
+- [x] Extended `structure` commands:
+  - [x] `update` - update structure properties (tension, synopsis, title, chapter type)
+  - [x] `--depth` option for tree command
+  - [x] `--parent` filter for list command
+- [ ] Documentation sync with implemented features (cli.md needs update)
 

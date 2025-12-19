@@ -193,5 +193,308 @@ export function createBibleCommand(): Command {
       }
     });
 
+  // Create location
+  bible
+    .command('add-location')
+    .description('Add a new location')
+    .option('-n, --name <name>', 'Location name')
+    .option('-t, --type <type>', 'Location type (city, building, region, landmark, other)')
+    .action(async function (this: Command, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        let name = options.name as string | undefined;
+        if (!name) {
+          name = await promptText('Location name:');
+        }
+
+        let type = options.type as 'city' | 'building' | 'region' | 'landmark' | 'other' | undefined;
+        if (!type) {
+          type = await promptSelect('Location type:', [
+            { name: 'City', value: 'city' as const },
+            { name: 'Building', value: 'building' as const },
+            { name: 'Region', value: 'region' as const },
+            { name: 'Landmark', value: 'landmark' as const },
+            { name: 'Other', value: 'other' as const }
+          ]);
+        }
+
+        const location = await withClient(async (client) => {
+          return withSpinner('Creating location...', () =>
+            client.bible.location.create(projectId, { name, type })
+          );
+        });
+
+        console.log(success(`Created location: ${location.name}`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to create location'));
+        process.exit(1);
+      }
+    });
+
+  // List factions
+  bible
+    .command('factions')
+    .description('List factions')
+    .action(async function (this: Command) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        const factions = await withClient(async (client) => {
+          return withSpinner('Loading factions...', () =>
+            client.bible.faction.list(projectId)
+          );
+        });
+
+        if (factions.length === 0) {
+          console.log('No factions found.');
+          return;
+        }
+
+        const rows = factions.map((f) => [
+          f.name,
+          f.type,
+          truncate(f.description ?? '', 40)
+        ]);
+
+        console.log(formatTable(rows, {
+          head: ['Name', 'Type', 'Description']
+        }));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to list factions'));
+        process.exit(1);
+      }
+    });
+
+  // Create faction
+  bible
+    .command('add-faction')
+    .description('Add a new faction')
+    .option('-n, --name <name>', 'Faction name')
+    .option('-t, --type <type>', 'Faction type (organization, government, religion, criminal, military, other)')
+    .action(async function (this: Command, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        let name = options.name as string | undefined;
+        if (!name) {
+          name = await promptText('Faction name:');
+        }
+
+        let type = options.type as 'organization' | 'government' | 'religion' | 'criminal' | 'military' | 'other' | undefined;
+        if (!type) {
+          type = await promptSelect('Faction type:', [
+            { name: 'Organization', value: 'organization' as const },
+            { name: 'Government', value: 'government' as const },
+            { name: 'Religion', value: 'religion' as const },
+            { name: 'Criminal', value: 'criminal' as const },
+            { name: 'Military', value: 'military' as const },
+            { name: 'Other', value: 'other' as const }
+          ]);
+        }
+
+        const faction = await withClient(async (client) => {
+          return withSpinner('Creating faction...', () =>
+            client.bible.faction.create(projectId, { name, type })
+          );
+        });
+
+        console.log(success(`Created faction: ${faction.name}`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to create faction'));
+        process.exit(1);
+      }
+    });
+
+  // List world rules
+  bible
+    .command('rules')
+    .description('List world rules')
+    .action(async function (this: Command) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        const rules = await withClient(async (client) => {
+          return withSpinner('Loading world rules...', () =>
+            client.bible.worldRule.list(projectId)
+          );
+        });
+
+        if (rules.length === 0) {
+          console.log('No world rules found.');
+          return;
+        }
+
+        const rows = rules.map((r) => [
+          r.name,
+          r.category,
+          truncate(r.description ?? '', 40)
+        ]);
+
+        console.log(formatTable(rows, {
+          head: ['Name', 'Category', 'Description']
+        }));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to list world rules'));
+        process.exit(1);
+      }
+    });
+
+  // Create world rule
+  bible
+    .command('add-rule')
+    .description('Add a new world rule')
+    .option('-n, --name <name>', 'Rule name')
+    .option('-c, --category <category>', 'Rule category (magic, physics, social, economic, other)')
+    .action(async function (this: Command, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        let name = options.name as string | undefined;
+        if (!name) {
+          name = await promptText('Rule name:');
+        }
+
+        let category = options.category as 'magic' | 'physics' | 'social' | 'economic' | 'other' | undefined;
+        if (!category) {
+          category = await promptSelect('Rule category:', [
+            { name: 'Magic', value: 'magic' as const },
+            { name: 'Physics', value: 'physics' as const },
+            { name: 'Social', value: 'social' as const },
+            { name: 'Economic', value: 'economic' as const },
+            { name: 'Other', value: 'other' as const }
+          ]);
+        }
+
+        const rule = await withClient(async (client) => {
+          return withSpinner('Creating world rule...', () =>
+            client.bible.worldRule.create(projectId, { name, category })
+          );
+        });
+
+        console.log(success(`Created world rule: ${rule.name}`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to create world rule'));
+        process.exit(1);
+      }
+    });
+
+  // Create plot thread
+  bible
+    .command('add-thread')
+    .description('Add a new plot thread')
+    .option('-n, --name <name>', 'Thread name')
+    .option('-t, --type <type>', 'Thread type (main, subplot, character_arc, mystery, romance)')
+    .action(async function (this: Command, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        let name = options.name as string | undefined;
+        if (!name) {
+          name = await promptText('Thread name:');
+        }
+
+        let type = options.type as 'main' | 'subplot' | 'character_arc' | 'mystery' | 'romance' | undefined;
+        if (!type) {
+          type = await promptSelect('Thread type:', [
+            { name: 'Main', value: 'main' as const },
+            { name: 'Subplot', value: 'subplot' as const },
+            { name: 'Character Arc', value: 'character_arc' as const },
+            { name: 'Mystery', value: 'mystery' as const },
+            { name: 'Romance', value: 'romance' as const }
+          ]);
+        }
+
+        const thread = await withClient(async (client) => {
+          return withSpinner('Creating plot thread...', () =>
+            client.bible.plotThread.create(projectId, { name, type })
+          );
+        });
+
+        console.log(success(`Created plot thread: ${thread.name}`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to create plot thread'));
+        process.exit(1);
+      }
+    });
+
+  // List timeline events
+  bible
+    .command('timeline')
+    .description('List timeline events')
+    .action(async function (this: Command) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        const events = await withClient(async (client) => {
+          return withSpinner('Loading timeline events...', () =>
+            client.bible.timelineEvent.list(projectId)
+          );
+        });
+
+        if (events.length === 0) {
+          console.log('No timeline events found.');
+          return;
+        }
+
+        const rows = events.map((e) => [
+          e.name,
+          e.date,
+          e.significance ?? '-',
+          truncate(e.description ?? '', 30)
+        ]);
+
+        console.log(formatTable(rows, {
+          head: ['Name', 'Date', 'Significance', 'Description']
+        }));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to list timeline events'));
+        process.exit(1);
+      }
+    });
+
+  // Create timeline event
+  bible
+    .command('add-event')
+    .description('Add a new timeline event')
+    .option('-n, --name <name>', 'Event name')
+    .option('-d, --date <date>', 'Event date')
+    .option('-s, --significance <significance>', 'Event significance (major, moderate, minor)')
+    .action(async function (this: Command, options) {
+      try {
+        const projectId = getProjectId(this.parent?.opts() ?? {});
+
+        let name = options.name as string | undefined;
+        if (!name) {
+          name = await promptText('Event name:');
+        }
+
+        let date = options.date as string | undefined;
+        if (!date) {
+          date = await promptText('Event date:');
+        }
+
+        let significance = options.significance as 'major' | 'moderate' | 'minor' | undefined;
+        if (!significance) {
+          significance = await promptSelect('Event significance:', [
+            { name: 'Major', value: 'major' as const },
+            { name: 'Moderate', value: 'moderate' as const },
+            { name: 'Minor', value: 'minor' as const }
+          ]);
+        }
+
+        const event = await withClient(async (client) => {
+          return withSpinner('Creating timeline event...', () =>
+            client.bible.timelineEvent.create(projectId, { name, date, significance })
+          );
+        });
+
+        console.log(success(`Created timeline event: ${event.name}`));
+      } catch (err) {
+        console.error(error(err instanceof Error ? err.message : 'Failed to create timeline event'));
+        process.exit(1);
+      }
+    });
+
   return bible;
 }

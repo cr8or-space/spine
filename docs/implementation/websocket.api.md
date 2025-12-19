@@ -448,12 +448,12 @@ apps/cli/
 - [x] Unit tests (24 tests passing)
 - [x] User documentation (docs/user/cli.md)
 
-### Phase 7: CLI Extended Commands (Web Serial Support)
-- [ ] `analytics` command (tension, characters, threads, quality)
-- [ ] `serial` command (buffer, schedule, hooks, cycle, mysteries)
-- [ ] Extended `bible` commands (add-location, add-thread, factions, rules, timeline)
-- [ ] Extended `structure` commands (update, --depth, --parent filter)
-- [ ] Documentation sync with implemented features
+### Phase 7: CLI Extended Commands (Web Serial Support) ✓
+- [x] `analytics` command (tension, characters, threads, quality)
+- [x] `serial` command (buffer, schedule, hooks, cycle, mysteries)
+- [x] Extended `bible` commands (add-location, add-thread, factions, add-faction, rules, add-rule, timeline, add-event)
+- [x] Extended `structure` commands (update, --depth, --parent filter)
+- [ ] Documentation sync with implemented features (cli.md needs update)
 
 ## Technical Decisions
 
