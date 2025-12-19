@@ -477,9 +477,26 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [ ] Cascade handlers (full revision cascade service integration)
 - [ ] Integration tests with real database
 
-### 7.4 CLI Application - Future
+### 7.4 Client Package (@repo/client) - Phase 4
+- [x] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
+- [x] Protocol types (types.ts - error codes, subscription channels, client config)
+- [x] WebSocket client wrapper with auto-reconnect (client.ts)
+- [x] Request/response correlation with timeouts
+- [x] Subscription management for real-time updates
+- [x] Typed API methods for all domains:
+  - [x] project.ts - list, create, load, delete, updateSettings, updateMetadata
+  - [x] bible.ts - get, character/location/faction/worldRule/plotThread/timelineEvent CRUD
+  - [x] structure.ts - getTree, getAll, get, create, update, delete, reorder, addBeat, removeBeat, setHook
+  - [x] content.ts - get, save, getHistory, rollback
+  - [x] generation.ts - start, cancel, status, retry
+  - [x] review.ts - queue, getItem, submitAction, bulkApprove, lock points, comments, status transitions, cascade
+  - [x] analytics.ts - tensionCurve, characterPresence, plotThreads, quality
+  - [x] serial.ts - bufferStatus, releaseSchedule, hookPatterns, cycleStatus, mysteryBoard
+- [x] Main index.ts with createFullClient convenience function
+- [x] Unit tests for all components (116 tests passing)
+
+### 7.5 CLI Application - Future
 - [ ] CLI package setup (@repo/cli)
-- [ ] WebSocket client wrapper
 - [ ] Interactive project selection
 - [ ] Content viewing commands
 - [ ] Status and progress display

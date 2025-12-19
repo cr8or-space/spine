@@ -419,12 +419,13 @@ apps/cli/
 - [x] Emit events from handlers
 - [ ] Test real-time updates
 
-### Phase 4: Client Package
-- [ ] Create `packages/client` package structure
-- [ ] Implement WebSocket client wrapper
-- [ ] Implement typed API methods
-- [ ] Add reconnection logic
-- [ ] Add subscription management
+### Phase 4: Client Package ✓
+- [x] Create `packages/client` package structure
+- [x] Implement WebSocket client wrapper
+- [x] Implement typed API methods
+- [x] Add reconnection logic
+- [x] Add subscription management
+- [x] Unit tests (116 tests passing)
 
 ### Phase 5: Web App Migration
 - [ ] Add client initialization to layout
