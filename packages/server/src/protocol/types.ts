@@ -124,6 +124,13 @@ export const API_METHODS = {
   REVIEW_PREVIEW_CASCADE: 'review.previewCascade',
   REVIEW_EXECUTE_CASCADE: 'review.executeCascade',
 
+  // Cascade operations
+  CASCADE_GET_HORIZON_CONFIG: 'cascade.getHorizonConfig',
+  CASCADE_SET_HORIZON_CONFIG: 'cascade.setHorizonConfig',
+  CASCADE_ANALYZE_IMPACT: 'cascade.analyzeImpact',
+  CASCADE_IS_PROTECTED: 'cascade.isProtected',
+  CASCADE_CREATE_PROTECTION: 'cascade.createProtection',
+
   // Analytics operations
   ANALYTICS_TENSION_CURVE: 'analytics.tensionCurve',
   ANALYTICS_CHARACTER_PRESENCE: 'analytics.characterPresence',

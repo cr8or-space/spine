@@ -16,7 +16,13 @@ import type {
   LockPoint,
   ReviewQueueItem
 } from '@repo/types';
-import type { ApplyActionResult, StatusTransitionResult } from '@repo/core';
+import type {
+  ApplyActionResult,
+  StatusTransitionResult,
+  CascadePreview,
+  CascadeExecutionResult,
+  CascadeExecutionOptions
+} from '@repo/core';
 
 // Simplified param types
 interface ReviewQueueParams {
@@ -82,6 +88,12 @@ interface ReviewTransitionStatusParams {
 interface ReviewCascadeParams {
   projectId: string;
   contentId: string;
+}
+
+interface ReviewExecuteCascadeParams {
+  projectId: string;
+  contentId: string;
+  options?: CascadeExecutionOptions;
 }
 
 /**
@@ -277,12 +289,10 @@ export function registerReviewHandlers(router: Router, services: Services): void
   );
 
   // review.previewCascade - Preview revision cascade impact
-  router.register<ReviewCascadeParams, { affectedStructures: string[]; lockPoints: LockPoint[] }>(
+  router.register<ReviewCascadeParams, CascadePreview>(
     API_METHODS.REVIEW_PREVIEW_CASCADE,
     (params) => {
-      const reviewService = services.review(params.projectId);
-
-      // Get structure hierarchy to determine cascade scope
+      // Verify content exists
       const content = services.project.repos.contents.findById(
         params.projectId,
         params.contentId
@@ -292,48 +302,16 @@ export function registerReviewHandlers(router: Router, services: Services): void
         throw ApiError.entityNotFound('Content', params.contentId);
       }
 
-      // Find all structures that would be affected by a change
-      const structureService = services.structure(params.projectId);
-      const allStructures = structureService.getAll();
-
-      // Find structure for this content
-      const currentStructure = allStructures.find(s => s.id === content.structureId);
-      if (!currentStructure) {
-        throw ApiError.entityNotFound('Structure', content.structureId);
-      }
-
-      // Get all child structures (would be affected by cascade)
-      const affectedStructures: string[] = [];
-      const collectChildren = (parentId: string): void => {
-        for (const s of allStructures) {
-          if (s.parentId === parentId) {
-            affectedStructures.push(s.id);
-            collectChildren(s.id);
-          }
-        }
-      };
-      collectChildren(currentStructure.id);
-
-      // Get lock points that would block cascade
-      const lockPoints = reviewService.getLockPoints(params.projectId);
-      const blockingLockPoints = lockPoints.filter(lp =>
-        affectedStructures.includes(lp.structureId)
-      );
-
-      return {
-        affectedStructures,
-        lockPoints: blockingLockPoints
-      };
+      // Use the full cascade service for preview
+      return services.cascade.previewCascade(params.projectId, params.contentId);
     }
   );
 
   // review.executeCascade - Execute revision cascade
-  router.register<ReviewCascadeParams, { success: boolean; affected: number }>(
+  router.register<ReviewExecuteCascadeParams, CascadeExecutionResult>(
     API_METHODS.REVIEW_EXECUTE_CASCADE,
     (params) => {
-      // Note: Full cascade implementation would require the continuity/cascade service
-      // For now, we mark the content and children as needing review
-
+      // Verify content exists
       const content = services.project.repos.contents.findById(
         params.projectId,
         params.contentId
@@ -343,51 +321,18 @@ export function registerReviewHandlers(router: Router, services: Services): void
         throw ApiError.entityNotFound('Content', params.contentId);
       }
 
-      // Find child content and transition to draft
-      const structureService = services.structure(params.projectId);
-      const allStructures = structureService.getAll();
-      const currentStructure = allStructures.find(s => s.id === content.structureId);
+      // Use the full cascade service for execution
+      const result = services.cascade.executeCascade(
+        params.projectId,
+        params.contentId,
+        params.options
+      );
 
-      if (!currentStructure) {
-        throw ApiError.entityNotFound('Structure', content.structureId);
+      if (!result.success) {
+        throw ApiError.reviewError(result.error ?? 'Cascade execution failed');
       }
 
-      const reviewService = services.review(params.projectId);
-      let affected = 0;
-
-      // Collect child structure IDs
-      const childStructureIds: string[] = [];
-      const collectChildren = (parentId: string): void => {
-        for (const s of allStructures) {
-          if (s.parentId === parentId) {
-            childStructureIds.push(s.id);
-            collectChildren(s.id);
-          }
-        }
-      };
-      collectChildren(currentStructure.id);
-
-      // Transition child content back to draft
-      for (const structureId of childStructureIds) {
-        const childContent = services.project.repos.contents.findByStructure(
-          params.projectId,
-          structureId
-        );
-
-        if (childContent && childContent.status !== 'published') {
-          const result = reviewService.transitionStatus(
-            params.projectId,
-            childContent.id,
-            'draft',
-            'Cascade from parent revision'
-          );
-          if (result.success) {
-            affected++;
-          }
-        }
-      }
-
-      return { success: true, affected };
+      return result;
     }
   );
 }

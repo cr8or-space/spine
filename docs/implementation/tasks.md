@@ -473,9 +473,13 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [x] Request schemas for generation, review, analytics, serial operations
 - [x] Unit tests for new handlers (78 tests passing)
 
-### 7.3 Server Package - Deferred
-- [ ] Cascade handlers (full revision cascade service integration)
-- [ ] Integration tests with real database
+### 7.3 Server Package - Cascade Integration ✓
+- [x] Full revision cascade service integration (cascade.ts handlers)
+- [x] Cascade-specific API methods (getHorizonConfig, setHorizonConfig, analyzeImpact, isProtected, createProtection)
+- [x] Updated review handlers to use full cascade service (previewCascade, executeCascade with options)
+- [x] Request schemas with cascade execution options (entityFilter, forcePastLocks, dryRun)
+- [x] Integration tests with real database (cascade.integration.test.ts)
+- [x] Unit tests for cascade handlers (92 tests passing total)
 
 ### 7.4 Client Package (@repo/client) - Phase 4
 - [x] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)

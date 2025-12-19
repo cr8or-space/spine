@@ -248,7 +248,23 @@ interface Notification {
 | `review.resolveComment` | `{ projectId, contentId, commentId }` | `Content` |
 | `review.transitionStatus` | `{ projectId, contentId, newStatus, reason? }` | `StatusTransitionResult` |
 | `review.previewCascade` | `{ projectId, contentId }` | `CascadePreview` |
-| `review.executeCascade` | `{ projectId, contentId }` | `{ success: boolean }` |
+| `review.executeCascade` | `{ projectId, contentId, options? }` | `CascadeExecutionResult` |
+
+**Cascade execution options:**
+- `entityFilter` — Only affect content referencing specific characters, locations, or threads
+- `forcePastLocks` — Force cascade past lock points (requires confirmation)
+- `dryRun` — Preview what would happen without executing
+- `reason` — Custom reason for the cascade
+
+#### Cascade Operations
+
+| Method | Params | Returns |
+|--------|--------|---------|
+| `cascade.getHorizonConfig` | `{ projectId }` | `RevisionHorizonConfig` |
+| `cascade.setHorizonConfig` | `{ projectId, config }` | `RevisionHorizonConfig` |
+| `cascade.analyzeImpact` | `{ projectId, contentId }` | `ImpactAnalysisResult` |
+| `cascade.isProtected` | `{ projectId, contentId }` | `{ protected: boolean, reason?, lockPoint? }` |
+| `cascade.createProtection` | `{ projectId, contentId, reason }` | `LockPoint` |
 
 #### Analytics Operations
 
@@ -412,6 +428,13 @@ apps/cli/
 - [x] Implement `review.*` handlers
 - [x] Implement `analytics.*` handlers
 - [x] Implement `serial.*` handlers
+
+### Phase 2.5: Cascade Integration ✓
+- [x] Implement `cascade.*` handlers (horizon config, impact analysis, protection)
+- [x] Update `review.previewCascade` with full cascade service
+- [x] Update `review.executeCascade` with full options (entityFilter, forcePastLocks, dryRun)
+- [x] Integration tests with real database
+- [x] Unit tests (92 tests passing)
 
 ### Phase 3: Subscription System ✓
 - [x] Implement subscription manager

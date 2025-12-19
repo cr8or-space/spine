@@ -497,7 +497,21 @@ export type ReviewPreviewCascadeParams = z.infer<
 
 export const ReviewExecuteCascadeParamsSchema = z.object({
   projectId: z.string().uuid(),
-  contentId: z.string().uuid()
+  contentId: z.string().uuid(),
+  options: z
+    .object({
+      entityFilter: z
+        .object({
+          characterIds: z.array(z.string().uuid()).optional(),
+          locationIds: z.array(z.string().uuid()).optional(),
+          threadIds: z.array(z.string().uuid()).optional()
+        })
+        .optional(),
+      forcePastLocks: z.boolean().optional(),
+      reason: z.string().optional(),
+      dryRun: z.boolean().optional()
+    })
+    .optional()
 });
 export type ReviewExecuteCascadeParams = z.infer<
   typeof ReviewExecuteCascadeParamsSchema
@@ -607,6 +621,52 @@ export const SerialMysteryBoardParamsSchema = z.object({
 });
 export type SerialMysteryBoardParams = z.infer<
   typeof SerialMysteryBoardParamsSchema
+>;
+
+// Cascade method params
+export const CascadeGetHorizonConfigParamsSchema = z.object({
+  projectId: z.string().uuid()
+});
+export type CascadeGetHorizonConfigParams = z.infer<
+  typeof CascadeGetHorizonConfigParamsSchema
+>;
+
+export const CascadeSetHorizonConfigParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  config: z.object({
+    maxChaptersAhead: z.number().min(1).optional(),
+    autoInvalidate: z.boolean().optional(),
+    requireConfirmation: z.boolean().optional(),
+    minTriggerStatus: z.enum(['draft', 'review', 'approved']).optional()
+  })
+});
+export type CascadeSetHorizonConfigParams = z.infer<
+  typeof CascadeSetHorizonConfigParamsSchema
+>;
+
+export const CascadeAnalyzeImpactParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid()
+});
+export type CascadeAnalyzeImpactParams = z.infer<
+  typeof CascadeAnalyzeImpactParamsSchema
+>;
+
+export const CascadeIsProtectedParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid()
+});
+export type CascadeIsProtectedParams = z.infer<
+  typeof CascadeIsProtectedParamsSchema
+>;
+
+export const CascadeCreateProtectionParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid(),
+  reason: z.string().min(1)
+});
+export type CascadeCreateProtectionParams = z.infer<
+  typeof CascadeCreateProtectionParamsSchema
 >;
 
 // Subscription params

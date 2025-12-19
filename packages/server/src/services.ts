@@ -22,7 +22,11 @@ import {
   createReviewWorkflowService,
   type ReviewWorkflowService,
   createAnalysisService,
-  type AnalysisService
+  type AnalysisService,
+  createRevisionCascadeService,
+  type RevisionCascadeService,
+  createLockPointRepository,
+  type LockPointRepository
 } from '@repo/core';
 import { createLLMClient, type LLMClient } from '@repo/llm';
 import type Database from 'libsql';
@@ -45,6 +49,7 @@ export interface Services {
   structure(projectId: string): StructureService;
   version: VersionService;
   review(projectId: string): ReviewWorkflowService;
+  cascade: RevisionCascadeService;
   generation: GenerationPipeline | undefined;
   analysis: AnalysisService | undefined;
   llmClient: LLMClient | undefined;
@@ -70,6 +75,9 @@ export function createServices(config: ServiceConfig): Services {
 
   // Create core project service
   const projectService = createProjectService(db, drizzle);
+
+  // Create lock point repository (not included in project service)
+  const lockPointRepo: LockPointRepository = createLockPointRepository(db, drizzle);
 
   // Create LLM client if configured
   let llmClient: LLMClient | undefined;
@@ -104,10 +112,17 @@ export function createServices(config: ServiceConfig): Services {
     // Note: projectId is used by the caller to scope method calls, not for service creation
     return createReviewWorkflowService(
       projectService.repos.contents,
-      projectService.repos.lockPoints,
+      lockPointRepo,
       projectService.repos.structures
     );
   }
+
+  // Create cascade service (shared across all projects)
+  const cascadeService = createRevisionCascadeService(
+    projectService.repos.contents,
+    lockPointRepo,
+    projectService.repos.structures
+  );
 
   return {
     db,
@@ -117,6 +132,7 @@ export function createServices(config: ServiceConfig): Services {
     structure: getStructureService,
     version: versionService,
     review: getReviewService,
+    cascade: cascadeService,
     generation: generationPipeline,
     analysis: analysisService,
     llmClient,

@@ -14,6 +14,7 @@ import { registerGenerationHandlers } from './generation';
 import { registerReviewHandlers } from './review';
 import { registerAnalyticsHandlers } from './analytics';
 import { registerSerialHandlers } from './serial';
+import { registerCascadeHandlers } from './cascade';
 
 // Create mock connection state
 function createMockConnection(): ConnectionState {
@@ -87,6 +88,57 @@ function createMockServices(): Services {
     canModify: vi.fn().mockReturnValue({ canModify: true })
   });
 
+  const mockCascade = {
+    getHorizonConfig: vi.fn().mockReturnValue({
+      maxChaptersAhead: 5,
+      autoInvalidate: false,
+      requireConfirmation: true,
+      minTriggerStatus: 'review'
+    }),
+    setHorizonConfig: vi.fn().mockReturnValue({
+      maxChaptersAhead: 5,
+      autoInvalidate: false,
+      requireConfirmation: true,
+      minTriggerStatus: 'review'
+    }),
+    analyzeImpact: vi.fn().mockReturnValue({
+      sourceContentId: 'test',
+      affectedContents: [],
+      protectingLockPoints: [],
+      protectedContentIds: [],
+      publishedContentIds: [],
+      horizonConfig: { maxChaptersAhead: 5, autoInvalidate: false, requireConfirmation: true, minTriggerStatus: 'review' },
+      chaptersAnalyzed: 0,
+      crossesLockPoints: false,
+      affectsPublished: false,
+      analyzedAt: new Date().toISOString()
+    }),
+    isProtected: vi.fn().mockReturnValue({ protected: false }),
+    createCascadeProtection: vi.fn().mockReturnValue(null),
+    previewCascade: vi.fn().mockReturnValue({
+      source: { contentId: 'test', title: 'Test', chapterNumber: 1 },
+      affectedBySeverity: { direct: [], indirect: [] },
+      protected: { byLockPoints: [], byPublished: [] },
+      summary: { totalAffected: 0, totalProtected: 0, wouldInvalidate: 0, horizonChapters: 5 },
+      warnings: []
+    }),
+    executeCascade: vi.fn().mockReturnValue({
+      success: true,
+      invalidatedContentIds: [],
+      skippedContentIds: [],
+      blockingLockPoints: [],
+      blockingPublishedIds: [],
+      impact: {
+        sourceContentId: 'test',
+        affectedContents: [],
+        protectedByLocks: [],
+        horizonChapters: 5,
+        analyzedAt: new Date().toISOString()
+      }
+    }),
+    getProtectingLockPoints: vi.fn().mockReturnValue([])
+  };
+
   return {
     db: {} as unknown as import('libsql').Database,
     drizzle: {} as unknown as import('@repo/core').DrizzleDB,
@@ -95,6 +147,7 @@ function createMockServices(): Services {
     structure: mockStructure,
     version: {} as unknown as import('@repo/core').VersionService,
     review: mockReview,
+    cascade: mockCascade as unknown as import('@repo/core').RevisionCascadeService,
     generation: undefined, // LLM not configured
     analysis: undefined,
     llmClient: undefined,
@@ -372,5 +425,85 @@ describe('Serial Handlers', () => {
     expect(response.result).toBeDefined();
     expect(typeof response.result.bufferSize).toBe('number');
     expect(typeof response.result.isHealthy).toBe('boolean');
+  });
+});
+
+describe('Cascade Handlers', () => {
+  let router: ReturnType<typeof createRouter>;
+  let services: Services;
+  let connection: ConnectionState;
+
+  beforeEach(() => {
+    router = createRouter();
+    services = createMockServices();
+    connection = createMockConnection();
+    registerCascadeHandlers(router, services);
+  });
+
+  it('should register all cascade methods', () => {
+    expect(router.hasMethod(API_METHODS.CASCADE_GET_HORIZON_CONFIG)).toBe(true);
+    expect(router.hasMethod(API_METHODS.CASCADE_SET_HORIZON_CONFIG)).toBe(true);
+    expect(router.hasMethod(API_METHODS.CASCADE_ANALYZE_IMPACT)).toBe(true);
+    expect(router.hasMethod(API_METHODS.CASCADE_IS_PROTECTED)).toBe(true);
+    expect(router.hasMethod(API_METHODS.CASCADE_CREATE_PROTECTION)).toBe(true);
+  });
+
+  it('should return error when project not found for cascade.getHorizonConfig', async () => {
+    const responseJson = await router.handle(
+      {
+        jsonrpc: '2.0',
+        id: 'req-1',
+        method: API_METHODS.CASCADE_GET_HORIZON_CONFIG,
+        params: { projectId: 'non-existent' }
+      },
+      connection
+    );
+    const response = JSON.parse(responseJson);
+
+    expect(response.error).toBeDefined();
+    expect(response.error.message).toContain('not found');
+  });
+
+  it('should return horizon config when project exists', async () => {
+    // Mock project to exist
+    vi.mocked(services.project.loadProject).mockReturnValue({
+      id: 'test-project',
+      title: 'Test',
+      format: 'web-serial',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      settings: {}
+    } as unknown as import('@repo/types').Project);
+
+    const responseJson = await router.handle(
+      {
+        jsonrpc: '2.0',
+        id: 'req-1',
+        method: API_METHODS.CASCADE_GET_HORIZON_CONFIG,
+        params: { projectId: 'test-project' }
+      },
+      connection
+    );
+    const response = JSON.parse(responseJson);
+
+    expect(response.result).toBeDefined();
+    expect(typeof response.result.maxChaptersAhead).toBe('number');
+    expect(typeof response.result.autoInvalidate).toBe('boolean');
+  });
+
+  it('should return error when content not found for cascade.analyzeImpact', async () => {
+    const responseJson = await router.handle(
+      {
+        jsonrpc: '2.0',
+        id: 'req-1',
+        method: API_METHODS.CASCADE_ANALYZE_IMPACT,
+        params: { projectId: 'test-project', contentId: 'non-existent' }
+      },
+      connection
+    );
+    const response = JSON.parse(responseJson);
+
+    expect(response.error).toBeDefined();
+    expect(response.error.message).toContain('not found');
   });
 });
