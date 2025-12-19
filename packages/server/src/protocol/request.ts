@@ -503,6 +503,52 @@ export type ReviewExecuteCascadeParams = z.infer<
   typeof ReviewExecuteCascadeParamsSchema
 >;
 
+export const ReviewAddCommentParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid(),
+  comment: z.object({
+    paragraphIndex: z.number(),
+    text: z.string().min(1),
+    author: z.string().optional()
+  })
+});
+export type ReviewAddCommentParams = z.infer<typeof ReviewAddCommentParamsSchema>;
+
+export const ReviewResolveCommentParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid(),
+  commentId: z.string().uuid()
+});
+export type ReviewResolveCommentParams = z.infer<
+  typeof ReviewResolveCommentParamsSchema
+>;
+
+export const ReviewTransitionStatusParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid(),
+  newStatus: z.enum(['draft', 'in_review', 'approved', 'published']),
+  reason: z.string().optional()
+});
+export type ReviewTransitionStatusParams = z.infer<
+  typeof ReviewTransitionStatusParamsSchema
+>;
+
+export const ReviewRemoveLockPointParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  lockPointId: z.string().uuid()
+});
+export type ReviewRemoveLockPointParams = z.infer<
+  typeof ReviewRemoveLockPointParamsSchema
+>;
+
+export const ReviewGetLockPointsParamsSchema = z.object({
+  projectId: z.string().uuid(),
+  contentId: z.string().uuid().optional()
+});
+export type ReviewGetLockPointsParams = z.infer<
+  typeof ReviewGetLockPointsParamsSchema
+>;
+
 // Analytics method params
 export const AnalyticsScopeParamsSchema = z.object({
   projectId: z.string().uuid(),

@@ -16,7 +16,13 @@ import {
   createStructureService,
   type StructureService,
   createVersionService,
-  type VersionService
+  type VersionService,
+  createGenerationPipeline,
+  type GenerationPipeline,
+  createReviewWorkflowService,
+  type ReviewWorkflowService,
+  createAnalysisService,
+  type AnalysisService
 } from '@repo/core';
 import { createLLMClient, type LLMClient } from '@repo/llm';
 import type Database from 'libsql';
@@ -38,6 +44,9 @@ export interface Services {
   bible(projectId: string): BibleService;
   structure(projectId: string): StructureService;
   version: VersionService;
+  review(projectId: string): ReviewWorkflowService;
+  generation: GenerationPipeline | undefined;
+  analysis: AnalysisService | undefined;
   llmClient: LLMClient | undefined;
   close(): void;
 }
@@ -75,6 +84,12 @@ export function createServices(config: ServiceConfig): Services {
   // Create version service (shared across all projects)
   const versionService = createVersionService();
 
+  // Create generation pipeline (requires LLM client)
+  const generationPipeline = llmClient ? createGenerationPipeline(llmClient) : undefined;
+
+  // Create analysis service (requires LLM client)
+  const analysisService = llmClient ? createAnalysisService(llmClient) : undefined;
+
   // Service factory functions
   function getBibleService(projectId: string): BibleService {
     return createBibleService(db, drizzle, projectId);
@@ -84,6 +99,16 @@ export function createServices(config: ServiceConfig): Services {
     return createStructureService(projectId, projectService.repos.structures);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function getReviewService(projectId: string): ReviewWorkflowService {
+    // Note: projectId is used by the caller to scope method calls, not for service creation
+    return createReviewWorkflowService(
+      projectService.repos.contents,
+      projectService.repos.lockPoints,
+      projectService.repos.structures
+    );
+  }
+
   return {
     db,
     drizzle,
@@ -91,6 +116,9 @@ export function createServices(config: ServiceConfig): Services {
     bible: getBibleService,
     structure: getStructureService,
     version: versionService,
+    review: getReviewService,
+    generation: generationPipeline,
+    analysis: analysisService,
     llmClient,
 
     close(): void {

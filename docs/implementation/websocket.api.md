@@ -242,6 +242,11 @@ interface Notification {
 | `review.submitAction` | `{ projectId, contentId, paragraphIndex, action }` | `{ success: boolean }` |
 | `review.bulkApprove` | `{ projectId, contentIds }` | `{ success: boolean }` |
 | `review.createLockPoint` | `{ projectId, structureId }` | `LockPoint` |
+| `review.removeLockPoint` | `{ projectId, lockPointId }` | `{ success: boolean }` |
+| `review.getLockPoints` | `{ projectId, contentId? }` | `LockPoint[]` |
+| `review.addComment` | `{ projectId, contentId, comment }` | `Content` |
+| `review.resolveComment` | `{ projectId, contentId, commentId }` | `Content` |
+| `review.transitionStatus` | `{ projectId, contentId, newStatus, reason? }` | `StatusTransitionResult` |
 | `review.previewCascade` | `{ projectId, contentId }` | `CascadePreview` |
 | `review.executeCascade` | `{ projectId, contentId }` | `{ success: boolean }` |
 
@@ -391,27 +396,27 @@ apps/cli/
 
 ## Migration Checklist
 
-### Phase 1: Server Package
-- [ ] Create `packages/server` package structure
-- [ ] Implement WebSocket server with `ws`
-- [ ] Define protocol types with Zod schemas
-- [ ] Create request router
-- [ ] Implement connection management
+### Phase 1: Server Package ✓
+- [x] Create `packages/server` package structure
+- [x] Implement WebSocket server with `ws`
+- [x] Define protocol types with Zod schemas
+- [x] Create request router
+- [x] Implement connection management
 
-### Phase 2: Handler Implementation
-- [ ] Implement `project.*` handlers
-- [ ] Implement `bible.*` handlers
-- [ ] Implement `structure.*` handlers
-- [ ] Implement `content.*` handlers
-- [ ] Implement `generation.*` handlers with streaming
-- [ ] Implement `review.*` handlers
-- [ ] Implement `analytics.*` handlers
-- [ ] Implement `serial.*` handlers
+### Phase 2: Handler Implementation ✓
+- [x] Implement `project.*` handlers
+- [x] Implement `bible.*` handlers
+- [x] Implement `structure.*` handlers
+- [x] Implement `content.*` handlers
+- [x] Implement `generation.*` handlers with streaming
+- [x] Implement `review.*` handlers
+- [x] Implement `analytics.*` handlers
+- [x] Implement `serial.*` handlers
 
-### Phase 3: Subscription System
-- [ ] Implement subscription manager
-- [ ] Add subscription handlers
-- [ ] Emit events from handlers
+### Phase 3: Subscription System ✓
+- [x] Implement subscription manager
+- [x] Add subscription handlers
+- [x] Emit events from handlers
 - [ ] Test real-time updates
 
 ### Phase 4: Client Package

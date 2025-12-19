@@ -116,6 +116,11 @@ export const API_METHODS = {
   REVIEW_SUBMIT_ACTION: 'review.submitAction',
   REVIEW_BULK_APPROVE: 'review.bulkApprove',
   REVIEW_CREATE_LOCK_POINT: 'review.createLockPoint',
+  REVIEW_REMOVE_LOCK_POINT: 'review.removeLockPoint',
+  REVIEW_GET_LOCK_POINTS: 'review.getLockPoints',
+  REVIEW_ADD_COMMENT: 'review.addComment',
+  REVIEW_RESOLVE_COMMENT: 'review.resolveComment',
+  REVIEW_TRANSITION_STATUS: 'review.transitionStatus',
   REVIEW_PREVIEW_CASCADE: 'review.previewCascade',
   REVIEW_EXECUTE_CASCADE: 'review.executeCascade',
 

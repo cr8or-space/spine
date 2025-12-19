@@ -464,15 +464,20 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [x] Main entry point and exports (index.ts)
 - [x] Unit tests for server components (65 tests passing)
 
-### 7.2 Server Package - Deferred
-- [ ] Generation handlers (requires generation service integration)
-- [ ] Review handlers (requires review workflow service integration)
-- [ ] Analytics handlers (requires analysis service integration)
-- [ ] Serial handlers (requires release service integration)
-- [ ] Cascade handlers (requires revision cascade service integration)
+### 7.2 Server Package - Phase 2 (Handler Implementation)
+- [x] Generation handlers with streaming support (generation.ts)
+- [x] Review handlers for workflow management (review.ts)
+- [x] Analytics handlers for tension/character/plot tracking (analytics.ts)
+- [x] Serial handlers for release planning (serial.ts)
+- [x] Updated services.ts with generation, review, analysis services
+- [x] Request schemas for generation, review, analytics, serial operations
+- [x] Unit tests for new handlers (78 tests passing)
+
+### 7.3 Server Package - Deferred
+- [ ] Cascade handlers (full revision cascade service integration)
 - [ ] Integration tests with real database
 
-### 7.3 CLI Application - Phase 2
+### 7.4 CLI Application - Future
 - [ ] CLI package setup (@repo/cli)
 - [ ] WebSocket client wrapper
 - [ ] Interactive project selection
