@@ -446,3 +446,37 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
   - [x] Fixed Select component timeout issues (removed unnecessary selectOption calls)
   - [ ] Fix workspace empty state test (serial mode state persistence)
 
+## Phase 7: WebSocket API (CLI Support)
+
+See [websocket.api.md](./websocket.api.md) for detailed API specification.
+
+### 7.1 Server Package (@repo/server) - Phase 1
+- [x] Package configuration (package.json, tsconfig.json, eslint.config.js)
+- [x] Protocol types (JSON-RPC 2.0 message schemas)
+- [x] Request schemas (project, bible, structure, content, subscription)
+- [x] Response schemas (success, error, notification)
+- [x] WebSocket server infrastructure (server.ts)
+- [x] Connection state management (connection.ts)
+- [x] Request router with validation (router.ts)
+- [x] Subscription manager for real-time updates (subscriptions.ts)
+- [x] Service context initialization (services.ts)
+- [x] Domain handlers: project, bible, structure, content, subscription
+- [x] Main entry point and exports (index.ts)
+- [x] Unit tests for server components (65 tests passing)
+
+### 7.2 Server Package - Deferred
+- [ ] Generation handlers (requires generation service integration)
+- [ ] Review handlers (requires review workflow service integration)
+- [ ] Analytics handlers (requires analysis service integration)
+- [ ] Serial handlers (requires release service integration)
+- [ ] Cascade handlers (requires revision cascade service integration)
+- [ ] Integration tests with real database
+
+### 7.3 CLI Application - Phase 2
+- [ ] CLI package setup (@repo/cli)
+- [ ] WebSocket client wrapper
+- [ ] Interactive project selection
+- [ ] Content viewing commands
+- [ ] Status and progress display
+- [ ] TUI workspace (optional)
+
