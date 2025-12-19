@@ -539,5 +539,5 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
   - [x] `update` - update structure properties (tension, synopsis, title, chapter type)
   - [x] `--depth` option for tree command
   - [x] `--parent` filter for list command
-- [ ] Documentation sync with implemented features (cli.md needs update)
+- [x] Documentation sync with implemented features (cli.md updated)
 

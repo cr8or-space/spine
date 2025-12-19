@@ -453,7 +453,7 @@ apps/cli/
 - [x] `serial` command (buffer, schedule, hooks, cycle, mysteries)
 - [x] Extended `bible` commands (add-location, add-thread, factions, add-faction, rules, add-rule, timeline, add-event)
 - [x] Extended `structure` commands (update, --depth, --parent filter)
-- [ ] Documentation sync with implemented features (cli.md needs update)
+- [x] Documentation sync with implemented features (cli.md updated)
 
 ## Technical Decisions
 

@@ -98,11 +98,41 @@ spine bible characters
 # List locations
 spine bible locations
 
+# List factions
+spine bible factions
+
+# List world rules
+spine bible rules
+
 # List plot threads
 spine bible threads
 
-# Add a new character (interactive)
+# List timeline events
+spine bible timeline
+
+# Add a new character (interactive or with options)
 spine bible add-character
+spine bible add-character --name "Hero" --role protagonist
+
+# Add a new location
+spine bible add-location
+spine bible add-location --name "Castle" --type building
+
+# Add a new faction
+spine bible add-faction
+spine bible add-faction --name "The Guild" --type organization
+
+# Add a new world rule
+spine bible add-rule
+spine bible add-rule --name "Magic Costs Energy" --category magic
+
+# Add a new plot thread
+spine bible add-thread
+spine bible add-thread --name "Main Quest" --type main
+
+# Add a timeline event
+spine bible add-event
+spine bible add-event --name "The Great War" --date "Year 100" --significance major
 ```
 
 ### Structure
@@ -112,12 +142,13 @@ View and manage the story structure (books, arcs, chapters, scenes).
 ```bash
 # Show structure tree
 spine structure tree
-spine structure tree --depth 3
+spine structure tree --depth 2          # Limit display depth
+spine structure tree --depth 0          # Show root only
 
 # List structure elements
 spine structure list
-spine structure list --type chapter
-spine structure list --parent <id>
+spine structure list --type chapter      # Filter by type
+spine structure list --parent <id>       # Filter by parent
 
 # Create a new structure element
 spine structure create
@@ -125,6 +156,12 @@ spine structure create --type arc --title "The Beginning"
 
 # Show element details
 spine structure show <id>
+
+# Update structure properties
+spine structure update <id> --title "New Title"
+spine structure update <id> --synopsis "Chapter summary"
+spine structure update <id> --tension 75
+spine structure update <id> --chapter-type action
 ```
 
 ### Content
@@ -190,6 +227,49 @@ spine review bulk-approve <id1> <id2> <id3>
 
 # View lock points
 spine review locks
+```
+
+### Analytics
+
+View project analytics and insights for pacing, characters, and plot threads.
+
+```bash
+# View tension curve data
+spine analytics tension
+spine analytics tension --book <id>      # Filter by book
+spine analytics tension --arc <id>       # Filter by arc
+
+# View character presence data
+spine analytics characters
+spine analytics chars                    # Alias
+
+# View plot thread timeline
+spine analytics threads
+
+# View quality metrics
+spine analytics quality
+```
+
+### Serial
+
+Manage web serial publishing features including buffer, schedule, hooks, and mysteries.
+
+```bash
+# View buffer status and health
+spine serial buffer
+
+# View release schedule and deadlines
+spine serial schedule
+
+# View hook patterns and variety warnings
+spine serial hooks
+spine serial hooks --book <id>
+
+# View tension cycle status
+spine serial cycle
+
+# View mystery board with clue tracking
+spine serial mysteries
 ```
 
 ## Output Formats
