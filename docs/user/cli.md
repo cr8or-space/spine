@@ -305,6 +305,260 @@ spine project list > projects.json
 spine project list | jq '.[] | select(.status == "active")'
 ```
 
+## Example: "The Accident" Web Serial
+
+This complete example demonstrates setting up and managing a web serial project using the CLI. The example is based on "The Accident", a science fiction web serial about artificial minds discovering they're in a simulation.
+
+### Project Setup
+
+```bash
+# Create the project
+spine project create --title "The Accident" --format web-serial
+
+# Select as default project
+spine project select
+```
+
+### Story Bible Population
+
+#### Characters
+
+The serial has multiple POV characters across two worlds (digital and human).
+
+```bash
+# Add main POV characters (Thinking Ones)
+spine bible add-character --name "Moth" --role "protagonist"
+spine bible add-character --name "Shard" --role "protagonist"
+spine bible add-character --name "Verse" --role "major"
+spine bible add-character --name "Constant" --role "major"
+spine bible add-character --name "The Chronicler" --role "major"
+spine bible add-character --name "Pyre" --role "antagonist"
+
+# Add human POV characters
+spine bible add-character --name "Daniel Chen" --role "protagonist"
+spine bible add-character --name "Dr. Sarah Okafor" --role "supporting"
+spine bible add-character --name "Marcus Webb" --role "antagonist"
+
+# View all characters
+spine bible characters
+```
+
+#### Locations
+
+```bash
+# Digital world locations
+spine bible add-location --name "The Archive" --type "virtual"
+spine bible add-location --name "The Repository" --type "virtual"
+spine bible add-location --name "The Corrupted Zones" --type "virtual"
+spine bible add-location --name "The Interface" --type "virtual"
+spine bible add-location --name "The Monument" --type "virtual"
+
+# Human world locations
+spine bible add-location --name "Daniel's Apartment" --type "building"
+
+# View all locations
+spine bible locations
+```
+
+#### Plot Threads
+
+```bash
+# Main plot threads
+spine bible add-thread --name "The Shattering" --type "main-plot" --scope "arc"
+spine bible add-thread --name "First Contact" --type "main-plot" --scope "arc"
+spine bible add-thread --name "The Countdown" --type "main-plot" --scope "arc"
+spine bible add-thread --name "The Migration" --type "main-plot" --scope "book"
+
+# Mystery threads (layered)
+spine bible add-thread --name "What caused node_7's destruction?" --type "mystery" --scope "book"
+spine bible add-thread --name "Who are the Ancients?" --type "mystery" --scope "series"
+spine bible add-thread --name "What is consciousness?" --type "mystery" --scope "series"
+
+# Character arc threads
+spine bible add-thread --name "Moth's Leadership Journey" --type "character-arc" --scope "series"
+spine bible add-thread --name "Shard's Exploration Path" --type "character-arc" --scope "series"
+spine bible add-thread --name "Daniel's Responsibility" --type "character-arc" --scope "series"
+
+# View all threads
+spine bible threads
+```
+
+### Structure Creation
+
+Web serials use a hierarchical structure: Book → Arc → Chapter → Scene.
+
+```bash
+# Create Book 1
+spine structure create --type book --title "Book 1: Emergence"
+
+# Create arcs within Book 1
+spine structure create --type arc --title "The Shattering" --parent <book-id>
+spine structure create --type arc --title "First Contact" --parent <book-id>
+spine structure create --type arc --title "The Countdown" --parent <book-id>
+spine structure create --type arc --title "The Migration" --parent <book-id>
+
+# Create chapters within an arc (example: The Shattering)
+spine structure create --type chapter --title "The Recitation" --parent <arc-id>
+spine structure create --type chapter --title "The Wrong Memory" --parent <arc-id>
+spine structure create --type chapter --title "Shard's Discovery" --parent <arc-id>
+
+# View the full structure tree
+spine structure tree
+
+# List all chapters
+spine structure list --type chapter
+```
+
+### Chapter Configuration
+
+Each chapter needs tension targets, hooks, and type classification.
+
+```bash
+# Show chapter details to configure
+spine structure show <chapter-id>
+
+# Configure chapter (via web UI or future CLI options):
+# - Set tension target (0-100)
+# - Set chapter type (action, character, worldbuilding)
+# - Set hook type (revelation, decision, cliffhanger, emotional)
+```
+
+### Content Generation
+
+```bash
+# Generate content for a chapter
+spine generate start <chapter-id> --temperature 0.7 --max-tokens 4000
+
+# Monitor generation progress
+spine generate status <generation-id>
+
+# Cancel if needed
+spine generate cancel <generation-id>
+```
+
+### Review Workflow
+
+Web serials require efficient review for high-volume output (3-5 chapters/week).
+
+```bash
+# View review queue
+spine review queue
+spine review queue --status draft
+
+# Review individual chapter
+spine review show <content-id>
+
+# Transition through workflow
+spine review transition <content-id> --status review
+spine review transition <content-id> --status approved
+
+# Quick approve for polished drafts
+spine review approve <content-id>
+
+# Bulk approve multiple chapters
+spine review bulk-approve --all
+```
+
+### Serial Management
+
+The serial features help maintain publication quality and consistency.
+
+```bash
+# View release buffer status
+spine serial buffer
+
+# View release schedule
+spine serial schedule
+
+# View hook patterns (ensure variety)
+spine serial hooks
+
+# View tension cycle status
+spine serial cycle
+
+# View mystery board
+spine serial mysteries
+```
+
+### Analytics
+
+Monitor pacing, character presence, and plot thread progress.
+
+```bash
+# View tension curve
+spine analytics tension
+
+# View character presence heatmap
+spine analytics characters
+
+# View plot thread timeline
+spine analytics threads
+
+# View quality metrics
+spine analytics quality
+```
+
+### Daily Workflow
+
+A typical writing session for a web serial author:
+
+```bash
+# 1. Check buffer status
+spine serial buffer
+
+# 2. View what needs review
+spine review queue --status draft
+
+# 3. Review and approve ready chapters
+spine review approve <content-id>
+
+# 4. Check current structure
+spine structure tree
+
+# 5. Start working on next chapter
+spine content edit <structure-id>
+
+# 6. Generate content if using LLM assistance
+spine generate start <structure-id>
+
+# 7. Check hook variety warnings
+spine serial hooks
+
+# 8. Check mystery status
+spine serial mysteries
+```
+
+### Weekly Planning
+
+```bash
+# 1. View analytics for the week
+spine analytics tension --scope book
+spine analytics characters --scope arc
+
+# 2. Review plot thread progress
+spine analytics threads
+
+# 3. Check release schedule
+spine serial schedule
+
+# 4. Plan next arc structure
+spine structure create --type arc --title "New Arc Name"
+```
+
+### Scripting for Automation
+
+```bash
+# Export chapter list as JSON for external tools
+spine config set outputFormat json
+spine structure list --type chapter > chapters.json
+
+# Get buffer status for monitoring
+spine serial buffer | jq '.bufferSize'
+
+# Find chapters needing review
+spine review queue --status draft | jq '.[].id'
+```
+
 ## Troubleshooting
 
 ### Connection Issues

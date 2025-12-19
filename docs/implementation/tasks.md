@@ -514,3 +514,30 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 - [x] User documentation (docs/user/cli.md)
 - [ ] TUI workspace (optional, future)
 
+### 7.6 CLI Extended Commands (Web Serial Support)
+- [ ] `analytics` command:
+  - [ ] `tension` - display tension curve data
+  - [ ] `characters` - display character presence heatmap
+  - [ ] `threads` - display plot thread timeline
+  - [ ] `quality` - display quality metrics
+- [ ] `serial` command:
+  - [ ] `buffer` - display buffer status and health
+  - [ ] `schedule` - display release schedule and deadlines
+  - [ ] `hooks` - display hook patterns and variety warnings
+  - [ ] `cycle` - display tension cycle status
+  - [ ] `mysteries` - display mystery board with clue tracking
+- [ ] Extended `bible` commands:
+  - [ ] `add-location` - create location entity
+  - [ ] `add-thread` - create plot thread entity
+  - [ ] `factions` - list faction entities
+  - [ ] `add-faction` - create faction entity
+  - [ ] `rules` - list world rule entities
+  - [ ] `add-rule` - create world rule entity
+  - [ ] `timeline` - list timeline events
+  - [ ] `add-event` - create timeline event
+- [ ] Extended `structure` commands:
+  - [ ] `update` - update structure properties (tension, hook, chapter type)
+  - [ ] `--depth` option for tree command
+  - [ ] `--parent` filter for list command
+- [ ] Documentation sync with implemented features
+

@@ -448,6 +448,13 @@ apps/cli/
 - [x] Unit tests (24 tests passing)
 - [x] User documentation (docs/user/cli.md)
 
+### Phase 7: CLI Extended Commands (Web Serial Support)
+- [ ] `analytics` command (tension, characters, threads, quality)
+- [ ] `serial` command (buffer, schedule, hooks, cycle, mysteries)
+- [ ] Extended `bible` commands (add-location, add-thread, factions, rules, timeline)
+- [ ] Extended `structure` commands (update, --depth, --parent filter)
+- [ ] Documentation sync with implemented features
+
 ## Technical Decisions
 
 ### Why WebSocket over HTTP?
