@@ -13,7 +13,8 @@ import type {
   AcceptResult,
   ExtractableEntityType,
 } from '@repo/types';
-import { ApiError, ErrorCode } from '../errors';
+import { ApiError } from '../router';
+import { ErrorCode } from '../protocol';
 
 // Parameter interfaces
 interface ProjectIdParams {
@@ -52,17 +53,17 @@ export function registerExtractionHandlers(router: Router, services: Services): 
         throw new ApiError(ErrorCode.LLM_ERROR, 'LLM not configured for extraction');
       }
 
-      const project = services.project.get(params.projectId);
+      const project = services.project.loadProject(params.projectId);
       if (!project) {
-        throw new ApiError(ErrorCode.PROJECT_NOT_FOUND, 'Project not found');
+        throw ApiError.projectNotFound(params.projectId);
       }
 
       const bibleService = services.bible(params.projectId);
       const bible = bibleService.getBible();
 
       // Get all content with structures
-      const contents = services.project.repos.contents.getByProject(params.projectId);
-      const structures = services.project.repos.structures.getAll(params.projectId);
+      const contents = services.project.repos.contents.findByProject(params.projectId);
+      const structures = services.project.repos.structures.findByProject(params.projectId);
 
       // Map contents to their structures
       const contentWithStructures = contents

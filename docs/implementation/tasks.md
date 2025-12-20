@@ -46,7 +46,7 @@ For architecture details, see [docs/architecture/](../architecture/).
 - [x] User documentation (docs/user/)
 
 ### Phase 8: MCP Server
-- [x] MCP package (@repo/mcp) with 45+ tools
+- [x] MCP package (@repo/mcp) with 60+ tools
 - [x] Integration with Spine server
 - [x] User documentation (docs/user/mcp.md)
 

@@ -780,6 +780,238 @@ Get mystery tracking board.
 
 ---
 
+### Extraction Operations
+
+LLM-powered entity extraction from content.
+
+#### extraction.run
+
+Run entity extraction on project content.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+- `options` (object): Extraction options
+  - `entityTypes` (string[]): Entity types to extract (`character`, `location`, `faction`, `world-rule`, `plot-thread`)
+  - `reanalyze` (boolean): Re-analyze already processed content
+
+**Returns:** `ExtractionResult`
+
+```json
+{
+  "structuresAnalyzed": ["struct-1", "struct-2"],
+  "suggestionsCreated": 5,
+  "byType": { "new": 3, "update": 2 },
+  "byEntityType": { "character": 2, "location": 1, "faction": 2 },
+  "errors": []
+}
+```
+
+#### extraction.suggestions
+
+List entity suggestions.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+- `status` (string): Filter by status: `"pending"` | `"accepted"` | `"rejected"` | `"merged"`
+- `entityType` (string): Filter by entity type
+
+**Returns:** `SuggestionSummary[]`
+
+#### extraction.suggestion
+
+Get suggestion details.
+
+**Parameters:**
+- `suggestionId` (string, required): Suggestion ID
+
+**Returns:** `EntitySuggestion`
+
+#### extraction.accept
+
+Accept a suggestion.
+
+**Parameters:**
+- `suggestionId` (string, required): Suggestion ID
+- `reviewNotes` (string): Optional review notes
+
+**Returns:** `AcceptResult`
+
+#### extraction.reject
+
+Reject a suggestion.
+
+**Parameters:**
+- `suggestionId` (string, required): Suggestion ID
+- `reviewNotes` (string): Optional review notes
+
+**Returns:** `EntitySuggestion`
+
+#### extraction.pendingCount
+
+Get count of pending suggestions.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+
+**Returns:** `{ count: number }`
+
+#### extraction.cleanup
+
+Clean up old reviewed suggestions.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+- `days` (number): Remove suggestions older than days (default: 30)
+
+**Returns:** `{ deleted: number }`
+
+---
+
+### System Operations
+
+Health monitoring, integrity checking, and backup management.
+
+#### system.health
+
+Get system health summary.
+
+**Parameters:** None
+
+**Returns:** `HealthSummary`
+
+```json
+{
+  "isHealthy": true,
+  "pendingOperations": 0,
+  "recentErrors": 0,
+  "lastBackup": "2025-01-15T10:00:00Z",
+  "lastIntegrityCheck": "2025-01-15T09:00:00Z"
+}
+```
+
+#### system.integrityCheck
+
+Run full database integrity check.
+
+**Parameters:** None
+
+**Returns:** `IntegrityCheckResult`
+
+```json
+{
+  "isValid": true,
+  "checks": [{ "checkType": "foreign_keys", "status": "ok" }],
+  "errors": [],
+  "warnings": []
+}
+```
+
+#### system.healthChecks
+
+Get recent health check results.
+
+**Parameters:**
+- `limit` (number): Max results to return (default: 50)
+
+**Returns:** `HealthCheckResult[]`
+
+#### system.repair
+
+Attempt to repair detected issues.
+
+**Parameters:** None
+
+**Returns:** `{ repaired: number, failed: number }`
+
+#### system.recoverableOperations
+
+Get operations that can be recovered.
+
+**Parameters:** None
+
+**Returns:** `OperationJournalEntry[]`
+
+#### system.operations
+
+Get operations for a project.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+- `status` (string): Filter by status: `"pending"` | `"in_progress"` | `"completed"` | `"failed"` | `"cancelled"`
+
+**Returns:** `OperationJournalEntry[]`
+
+#### system.recover
+
+Attempt to recover pending operations.
+
+**Parameters:** None
+
+**Returns:** `RecoveryResult`
+
+#### system.cancelOperation
+
+Cancel an operation.
+
+**Parameters:**
+- `operationId` (string, required): Operation ID
+
+**Returns:** `OperationJournalEntry | undefined`
+
+#### system.createBackup
+
+Create a database backup.
+
+**Parameters:**
+- `name` (string): Optional backup name
+
+**Returns:** `BackupRecord`
+
+#### system.listBackups
+
+List all backups.
+
+**Parameters:** None
+
+**Returns:** `BackupRecord[]`
+
+#### system.verifyBackup
+
+Verify backup integrity.
+
+**Parameters:**
+- `backupId` (string, required): Backup ID
+
+**Returns:** `{ valid: boolean, error?: string }`
+
+#### system.deleteBackup
+
+Delete a backup.
+
+**Parameters:**
+- `backupId` (string, required): Backup ID
+
+**Returns:** `{ success: boolean }`
+
+#### system.exportProject
+
+Export project data to JSON.
+
+**Parameters:**
+- `projectId` (string, required): Project ID
+
+**Returns:** `Record<string, unknown>` (full project data)
+
+#### system.cleanup
+
+Clean up old operation journal entries and excess backups.
+
+**Parameters:** None
+
+**Returns:** `{ journalEntries: number, backups: number }`
+
+---
+
 ## Subscriptions
 
 Subscribe to real-time updates using subscription methods.

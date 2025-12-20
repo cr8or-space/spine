@@ -5,7 +5,8 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { handleToolCall, requireProjectId } from '../utils/errors';
+import { handleToolCall } from '../utils/errors';
+import { requireProjectId } from '../context';
 
 export function registerExtractionTools(
   server: McpServer,

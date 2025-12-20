@@ -184,18 +184,20 @@ export function createExtractionService(config: ExtractionServiceConfig): Extrac
             entityTypes
           );
 
-          // Call LLM
-          const response = await llm.complete({
+          // Call LLM (model comes from LLM config)
+          const response = await llm.chat({
+            model: '', // Uses defaultModel from LLM config
             messages: [
               { role: 'system', content: EXTRACTION_SYSTEM_PROMPT },
               { role: 'user', content: prompt },
             ],
             temperature: 0.3, // Lower temperature for more consistent extraction
-            maxTokens: 4096,
+            max_tokens: 4096,
           });
 
           // Parse response
-          const extracted = parseExtractionResponse(response.content);
+          const responseText = response.choices[0]?.message?.content ?? '';
+          const extracted = parseExtractionResponse(responseText);
 
           // Create suggestions
           for (const suggestion of extracted.suggestions) {

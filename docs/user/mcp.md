@@ -72,7 +72,7 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json` with the same structure.
 
 ## Available Tools
 
-The MCP server provides 45+ tools organized into categories:
+The MCP server provides 60+ tools organized into categories:
 
 ### Project Tools
 
@@ -176,6 +176,33 @@ The MCP server provides 45+ tools organized into categories:
 | `spine_serial_cycle` | Get tension cycle status |
 | `spine_serial_mysteries` | Get mystery tracking board |
 
+### Extraction Tools
+
+| Tool | Description |
+|------|-------------|
+| `spine_extraction_run` | Run entity extraction on content |
+| `spine_extraction_suggestions` | List entity suggestions |
+| `spine_extraction_show` | Show suggestion details |
+| `spine_extraction_accept` | Accept a suggestion |
+| `spine_extraction_reject` | Reject a suggestion |
+| `spine_extraction_pending_count` | Get pending suggestion count |
+| `spine_extraction_cleanup` | Clean up old suggestions |
+
+### System Tools
+
+| Tool | Description |
+|------|-------------|
+| `spine_system_health` | Get system health summary |
+| `spine_system_integrity_check` | Run full integrity check |
+| `spine_system_repair` | Repair detected issues |
+| `spine_system_recoverable_operations` | List recoverable operations |
+| `spine_system_recover` | Recover pending operations |
+| `spine_system_backup` | Create database backup |
+| `spine_system_list_backups` | List all backups |
+| `spine_system_verify_backup` | Verify backup integrity |
+| `spine_system_delete_backup` | Delete a backup |
+| `spine_system_cleanup` | Clean up old data |
+
 ## Session Context
 
 The MCP server maintains session context to avoid requiring IDs on every call:
@@ -232,6 +259,20 @@ Here are example prompts you can use with Claude:
 "Approve Chapter 5"
 "Create a lock point on Chapter 10"
 "Preview the revision cascade for this chapter"
+
+### Entity Extraction
+
+"Run extraction to find new characters from the latest chapters"
+"Show me pending entity suggestions"
+"Accept the suggestion for character 'Marcus'"
+"How many entity suggestions are pending review?"
+
+### System & Backup
+
+"Check the system health"
+"Create a backup of the database"
+"Show me available backups"
+"Run an integrity check"
 
 ## Error Handling
 
