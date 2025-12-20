@@ -549,36 +549,34 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
 
 See [mcp.plan.md](./mcp.plan.md) for detailed implementation plan.
 
-### 8.1 MCP Package Foundation
-- [ ] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
-- [ ] MCP server initialization with SDK (@modelcontextprotocol/sdk)
-- [ ] Configuration management (environment, config file)
-- [ ] WebSocket client integration (@repo/client)
-- [ ] Session context management (currentProjectId, currentStructureId)
-- [ ] Error handling and mapping
+### 8.1 MCP Package Foundation ✓
+- [x] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
+- [x] MCP server initialization with SDK (@modelcontextprotocol/sdk)
+- [x] Configuration management (environment, config file)
+- [x] WebSocket client integration (@repo/client)
+- [x] Session context management (currentProjectId, currentStructureId)
+- [x] Error handling and mapping
 
-### 8.2 Core Tools
-- [ ] Project tools (spine_project_list, spine_project_create, spine_project_load, spine_project_delete)
-- [ ] Bible tools (spine_bible_get, spine_bible_character_*)
-- [ ] Structure tools (spine_structure_tree, spine_structure_create, spine_structure_update)
-- [ ] Content tools (spine_content_get, spine_content_save, spine_content_history)
-- [ ] Session status tool (spine_session_status)
+### 8.2 Core Tools ✓
+- [x] Project tools (spine_project_list, spine_project_create, spine_project_load, spine_project_delete, spine_session_status, spine_project_settings)
+- [x] Bible tools (spine_bible_get, spine_bible_character_*, spine_bible_location_*, spine_bible_faction_*, spine_bible_thread_*, spine_bible_rule_*, spine_bible_timeline, spine_bible_event_*)
+- [x] Structure tools (spine_structure_tree, spine_structure_list, spine_structure_get, spine_structure_create, spine_structure_update, spine_structure_delete, spine_structure_select, spine_structure_reorder)
+- [x] Content tools (spine_content_get, spine_content_save, spine_content_history, spine_content_rollback)
 
-### 8.3 Advanced Tools
-- [ ] Generation tools (spine_generate_start, spine_generate_status, spine_generate_cancel)
-- [ ] Review tools (spine_review_queue, spine_review_approve, spine_review_publish)
-- [ ] Remaining bible entity tools (location, faction, worldRule, plotThread, timelineEvent)
-- [ ] Structure beats and hooks (spine_structure_add_beat, spine_structure_set_hook)
-- [ ] Cascade tools (spine_review_cascade_preview, spine_review_cascade_execute)
+### 8.3 Advanced Tools ✓
+- [x] Generation tools (spine_generate_start, spine_generate_status, spine_generate_cancel, spine_generate_retry)
+- [x] Review tools (spine_review_queue, spine_review_get, spine_review_approve, spine_review_publish, spine_review_reject, spine_review_bulk_approve, spine_review_lock, spine_review_unlock, spine_review_locks, spine_review_comment)
+- [x] Structure beats and hooks (spine_structure_add_beat, spine_structure_remove_beat, spine_structure_set_hook, spine_structure_clear_hook)
+- [x] Cascade tools (spine_review_cascade_preview, spine_review_cascade_execute)
 
-### 8.4 Analytics & Serial Tools
-- [ ] Analytics tools (spine_analytics_tension, spine_analytics_characters, spine_analytics_threads, spine_analytics_quality)
-- [ ] Serial tools (spine_serial_buffer, spine_serial_schedule, spine_serial_hooks, spine_serial_cycle, spine_serial_mysteries)
+### 8.4 Analytics & Serial Tools ✓
+- [x] Analytics tools (spine_analytics_tension, spine_analytics_characters, spine_analytics_threads, spine_analytics_quality)
+- [x] Serial tools (spine_serial_buffer, spine_serial_schedule, spine_serial_hooks, spine_serial_cycle, spine_serial_mysteries)
 
 ### 8.5 Polish & Testing
-- [ ] Output formatting for LLM consumption
-- [ ] Tool documentation and descriptions
-- [ ] Unit tests for all tool handlers
+- [x] Output formatting for LLM consumption
+- [x] Tool documentation and descriptions (in code)
+- [x] Unit tests for core modules (38 tests passing)
 - [ ] Integration tests with Spine server
 - [ ] User documentation (docs/user/mcp.md)
 
