@@ -55,6 +55,13 @@ interface RemoveBeatParams {
   beatId: string;
 }
 
+interface ReorderParams {
+  projectId: string;
+  id: string;
+  newOrder: number;
+  newParentId?: string | null;
+}
+
 interface SetHookParams {
   projectId: string;
   structureId: string;
@@ -89,12 +96,12 @@ export function registerStructureHandlers(router: Router, services: Services): v
     }
   );
 
-  // structure.get - Get single structure by ID
+  // structure.get - Get single structure by ID (with children)
   router.register<StructureIdParams, Structure>(
     API_METHODS.STRUCTURE_GET,
     (params) => {
       const structureSvc = services.structure(params.projectId);
-      const structure = structureSvc.get(params.id);
+      const structure = structureSvc.getWithChildren(params.id);
       if (!structure) {
         throw ApiError.entityNotFound('Structure', params.id);
       }
@@ -146,6 +153,20 @@ export function registerStructureHandlers(router: Router, services: Services): v
       const structureSvc = services.structure(params.projectId);
       const success = structureSvc.delete(params.id);
       return { success };
+    }
+  );
+
+  // structure.reorder - Move structure to new position/parent
+  router.register<ReorderParams, Structure>(
+    API_METHODS.STRUCTURE_REORDER,
+    (params) => {
+      const structureSvc = services.structure(params.projectId);
+      const updated = structureSvc.move(params.id, params.newParentId ?? null, params.newOrder);
+
+      if (!updated) {
+        throw ApiError.entityNotFound('Structure', params.id);
+      }
+      return updated;
     }
   );
 

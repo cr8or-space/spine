@@ -17,8 +17,10 @@ import {
   type GenerationRequest,
   type GenerationResult,
   type PipelineState,
-  type StageResult
+  type StageResult,
+  type AnalysisInput
 } from '@repo/core';
+import type { Content, Structure } from '@repo/types';
 import { assembleContext } from '@repo/llm';
 
 // Track active generations
@@ -83,7 +85,7 @@ export function registerGenerationHandlers(
         throw ApiError.entityNotFound('Structure', params.structureId);
       }
 
-      // Check if content is locked
+      // Check if content exists and is locked
       const content = services.project.repos.contents.findByStructure(
         params.projectId,
         params.structureId
@@ -96,7 +98,43 @@ export function registerGenerationHandlers(
       const generationId = generateId();
       const connectionId = context.connection.id;
 
-      // Track generation
+      // Handle 'review' stage separately - run content analysis
+      // Note: MCP uses 'review' but core types use 'self-review'. We handle 'review' as analysis.
+      const stageParam = params.options?.stage as string | undefined;
+      if (stageParam === 'review') {
+        if (!services.analysis) {
+          throw ApiError.llmError('LLM client not configured - analysis unavailable');
+        }
+        if (!content) {
+          throw ApiError.generationError('No content found to analyze. Generate content first.');
+        }
+
+        // Track generation for status checks
+        const activeGeneration: ActiveGeneration = {
+          id: generationId,
+          projectId: params.projectId,
+          structureId: params.structureId,
+          connectionId,
+          startedAt: new Date().toISOString(),
+          cancelled: false,
+          pipelineState: {
+            currentStage: 'self-review',
+            stageStatuses: { outline: 'skipped', beats: 'skipped', draft: 'skipped', revision: 'skipped', 'self-review': 'running' },
+            retryCount: 0,
+            stageResults: {},
+            startedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
+        activeGenerations.set(generationId, activeGeneration);
+
+        // Run analysis asynchronously
+        runAnalysis(generationId, params.projectId, structure, content, services, subscriptions);
+
+        return { generationId };
+      }
+
+      // Track generation for content generation stages
       const activeGeneration: ActiveGeneration = {
         id: generationId,
         projectId: params.projectId,
@@ -366,6 +404,77 @@ async function runGeneration(
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+
+    // Broadcast error
+    subscriptions.broadcastToConnection(generation.connectionId, SUBSCRIPTION_CHANNELS.GENERATION_ERROR, {
+      generationId,
+      error: message,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+/**
+ * Run content analysis asynchronously and save results.
+ */
+async function runAnalysis(
+  generationId: string,
+  projectId: string,
+  structure: Structure,
+  content: Content,
+  services: Services,
+  subscriptions: SubscriptionManager
+): Promise<void> {
+  const generation = activeGenerations.get(generationId);
+  if (!generation || !services.analysis) {
+    return;
+  }
+
+  try {
+    // Build analysis input
+    const bible = services.bible(projectId).getBible();
+    const input: AnalysisInput = {
+      content,
+      structure,
+      bible
+    };
+
+    // Run full analysis
+    const result = await services.analysis.analyzeContent(input);
+
+    // Convert to ContentAnalysis and save
+    const contentAnalysis = services.analysis.toContentAnalysis(
+      content.id,
+      content.currentVersion,
+      result
+    );
+
+    // Save the analysis to the content
+    services.project.repos.contents.setAnalysis(projectId, content.id, contentAnalysis);
+
+    // Update pipeline state to completed
+    if (generation.pipelineState) {
+      generation.pipelineState.stageStatuses['self-review'] = 'completed';
+      generation.pipelineState.completedAt = new Date().toISOString();
+      generation.pipelineState.updatedAt = new Date().toISOString();
+    }
+
+    // Broadcast completion
+    subscriptions.broadcastToConnection(generation.connectionId, SUBSCRIPTION_CHANNELS.GENERATION_COMPLETE, {
+      generationId,
+      success: true,
+      contentId: content.id,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+
+    // Update pipeline state to failed
+    if (generation.pipelineState) {
+      generation.pipelineState.stageStatuses['self-review'] = 'failed';
+      generation.pipelineState.error = { stage: 'self-review', type: 'unknown', message, retryable: true };
+      generation.pipelineState.updatedAt = new Date().toISOString();
+    }
 
     // Broadcast error
     subscriptions.broadcastToConnection(generation.connectionId, SUBSCRIPTION_CHANNELS.GENERATION_ERROR, {
