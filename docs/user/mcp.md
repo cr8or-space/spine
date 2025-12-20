@@ -130,6 +130,7 @@ The MCP server provides 60+ tools organized into categories:
 | `spine_content_save` | Save content text |
 | `spine_content_history` | Get version history |
 | `spine_content_rollback` | Restore previous version |
+| `spine_content_export` | Export chapters to markdown files |
 
 ### Generation Tools
 
@@ -245,6 +246,29 @@ Here are example prompts you can use with Claude:
 "Show me the content for Chapter 1"
 "What's the version history for this chapter?"
 "Roll back to version 2"
+
+### Exporting Content
+
+Export chapters or scenes to markdown files for reading, sharing, or backup:
+
+```
+spine_content_export { "outputDir": "/path/to/output" }
+```
+
+**Parameters:**
+- `outputDir` (required): Directory to write files (created if it doesn't exist)
+- `structureType`: `"chapter"` (default), `"scene"`, or `"all"`
+- `includeMetadata`: Include YAML frontmatter (default: true)
+- `projectId`: Uses current project if not specified
+
+**Output format:**
+- Files are named `NN-title-slug.md` (e.g., `00-chapter-1-the-awakening.md`)
+- YAML frontmatter includes title, type, parent path, status, and word count
+- Content follows as standard markdown
+
+Example prompts:
+- "Export all chapters to /home/user/novel-export"
+- "Export just the scenes to ./scenes without metadata"
 
 ### Analytics
 

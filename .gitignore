@@ -33,3 +33,4 @@ dist
 .spine-data
 worker.sh
 .env
+output
