@@ -78,7 +78,7 @@ export function registerGenerationHandlers(
 
       // Verify structure exists
       const structureService = services.structure(params.projectId);
-      const structure = structureService.getById(params.structureId);
+      const structure = structureService.get(params.structureId);
       if (!structure) {
         throw ApiError.entityNotFound('Structure', params.structureId);
       }
@@ -111,14 +111,25 @@ export function registerGenerationHandlers(
       // Assemble context for generation
       const bible = services.bible(params.projectId).getBible();
       const structureTree = structureService.getFullTree();
+      const allStructures = structureTree ? [structureTree] : [];
 
-      const assembledContext = assembleContext({
-        bible,
-        structure: structureTree,
-        targetStructureId: params.structureId,
-        contentRepository: services.project.repos.contents,
-        projectId: params.projectId
-      });
+      // Get recent content for context
+      const recentContent = services.project.repos.contents.findByProject(params.projectId)
+        .slice(0, 5); // Last 5 pieces of content
+
+      const assembledContext = assembleContext(
+        {
+          bible,
+          currentStructure: structure,
+          allStructures,
+          recentContent
+        },
+        {
+          taskType: params.options?.stage === 'outline' ? 'outline' :
+                    params.options?.stage === 'beats' ? 'beat-expansion' :
+                    params.options?.stage === 'self-review' ? 'analysis' : 'draft'
+        }
+      );
 
       // Build generation request
       const request: GenerationRequest = {
@@ -237,21 +248,32 @@ export function registerGenerationHandlers(
 
       // Get structure and context again
       const structureService = services.structure(generation.projectId);
-      const structure = structureService.getById(generation.structureId);
+      const structure = structureService.get(generation.structureId);
       if (!structure) {
         throw ApiError.entityNotFound('Structure', generation.structureId);
       }
 
       const bible = services.bible(generation.projectId).getBible();
       const structureTree = structureService.getFullTree();
+      const allStructures = structureTree ? [structureTree] : [];
 
-      const assembledContext = assembleContext({
-        bible,
-        structure: structureTree,
-        targetStructureId: generation.structureId,
-        contentRepository: services.project.repos.contents,
-        projectId: generation.projectId
-      });
+      // Get recent content for context
+      const recentContent = services.project.repos.contents.findByProject(generation.projectId)
+        .slice(0, 5);
+
+      const assembledContext = assembleContext(
+        {
+          bible,
+          currentStructure: structure,
+          allStructures,
+          recentContent
+        },
+        {
+          taskType: params.stage === 'outline' ? 'outline' :
+                    params.stage === 'beats' ? 'beat-expansion' :
+                    params.stage === 'self-review' ? 'analysis' : 'draft'
+        }
+      );
 
       const request: GenerationRequest = {
         structure,
@@ -329,16 +351,13 @@ async function runGeneration(
 
       if (existing) {
         services.project.repos.contents.update(generation.projectId, existing.id, {
-          text: result.content.text,
-          source: 'generated'
+          text: result.content.text
         });
       } else {
         services.project.repos.contents.create(generation.projectId, {
           structureId: generation.structureId,
           text: result.content.text,
-          initialText: result.content.text,
           status: 'draft',
-          source: 'generated',
           reviews: [],
           generationHistory: [],
           locked: false

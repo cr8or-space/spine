@@ -258,10 +258,15 @@ Tools return descriptive error messages:
 
 1. Ensure the Spine server is running:
    ```bash
+   # Using the standalone server (recommended for MCP/CLI)
+   cd apps/server && pnpm dev
+   # Or: pnpm start (after building)
+
+   # Alternatively, the web app also serves the API
    cd apps/web && pnpm dev
    ```
 
-2. Check the server URL in your configuration
+2. Check the server URL in your configuration (default: ws://localhost:8080)
 
 3. Look for connection logs in the MCP server output
 

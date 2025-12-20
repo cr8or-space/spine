@@ -14,7 +14,8 @@ import type {
   BufferStatus,
   ScheduledRelease,
   MysteryTrackingData,
-  Structure
+  Structure,
+  Content
 } from '@repo/types';
 import {
   calculateBufferStatus,
@@ -78,6 +79,10 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const structureService = services.structure(params.projectId);
       const rootStructure = structureService.getFullTree();
 
+      if (!rootStructure) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
       // Build content map
       const contentMap = buildContentMap(params.projectId, rootStructure, services);
 
@@ -85,10 +90,13 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const dataPoints = extractChapterReleaseDataPoints(rootStructure, contentMap);
 
       // Get serial settings from project
-      const settings = project.settings?.serialSettings ?? {
+      const settings = project.settings?.serial ?? {
+        cycleLength: 5,
+        cycleTensionTargets: [],
         minimumBuffer: 3,
         releaseInterval: 7,
-        releaseDay: 'monday'
+        enforceHookVariety: true,
+        maxConsecutiveSameHook: 2
       };
 
       // Calculate buffer status
@@ -107,10 +115,13 @@ export function registerSerialHandlers(router: Router, services: Services): void
       }
 
       // Get serial settings
-      const settings = project.settings?.serialSettings ?? {
+      const settings = project.settings?.serial ?? {
+        cycleLength: 5,
+        cycleTensionTargets: [],
         minimumBuffer: 3,
         releaseInterval: 7,
-        releaseDay: 'monday'
+        enforceHookVariety: true,
+        maxConsecutiveSameHook: 2
       };
 
       // Generate scheduled releases for next 12 weeks
@@ -118,16 +129,22 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const schedule = generateScheduledReleases(
         {
           startDate: referenceDate.toISOString(),
-          intervalDays: settings.releaseInterval,
-          scheduledDays: settings.releaseDay ? [settings.releaseDay] : undefined
+          releaseIntervalDays: settings.releaseInterval,
+          skipWeekends: false,
+          skipDates: []
         },
         12,
-        referenceDate.toISOString()
+        referenceDate
       );
 
       // Get structure tree for buffer calculation
       const structureService = services.structure(params.projectId);
       const rootStructure = structureService.getFullTree();
+
+      if (!rootStructure) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
       const contentMap = buildContentMap(params.projectId, rootStructure, services);
       const dataPoints = extractChapterReleaseDataPoints(rootStructure, contentMap);
       const bufferStatus = calculateBufferStatus(dataPoints, settings);
@@ -174,6 +191,10 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const structureService = services.structure(params.projectId);
       let rootStructure = structureService.getFullTree();
 
+      if (!rootStructure) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
         const bookStructure = findStructureById(rootStructure, params.scope.bookId);
@@ -188,7 +209,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
       }
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
 
       // Build dependencies
       const deps: HookManagementDependencies = {
@@ -221,6 +242,10 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const structureService = services.structure(params.projectId);
       let rootStructure = structureService.getFullTree();
 
+      if (!rootStructure) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
         const bookStructure = findStructureById(rootStructure, params.scope.bookId);
@@ -235,7 +260,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
       }
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
 
       // Build dependencies
       const deps: CycleEnforcementDependencies = {
@@ -255,7 +280,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
   );
 
   // serial.mysteryBoard - Get mystery tracking data
-  router.register<SerialProjectParams, Map<string, MysteryTrackingData>>(
+  router.register<SerialProjectParams, MysteryTrackingData[]>(
     API_METHODS.SERIAL_MYSTERY_BOARD,
     (params) => {
       // Verify project exists
@@ -268,6 +293,10 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const structureService = services.structure(params.projectId);
       const rootStructure = structureService.getFullTree();
 
+      if (!rootStructure) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
       // Get bible for mysteries
       const bible = services.bible(params.projectId).getBible();
 
@@ -275,7 +304,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
       const mysteries = bible.plotThreads.filter(pt => pt.type === 'mystery');
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
 
       // Build dependencies
       const deps: MysteryTrackingDependencies = {
@@ -283,8 +312,8 @@ export function registerSerialHandlers(router: Router, services: Services): void
         contentRepository: services.project.repos.contents
       };
 
-      // Generate mystery tracking data
-      return generateAllMysteryTracking(
+      // Generate mystery tracking data - returns Map, convert to array
+      const trackingMap = generateAllMysteryTracking(
         {
           projectId: params.projectId,
           rootStructure,
@@ -292,6 +321,9 @@ export function registerSerialHandlers(router: Router, services: Services): void
         },
         deps
       );
+
+      // Convert Map to array
+      return Array.from(trackingMap.values());
     }
   );
 }
@@ -303,8 +335,8 @@ function buildContentMap(
   projectId: string,
   rootStructure: Structure,
   services: Services
-): Map<string, import('@repo/types').Content> {
-  const contentMap = new Map<string, import('@repo/types').Content>();
+): Map<string, Content> {
+  const contentMap = new Map<string, Content>();
 
   function traverse(structure: Structure): void {
     const content = services.project.repos.contents.findByStructure(

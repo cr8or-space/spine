@@ -586,10 +586,27 @@ See [mcp.plan.md](./mcp.plan.md) for detailed implementation plan.
 - `bible.get` and `bible.*.list` validation issues with projectId parameter
 - `structure.addBeat` response missing description field
 
+## Phase 9: Standalone Server Application
+
+### 9.1 Server Application (apps/server) ✓
+- [x] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
+- [x] CLI entry point with commander (--port, --host, --data-dir, --llm-endpoint, --llm-api-key, --llm-model)
+- [x] Configuration management (env vars, config file, defaults)
+- [x] WebSocket server wrapper using @repo/server
+- [x] Graceful shutdown handling (SIGINT, SIGTERM)
+- [x] Unit tests for configuration (14 tests passing)
+
+### 9.2 @repo/server Type Issues (Follow-up)
+- [ ] Fix analytics.ts handler type errors (Structure | undefined, Map return types)
+- [ ] Fix serial.ts handler type errors (already partially fixed)
+- [ ] Fix generation.ts handler type errors (already partially fixed)
+- [ ] Re-enable DTS generation in @repo/server build (currently disabled due to type errors)
+
 ## Documentation
 
 ### User Documentation
 - [x] CLI usage guide (docs/user/cli.md)
 - [x] WebSocket API reference (docs/user/api.md)
 - [x] MCP server usage guide (docs/user/mcp.md)
+- [x] Standalone server usage (apps/server - runs via `spine-server` command)
 
