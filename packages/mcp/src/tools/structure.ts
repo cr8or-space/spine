@@ -23,9 +23,44 @@ export function registerStructureTools(
     async ({ projectId }) => {
       return handleToolCall(async () => {
         const pid = projectId || requireProjectId(session);
-        const tree = await client.structure.getTree(pid);
 
-        const formatted = formatStructureTree(tree);
+        // Get all structures to build complete tree including all root-level books
+        const allStructures = await client.structure.getAll(pid);
+
+        if (allStructures.length === 0) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: '# Structure Tree\n\nNo structures found. Use spine_structure_create to add books, arcs, chapters, or scenes.'
+              }
+            ]
+          };
+        }
+
+        // Build a map for quick parent lookup
+        const structureMap = new Map(allStructures.map((s) => [s.id, { ...s, children: [] as typeof allStructures }]));
+
+        // Find root structures (no parent) and build tree
+        const roots: typeof allStructures = [];
+        for (const structure of allStructures) {
+          const node = structureMap.get(structure.id)!;
+          if (structure.parentId && structureMap.has(structure.parentId)) {
+            const parent = structureMap.get(structure.parentId)!;
+            parent.children.push(node);
+          } else {
+            roots.push(node);
+          }
+        }
+
+        // Sort roots and children by order
+        roots.sort((a, b) => a.order - b.order);
+        for (const node of structureMap.values()) {
+          node.children.sort((a, b) => a.order - b.order);
+        }
+
+        // Format each root tree
+        const formatted = roots.map((root) => formatStructureTree(root)).join('\n\n');
 
         return {
           content: [
@@ -115,8 +150,16 @@ export function registerStructureTools(
           `**ID:** ${structure.id}`
         ];
 
-        if (structure.synopsis) {
-          lines.push(`**Synopsis:** ${structure.synopsis}`);
+        if (structure.parentId) {
+          lines.push(`**Parent ID:** ${structure.parentId}`);
+        }
+
+        if (structure.order !== undefined) {
+          lines.push(`**Order:** ${structure.order}`);
+        }
+
+        if (structure.summary) {
+          lines.push(`**Summary:** ${structure.summary}`);
         }
 
         if (structure.tensionTarget !== undefined) {
@@ -127,6 +170,14 @@ export function registerStructureTools(
           lines.push(`**Chapter Type:** ${structure.chapterType}`);
         }
 
+        if (structure.targetWordCount !== undefined) {
+          lines.push(`**Target Word Count:** ${structure.targetWordCount}`);
+        }
+
+        if (structure.notes) {
+          lines.push(`**Notes:** ${structure.notes}`);
+        }
+
         if (structure.hook) {
           lines.push(`**Hook:** ${structure.hook.type} - ${structure.hook.description || 'No description'}`);
         }
@@ -134,12 +185,16 @@ export function registerStructureTools(
         if (structure.beats && structure.beats.length > 0) {
           lines.push('', '**Beats:**');
           for (const beat of structure.beats) {
-            lines.push(`  • ${beat.description}${beat.targetWordCount ? ` (~${beat.targetWordCount} words)` : ''}`);
+            const completed = beat.completed ? ' ✓' : '';
+            lines.push(`  • ${beat.description}${beat.targetWordCount ? ` (~${beat.targetWordCount} words)` : ''}${completed}`);
           }
         }
 
         if (structure.children && structure.children.length > 0) {
-          lines.push('', `**Children:** ${structure.children.length} items`);
+          lines.push('', '**Children:**');
+          for (const child of structure.children) {
+            lines.push(`  • ${child.title} (${child.type}) - ${child.id}`);
+          }
         }
 
         return {

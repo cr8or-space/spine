@@ -271,7 +271,19 @@ export function registerBibleTools(
     {
       name: z.string().describe('Location name'),
       type: z
-        .enum(['city', 'building', 'region', 'landmark', 'other'])
+        .enum([
+          'world',
+          'continent',
+          'country',
+          'region',
+          'city',
+          'district',
+          'building',
+          'room',
+          'natural',
+          'virtual',
+          'other'
+        ])
         .describe('Location type'),
       description: z.string().optional().describe('Visual description'),
       atmosphere: z.string().optional().describe('Mood and feel'),
@@ -340,7 +352,18 @@ export function registerBibleTools(
     {
       name: z.string().describe('Faction name'),
       type: z
-        .enum(['organization', 'government', 'religion', 'criminal', 'military', 'other'])
+        .enum([
+          'government',
+          'military',
+          'religious',
+          'criminal',
+          'corporate',
+          'secret-society',
+          'guild',
+          'family',
+          'informal',
+          'other'
+        ])
         .describe('Faction type'),
       description: z.string().optional().describe('Overview'),
       goals: z.array(z.string()).optional().describe('Faction objectives'),
@@ -409,13 +432,22 @@ export function registerBibleTools(
     {
       name: z.string().describe('Thread name'),
       type: z
-        .enum(['main', 'subplot', 'character_arc', 'mystery', 'romance'])
+        .enum([
+          'main-plot',
+          'subplot',
+          'mystery',
+          'romance',
+          'conflict',
+          'character-arc',
+          'worldbuilding',
+          'other'
+        ])
         .describe('Thread type'),
       description: z.string().optional().describe('Thread summary'),
       status: z
-        .enum(['setup', 'active', 'climax', 'resolved'])
+        .enum(['planned', 'active', 'dormant', 'resolved', 'abandoned'])
         .optional()
-        .default('setup')
+        .default('planned')
         .describe('Current status'),
       startChapter: z.number().optional().describe('Starting chapter number'),
       endChapter: z.number().optional().describe('Ending chapter number'),

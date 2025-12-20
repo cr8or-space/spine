@@ -125,6 +125,27 @@ The web app (apps/web) needs updates to work with the new API packages.
 - [ ] Identify any gaps in web app functionality
 - [ ] Add missing features from CLI/MCP
 
+## MCP Implementation Issues
+
+Issues discovered during implementation testing with "The Accident" web serial proposal.
+
+### Critical (Blocking)
+
+- [x] **Structure tree not displaying hierarchy** - Fixed: `spine_structure_tree` now builds complete tree from all structures, showing all root-level books with their children.
+- [x] **Structure parent relationships not stored/displayed** - Fixed: `spine_structure_get` now shows parent ID, order, and full children list with titles.
+- [ ] **Duplicate root structure created** - Structure list shows "The Accident" as "book" type that was auto-created, separate from user-created books. This is by design - projects auto-create a root structure.
+
+### Schema Mismatch
+
+- [x] **Faction type enum mismatch (MCP vs Database)** - Fixed: MCP now uses correct enum values from `@repo/types`: `government`, `military`, `religious`, `criminal`, `corporate`, `secret-society`, `guild`, `family`, `informal`, `other`.
+- [x] **Location type enum mismatch** - Fixed: MCP now uses correct enum values: `world`, `continent`, `country`, `region`, `city`, `district`, `building`, `room`, `natural`, `virtual`, `other`.
+- [x] **Plot thread type/status enum mismatch** - Fixed: Type now uses `main-plot`, `subplot`, `mystery`, `romance`, `conflict`, `character-arc`, `worldbuilding`, `other`. Status now uses `planned`, `active`, `dormant`, `resolved`, `abandoned`.
+
+### Display/UX
+
+- [x] **Structure get missing key fields** - Fixed: Now shows summary (not synopsis), parent ID, order, target word count, notes, and full children list with titles and types.
+- [ ] **No entity type for group consciousness** - Characters like "The Collective" and "The Ancients" are civilizations but must be created as individual characters with `supporting` role.
+
 ## Future Considerations
 
 - [ ] TUI workspace for CLI (optional)

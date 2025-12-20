@@ -246,7 +246,7 @@ Delete a character.
 
 Same pattern as character. Create data:
 - `name` (string, required): Location name
-- `type` (string, required): `"city"` | `"building"` | `"region"` | `"landmark"` | `"other"`
+- `type` (string, required): `"world"` | `"continent"` | `"country"` | `"region"` | `"city"` | `"district"` | `"building"` | `"room"` | `"natural"` | `"virtual"` | `"other"`
 - `description` (string): Visual description
 - `atmosphere` (string): Mood and feel
 - `significance` (string): Narrative importance
@@ -258,7 +258,7 @@ Same pattern as character. Create data:
 
 Same pattern. Create data:
 - `name` (string, required): Faction name
-- `type` (string, required): `"organization"` | `"government"` | `"religion"` | `"criminal"` | `"military"` | `"other"`
+- `type` (string, required): `"government"` | `"military"` | `"religious"` | `"criminal"` | `"corporate"` | `"secret-society"` | `"guild"` | `"family"` | `"informal"` | `"other"`
 - `description` (string): Overview
 - `goals` (string[]): Faction objectives
 - `values` (string[]): Core values
@@ -281,9 +281,9 @@ Same pattern. Create data:
 
 Same pattern. Create data:
 - `name` (string, required): Thread name
-- `type` (string, required): `"main"` | `"subplot"` | `"character_arc"` | `"mystery"` | `"romance"`
+- `type` (string, required): `"main-plot"` | `"subplot"` | `"mystery"` | `"romance"` | `"conflict"` | `"character-arc"` | `"worldbuilding"` | `"other"`
 - `description` (string): Thread summary
-- `status` (string): `"setup"` | `"active"` | `"climax"` | `"resolved"`
+- `status` (string): `"planned"` | `"active"` | `"dormant"` | `"resolved"` | `"abandoned"`
 - `startChapter` (number): Starting chapter
 - `endChapter` (number): Ending chapter (null if ongoing)
 
