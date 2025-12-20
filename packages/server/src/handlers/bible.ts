@@ -146,15 +146,24 @@ export function registerBibleHandlers(router: Router, services: Services): void 
       const bible = services.bible(params.projectId);
       const data = params.data as {
         name: string;
-        type: Location['type'];
+        type: 'city' | 'building' | 'region' | 'landmark' | 'other';
         description?: string;
         parentId?: string;
       };
+      // Map API types to database types
+      const typeMap: Record<string, Location['type']> = {
+        city: 'city',
+        building: 'building',
+        region: 'region',
+        landmark: 'natural', // 'landmark' maps to 'natural' in db
+        other: 'other'
+      };
       return bible.locations.create({
+        entityType: 'location',
         name: data.name,
         aliases: [],
         description: data.description || '',
-        type: data.type,
+        type: typeMap[data.type] || 'other',
         parentId: data.parentId,
         relations: [],
         features: [],
@@ -208,6 +217,7 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         description?: string;
       };
       return bible.factions.create({
+        entityType: 'faction',
         name: data.name,
         aliases: [],
         description: data.description || '',
@@ -268,6 +278,7 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         rule?: string;
       };
       return bible.worldRules.create({
+        type: 'world-rule',
         name: data.name,
         description: data.description || '',
         category: data.category,
@@ -321,14 +332,23 @@ export function registerBibleHandlers(router: Router, services: Services): void 
       const bible = services.bible(params.projectId);
       const data = params.data as {
         name: string;
-        type: PlotThread['type'];
+        type: 'main' | 'subplot' | 'character_arc' | 'mystery' | 'romance';
         description?: string;
         scope?: PlotThread['scope'];
       };
+      // Map API types to database types
+      const typeMap: Record<string, PlotThread['type']> = {
+        main: 'main-plot',
+        subplot: 'subplot',
+        character_arc: 'character-arc',
+        mystery: 'mystery',
+        romance: 'romance'
+      };
       return bible.plotThreads.create({
+        entityType: 'plot-thread',
         name: data.name,
         description: data.description || '',
-        type: data.type,
+        type: typeMap[data.type] || 'other',
         status: 'planned',
         scope: data.scope || 'chapter',
         priority: 50,
@@ -388,6 +408,7 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         significance?: TimelineEvent['significance'];
       };
       return bible.timeline.createEvent({
+        entityType: 'timeline-event',
         name: data.name,
         description: data.description || '',
         position: {

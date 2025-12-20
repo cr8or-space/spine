@@ -206,6 +206,6 @@ pnpm dev
 |---------|-------|--------|
 | @repo/server | 92 | Passing |
 | @repo/client | 116 | Passing |
-| @repo/mcp | 106 (38 unit + 68 integration) | Passing |
+| @repo/mcp | 72 (38 unit + 34 integration) | Passing |
 | apps/server | 14 | Passing |
 | apps/cli | 24 | Passing |

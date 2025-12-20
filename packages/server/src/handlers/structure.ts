@@ -150,7 +150,7 @@ export function registerStructureHandlers(router: Router, services: Services): v
   );
 
   // structure.addBeat - Add a beat to structure
-  router.register<BeatParams, Structure>(
+  router.register<BeatParams, { id: string; description: string; targetWordCount?: number; completed: boolean; order: number }>(
     API_METHODS.STRUCTURE_ADD_BEAT,
     (params) => {
       const structureSvc = services.structure(params.projectId);
@@ -163,7 +163,10 @@ export function registerStructureHandlers(router: Router, services: Services): v
       if (!updated) {
         throw ApiError.entityNotFound('Structure', params.structureId);
       }
-      return updated;
+
+      // Return the newly added beat (last one in the array)
+      const newBeat = updated.beats[updated.beats.length - 1];
+      return newBeat;
     }
   );
 

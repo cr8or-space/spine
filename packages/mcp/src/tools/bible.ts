@@ -33,7 +33,7 @@ export function registerBibleTools(
         const sections: string[] = ['# Story Bible', ''];
 
         // Characters
-        if (bible.characters.length > 0) {
+        if (bible.characters?.length > 0) {
           sections.push(`## Characters (${bible.characters.length})`);
           for (const char of bible.characters) {
             sections.push(`### ${char.name} (${char.role})`);
@@ -44,7 +44,7 @@ export function registerBibleTools(
         }
 
         // Locations
-        if (bible.locations.length > 0) {
+        if (bible.locations?.length > 0) {
           sections.push(`## Locations (${bible.locations.length})`);
           for (const loc of bible.locations) {
             sections.push(`### ${loc.name} (${loc.type})`);
@@ -54,7 +54,7 @@ export function registerBibleTools(
         }
 
         // Factions
-        if (bible.factions.length > 0) {
+        if (bible.factions?.length > 0) {
           sections.push(`## Factions (${bible.factions.length})`);
           for (const faction of bible.factions) {
             sections.push(`### ${faction.name} (${faction.type})`);
@@ -64,7 +64,7 @@ export function registerBibleTools(
         }
 
         // Plot Threads
-        if (bible.plotThreads.length > 0) {
+        if (bible.plotThreads?.length > 0) {
           sections.push(`## Plot Threads (${bible.plotThreads.length})`);
           for (const thread of bible.plotThreads) {
             sections.push(`### ${thread.name} (${thread.type}) - ${thread.status || 'active'}`);
@@ -74,7 +74,7 @@ export function registerBibleTools(
         }
 
         // World Rules
-        if (bible.worldRules.length > 0) {
+        if (bible.worldRules?.length > 0) {
           sections.push(`## World Rules (${bible.worldRules.length})`);
           for (const rule of bible.worldRules) {
             sections.push(`### ${rule.name} (${rule.category})`);
@@ -84,7 +84,7 @@ export function registerBibleTools(
         }
 
         // Timeline
-        if (bible.timeline.length > 0) {
+        if (bible.timeline?.length > 0) {
           sections.push(`## Timeline (${bible.timeline.length} events)`);
           for (const event of bible.timeline) {
             sections.push(`### ${event.date}: ${event.name}`);

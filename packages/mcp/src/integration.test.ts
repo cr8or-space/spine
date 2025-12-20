@@ -221,17 +221,14 @@ describe('MCP Server Integration', () => {
       expect(result).toContain('protagonist');
     });
 
-    // Note: These tests are skipped due to server-side API validation issues
-    // that need investigation. The bible.get and bible.*.list endpoints
-    // return "Invalid parameters" errors that need to be debugged.
-    it.skip('should get empty bible', async () => {
+    it('should get empty bible', async () => {
       const result = await callTool('spine_bible_get', {
         projectId: session.currentProjectId
       });
       expect(result).toContain('Story Bible');
     });
 
-    it.skip('should list characters after creating one', async () => {
+    it('should list characters after creating one', async () => {
       await callTool('spine_bible_character_create', {
         name: 'Marcus',
         role: 'antagonist',
@@ -244,9 +241,7 @@ describe('MCP Server Integration', () => {
       expect(result).toContain('Marcus');
     });
 
-    // Note: These tests are skipped because the server handlers for
-    // bible.location.create and bible.plotThread.create are not registered.
-    it.skip('should create a location', async () => {
+    it('should create a location', async () => {
       const result = await callTool('spine_bible_location_create', {
         name: 'Dragon Spire',
         type: 'landmark',
@@ -257,7 +252,7 @@ describe('MCP Server Integration', () => {
       expect(result).toContain('Dragon Spire');
     });
 
-    it.skip('should create a plot thread', async () => {
+    it('should create a plot thread', async () => {
       const result = await callTool('spine_bible_thread_create', {
         name: 'The Prophecy',
         type: 'main',
