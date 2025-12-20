@@ -16,6 +16,7 @@ import { createReviewCommand } from './commands/review.js';
 import { createAnalyticsCommand } from './commands/analytics.js';
 import { createSerialCommand } from './commands/serial.js';
 import { createConfigCommand } from './commands/config.js';
+import { createExtractionCommand } from './commands/extraction.js';
 
 const program = new Command();
 
@@ -34,6 +35,7 @@ program.addCommand(createReviewCommand());
 program.addCommand(createAnalyticsCommand());
 program.addCommand(createSerialCommand());
 program.addCommand(createConfigCommand());
+program.addCommand(createExtractionCommand());
 
 // Parse and execute
 program.parse();

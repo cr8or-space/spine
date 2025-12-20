@@ -18,6 +18,7 @@ import { registerAnalyticsHandlers } from './analytics';
 import { registerSerialHandlers } from './serial';
 import { registerCascadeHandlers } from './cascade';
 import { registerSystemHandlers } from './system';
+import { registerExtractionHandlers } from './extraction';
 
 /**
  * Register all API handlers on the router.
@@ -38,6 +39,7 @@ export function registerAllHandlers(
   registerSerialHandlers(router, services);
   registerCascadeHandlers(router, services);
   registerSystemHandlers(router, services);
+  registerExtractionHandlers(router, services);
 }
 
 // Re-export individual handler registrations for selective use
@@ -52,3 +54,4 @@ export { registerAnalyticsHandlers } from './analytics';
 export { registerSerialHandlers } from './serial';
 export { registerCascadeHandlers } from './cascade';
 export { registerSystemHandlers } from './system';
+export { registerExtractionHandlers } from './extraction';

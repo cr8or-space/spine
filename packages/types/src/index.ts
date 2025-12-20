@@ -346,3 +346,29 @@ export {
   type SuspenseCurve,
   type ClueDistributionSuggestion,
 } from './mystery';
+
+// Bible extraction types (Phase 6.1)
+export {
+  ExtractableEntityTypeSchema,
+  SuggestionStatusSchema,
+  SuggestionTypeSchema,
+  ConfidenceLevelSchema,
+  ExtractionEvidenceSchema,
+  FieldUpdateSchema,
+  EntitySuggestionSchema,
+  SuggestionSummarySchema,
+  ExtractionResultSchema,
+  ExtractionOptionsSchema,
+  AcceptResultSchema,
+  type ExtractableEntityType,
+  type SuggestionStatus,
+  type SuggestionType,
+  type ConfidenceLevel,
+  type ExtractionEvidence,
+  type FieldUpdate,
+  type EntitySuggestion,
+  type SuggestionSummary,
+  type ExtractionResult,
+  type ExtractionOptions,
+  type AcceptResult,
+} from './extraction';

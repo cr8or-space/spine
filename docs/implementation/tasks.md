@@ -73,11 +73,12 @@ See [docs/architecture/testing.md](../architecture/testing.md) for details.
 ## Phase 6: Polish (Not Started)
 
 ### 6.1 Bible Extraction
-- [ ] Entity detection from content
-- [ ] New entity suggestions
-- [ ] Update suggestions
-- [ ] Aggressiveness config
-- [ ] Suggestion review UI
+- [x] Entity detection from content (LLM-powered extraction service)
+- [x] New entity suggestions (stored with confidence, evidence)
+- [x] Update suggestions (field-level updates for existing entities)
+- [x] Aggressiveness config (conservative/moderate/aggressive)
+- [x] Suggestion review - CLI + MCP (spine extract, spine_extraction_* tools)
+- [ ] Suggestion review UI (web app - not implemented)
 
 ### 6.2 Export
 - [ ] EPUB generation

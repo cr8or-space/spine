@@ -45,3 +45,6 @@ export * from './render';
 
 // Re-export error handling (Phase 6.5)
 export * from './error-handling';
+
+// Re-export bible extraction (Phase 6.1)
+export * from './extraction';

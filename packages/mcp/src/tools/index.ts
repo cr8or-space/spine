@@ -14,6 +14,7 @@ import { registerReviewTools } from './review';
 import { registerAnalyticsTools } from './analytics';
 import { registerSerialTools } from './serial';
 import { registerSystemTools } from './system';
+import { registerExtractionTools } from './extraction';
 
 export interface ToolContext {
   client: FullClient;
@@ -36,4 +37,5 @@ export function registerAllTools(
   registerAnalyticsTools(server, context);
   registerSerialTools(server, context);
   registerSystemTools(server, context);
+  registerExtractionTools(server, context);
 }

@@ -28,7 +28,9 @@ import {
   createLockPointRepository,
   type LockPointRepository,
   createErrorHandlingService,
-  type ErrorHandlingService
+  type ErrorHandlingService,
+  createExtractionService,
+  type ExtractionService
 } from '@repo/core';
 import { createLLMClient, type LLMClient } from '@repo/llm';
 import type Database from 'libsql';
@@ -54,6 +56,7 @@ export interface Services {
   cascade: RevisionCascadeService;
   generation: GenerationPipeline | undefined;
   analysis: AnalysisService | undefined;
+  extraction: ExtractionService | undefined;
   llmClient: LLMClient | undefined;
   errorHandling: ErrorHandlingService;
   close(): void;
@@ -100,6 +103,11 @@ export function createServices(config: ServiceConfig): Services {
 
   // Create analysis service (requires LLM client)
   const analysisService = llmClient ? createAnalysisService(llmClient) : undefined;
+
+  // Create extraction service (requires LLM client)
+  const extractionService = llmClient
+    ? createExtractionService({ db, llm: llmClient })
+    : undefined;
 
   // Service factory functions
   function getBibleService(projectId: string): BibleService {
@@ -152,6 +160,7 @@ export function createServices(config: ServiceConfig): Services {
     cascade: cascadeService,
     generation: generationPipeline,
     analysis: analysisService,
+    extraction: extractionService,
     llmClient,
     errorHandling: errorHandlingService,
 

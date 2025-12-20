@@ -9,7 +9,7 @@
  * - Cross-references tracked in dedicated junction table
  */
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /**
  * SQL statements to create all tables
@@ -349,6 +349,31 @@ CREATE INDEX IF NOT EXISTS idx_backup_history_type ON backup_history(backup_type
 CREATE INDEX IF NOT EXISTS idx_backup_history_status ON backup_history(status);
 CREATE INDEX IF NOT EXISTS idx_backup_history_created ON backup_history(created_at);
 
+-- Entity suggestions table (bible extraction)
+CREATE TABLE IF NOT EXISTS entity_suggestions (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  suggestion_type TEXT NOT NULL CHECK (suggestion_type IN ('new', 'update')),
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('character', 'location', 'faction', 'world-rule', 'plot-thread')),
+  existing_entity_id TEXT,
+  name TEXT NOT NULL,
+  suggested_data_json TEXT NOT NULL,
+  field_updates_json TEXT,
+  evidence_json TEXT NOT NULL DEFAULT '[]',
+  confidence TEXT NOT NULL CHECK (confidence IN ('low', 'medium', 'high')),
+  reasoning TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'accepted', 'rejected', 'merged')),
+  review_notes TEXT,
+  created_at TEXT NOT NULL,
+  reviewed_at TEXT,
+  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_entity_suggestions_project ON entity_suggestions(project_id);
+CREATE INDEX IF NOT EXISTS idx_entity_suggestions_status ON entity_suggestions(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_entity_suggestions_type ON entity_suggestions(project_id, entity_type);
+CREATE INDEX IF NOT EXISTS idx_entity_suggestions_created ON entity_suggestions(created_at);
+
 -- Full-text search for characters
 CREATE VIRTUAL TABLE IF NOT EXISTS characters_fts USING fts5(
   id UNINDEXED,
@@ -446,6 +471,7 @@ DROP TRIGGER IF EXISTS characters_ai;
 DROP TABLE IF EXISTS contents_fts;
 DROP TABLE IF EXISTS locations_fts;
 DROP TABLE IF EXISTS characters_fts;
+DROP TABLE IF EXISTS entity_suggestions;
 DROP TABLE IF EXISTS backup_history;
 DROP TABLE IF EXISTS health_checks;
 DROP TABLE IF EXISTS operation_journal;
