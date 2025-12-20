@@ -145,7 +145,8 @@ export function registerReviewHandlers(router: Router, services: Services): void
         params.contentId,
         {
           action: params.action,
-          paragraphIndex: params.paragraphIndex
+          paragraphIndex: params.paragraphIndex,
+          timestamp: new Date().toISOString()
         }
       );
 
@@ -184,7 +185,6 @@ export function registerReviewHandlers(router: Router, services: Services): void
 
       const lockPoint = reviewService.createLockPoint(params.projectId, {
         contentId: content.id,
-        structureId: params.structureId,
         type: 'full-lock',
         reason: 'Author lock point'
       });
@@ -233,9 +233,11 @@ export function registerReviewHandlers(router: Router, services: Services): void
       const reviewService = services.review(params.projectId);
 
       const content = reviewService.addComment(params.projectId, params.contentId, {
-        paragraphIndex: params.comment.paragraphIndex,
+        location: {
+          paragraphIndex: params.comment.paragraphIndex
+        },
         text: params.comment.text,
-        author: params.comment.author ?? 'Author',
+        type: 'note',
         resolved: false
       });
 

@@ -13,7 +13,8 @@ import { API_METHODS } from '../protocol';
 import type {
   TensionCurveData,
   CharacterTrackingData,
-  PlotThreadTrackingData
+  PlotThreadTrackingData,
+  Structure
 } from '@repo/types';
 import {
   generateTensionCurve,
@@ -59,7 +60,13 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
 
       // Get structure tree
       const structureService = services.structure(params.projectId);
-      let rootStructure = structureService.getFullTree();
+      const tree = structureService.getFullTree();
+
+      if (!tree) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
+      let rootStructure: Structure = tree;
 
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
@@ -75,7 +82,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       }
 
       // Create analysis repository for this project
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: TensionCurveDependencies = {
@@ -97,7 +104,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
   );
 
   // analytics.characterPresence - Get character presence data
-  router.register<AnalyticsScopeParams, Map<string, CharacterTrackingData>>(
+  router.register<AnalyticsScopeParams, Record<string, CharacterTrackingData>>(
     API_METHODS.ANALYTICS_CHARACTER_PRESENCE,
     (params) => {
       // Verify project exists
@@ -108,7 +115,13 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
 
       // Get structure tree
       const structureService = services.structure(params.projectId);
-      let rootStructure = structureService.getFullTree();
+      const tree = structureService.getFullTree();
+
+      if (!tree) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
+      let rootStructure: Structure = tree;
 
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
@@ -127,7 +140,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       const bible = services.bible(params.projectId).getBible();
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: CharacterTrackingDependencies = {
@@ -136,7 +149,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       };
 
       // Generate character tracking data for all characters
-      const trackingData = generateAllCharacterTracking(
+      const trackingDataArray = generateAllCharacterTracking(
         {
           projectId: params.projectId,
           rootStructure,
@@ -145,12 +158,22 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
         deps
       );
 
-      return trackingData;
+      // Convert array to record keyed by character ID
+      const result: Record<string, CharacterTrackingData> = {};
+      for (let i = 0; i < trackingDataArray.length; i++) {
+        const data = trackingDataArray[i];
+        const character = bible.characters[i];
+        if (character) {
+          result[character.id] = data;
+        }
+      }
+
+      return result;
     }
   );
 
   // analytics.plotThreads - Get plot thread timeline data
-  router.register<AnalyticsScopeParams, Map<string, PlotThreadTrackingData>>(
+  router.register<AnalyticsScopeParams, Record<string, PlotThreadTrackingData>>(
     API_METHODS.ANALYTICS_PLOT_THREADS,
     (params) => {
       // Verify project exists
@@ -161,7 +184,13 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
 
       // Get structure tree
       const structureService = services.structure(params.projectId);
-      let rootStructure = structureService.getFullTree();
+      const tree = structureService.getFullTree();
+
+      if (!tree) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
+      let rootStructure: Structure = tree;
 
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
@@ -180,7 +209,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       const bible = services.bible(params.projectId).getBible();
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: PlotThreadTrackingDependencies = {
@@ -189,7 +218,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       };
 
       // Generate plot thread tracking data
-      const trackingData = generateAllPlotThreadTracking(
+      const trackingDataArray = generateAllPlotThreadTracking(
         {
           projectId: params.projectId,
           rootStructure,
@@ -198,7 +227,17 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
         deps
       );
 
-      return trackingData;
+      // Convert array to record keyed by thread ID
+      const result: Record<string, PlotThreadTrackingData> = {};
+      for (let i = 0; i < trackingDataArray.length; i++) {
+        const data = trackingDataArray[i];
+        const thread = bible.plotThreads[i];
+        if (thread) {
+          result[thread.id] = data;
+        }
+      }
+
+      return result;
     }
   );
 
@@ -214,7 +253,13 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
 
       // Get structure tree
       const structureService = services.structure(params.projectId);
-      let rootStructure = structureService.getFullTree();
+      const tree = structureService.getFullTree();
+
+      if (!tree) {
+        throw ApiError.entityNotFound('Structure', 'root');
+      }
+
+      let rootStructure: Structure = tree;
 
       // If scope is specified, find the scoped structure
       if (params.scope?.bookId) {
@@ -230,7 +275,7 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
       }
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle, params.projectId);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Collect all chapter/scene structure IDs
       const structureIds: string[] = [];
@@ -253,24 +298,24 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
         if (!content) continue;
 
         // Get analysis for this content
-        const analysis = analysisRepo.findByContent(content.id);
+        const analysis = analysisRepo.findLatest(params.projectId, content.id);
         if (!analysis) continue;
 
         chaptersAnalyzed++;
 
         // Aggregate tension
-        if (analysis.tension?.score !== undefined) {
-          totalTension += analysis.tension.score;
+        if (analysis.tensionScore?.score !== undefined) {
+          totalTension += analysis.tensionScore.score;
         }
 
         // Aggregate hook strength
-        if (analysis.hook?.score !== undefined) {
-          totalHookStrength += analysis.hook.score;
+        if (analysis.hookStrength?.score !== undefined) {
+          totalHookStrength += analysis.hookStrength.score;
         }
 
         // Count continuity issues
-        if (analysis.continuity?.issues) {
-          const issueCount = analysis.continuity.issues.length;
+        if (analysis.continuityIssues) {
+          const issueCount = analysis.continuityIssues.length;
           continuityIssueCount += issueCount;
           if (issueCount > 0) {
             chaptersWithIssues++;
@@ -293,15 +338,15 @@ export function registerAnalyticsHandlers(router: Router, services: Services): v
  * Find a structure by ID in the tree
  */
 function findStructureById(
-  node: { id: string; children: Array<{ id: string; children: unknown[] }> },
+  node: Structure,
   targetId: string
-): typeof node | null {
+): Structure | null {
   if (node.id === targetId) {
     return node;
   }
 
   for (const child of node.children) {
-    const found = findStructureById(child as typeof node, targetId);
+    const found = findStructureById(child, targetId);
     if (found) {
       return found;
     }
@@ -314,7 +359,7 @@ function findStructureById(
  * Collect chapter and scene IDs from the structure tree
  */
 function collectChapterIds(
-  node: { type: string; id: string; children: unknown[] },
+  node: Structure,
   result: string[]
 ): void {
   if (node.type === 'chapter' || node.type === 'scene') {
@@ -322,6 +367,6 @@ function collectChapterIds(
   }
 
   for (const child of node.children) {
-    collectChapterIds(child as typeof node, result);
+    collectChapterIds(child, result);
   }
 }

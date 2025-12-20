@@ -596,11 +596,11 @@ See [mcp.plan.md](./mcp.plan.md) for detailed implementation plan.
 - [x] Graceful shutdown handling (SIGINT, SIGTERM)
 - [x] Unit tests for configuration (14 tests passing)
 
-### 9.2 @repo/server Type Issues (Follow-up)
-- [ ] Fix analytics.ts handler type errors (Structure | undefined, Map return types)
-- [ ] Fix serial.ts handler type errors (already partially fixed)
-- [ ] Fix generation.ts handler type errors (already partially fixed)
-- [ ] Re-enable DTS generation in @repo/server build (currently disabled due to type errors)
+### 9.2 @repo/server Type Issues (Follow-up) ✓
+- [x] Fix analytics.ts handler type errors (Structure | undefined, Map return types)
+- [x] Fix serial.ts handler type errors (already partially fixed)
+- [x] Fix review.ts handler type errors (timestamp, location format, lock point types)
+- [x] Re-enable DTS generation in @repo/server build (previously disabled due to type errors)
 
 ## Documentation
 

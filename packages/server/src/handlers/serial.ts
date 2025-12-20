@@ -29,7 +29,7 @@ import {
   type HookManagementDependencies,
   type CycleEnforcementDependencies,
   type MysteryTrackingDependencies,
-  type HookPatternResult,
+  type HookManagementResult,
   type CycleEnforcementResult
 } from '@repo/core';
 
@@ -178,7 +178,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
   );
 
   // serial.hookPatterns - Get hook pattern analysis
-  router.register<SerialScopeParams, HookPatternResult>(
+  router.register<SerialScopeParams, HookManagementResult>(
     API_METHODS.SERIAL_HOOK_PATTERNS,
     (params) => {
       // Verify project exists
@@ -209,7 +209,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
       }
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: HookManagementDependencies = {
@@ -260,7 +260,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
       }
 
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: CycleEnforcementDependencies = {
@@ -268,11 +268,25 @@ export function registerSerialHandlers(router: Router, services: Services): void
         contentRepository: services.project.repos.contents
       };
 
+      // Get serial settings from project
+      const settings = project.settings?.serial ?? {
+        cycleLength: 5,
+        cycleTensionTargets: [],
+        minimumBuffer: 3,
+        releaseInterval: 7,
+        enforceHookVariety: true,
+        maxConsecutiveSameHook: 2
+      };
+
       // Analyze cycle enforcement
       return analyzeCycleEnforcementWithDeps(
         {
           projectId: params.projectId,
-          rootStructure
+          rootStructure,
+          cycleConfig: {
+            cycleLength: settings.cycleLength,
+            tensionTargets: settings.cycleTensionTargets
+          }
         },
         deps
       );
@@ -282,7 +296,7 @@ export function registerSerialHandlers(router: Router, services: Services): void
   // serial.mysteryBoard - Get mystery tracking data
   router.register<SerialProjectParams, MysteryTrackingData[]>(
     API_METHODS.SERIAL_MYSTERY_BOARD,
-    (params) => {
+    async (params) => {
       // Verify project exists
       const project = services.project.loadProject(params.projectId);
       if (!project) {
@@ -300,11 +314,8 @@ export function registerSerialHandlers(router: Router, services: Services): void
       // Get bible for mysteries
       const bible = services.bible(params.projectId).getBible();
 
-      // Filter to mystery-type plot threads
-      const mysteries = bible.plotThreads.filter(pt => pt.type === 'mystery');
-
       // Create analysis repository
-      const analysisRepo = createAnalysisRepository(services.db, services.drizzle);
+      const analysisRepo = createAnalysisRepository(services.db);
 
       // Build dependencies
       const deps: MysteryTrackingDependencies = {
@@ -312,18 +323,17 @@ export function registerSerialHandlers(router: Router, services: Services): void
         contentRepository: services.project.repos.contents
       };
 
-      // Generate mystery tracking data - returns Map, convert to array
-      const trackingMap = generateAllMysteryTracking(
+      // Generate mystery tracking data - async, returns array
+      const trackingData = await generateAllMysteryTracking(
         {
           projectId: params.projectId,
           rootStructure,
-          mysteries
+          plotThreads: bible.plotThreads
         },
         deps
       );
 
-      // Convert Map to array
-      return Array.from(trackingMap.values());
+      return trackingData;
     }
   );
 }
