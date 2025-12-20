@@ -8,6 +8,25 @@
 // Client
 export { createLLMClient, type LLMClient } from './client';
 
+// Resilient client with circuit breaker
+export {
+  createResilientLLMClient,
+  type ResilientLLMClient,
+  type ResilientClientConfig,
+  type ErrorStats,
+} from './resilient-client';
+
+// Circuit breaker
+export {
+  createCircuitBreaker,
+  type CircuitBreaker,
+  type CircuitState,
+  type CircuitBreakerConfig,
+  type CircuitBreakerStats,
+  CircuitOpenError,
+  DEFAULT_CIRCUIT_BREAKER_CONFIG,
+} from './circuit-breaker';
+
 // Configuration
 export {
   type LLMConfig,

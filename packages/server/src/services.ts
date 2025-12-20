@@ -26,7 +26,9 @@ import {
   createRevisionCascadeService,
   type RevisionCascadeService,
   createLockPointRepository,
-  type LockPointRepository
+  type LockPointRepository,
+  createErrorHandlingService,
+  type ErrorHandlingService
 } from '@repo/core';
 import { createLLMClient, type LLMClient } from '@repo/llm';
 import type Database from 'libsql';
@@ -53,6 +55,7 @@ export interface Services {
   generation: GenerationPipeline | undefined;
   analysis: AnalysisService | undefined;
   llmClient: LLMClient | undefined;
+  errorHandling: ErrorHandlingService;
   close(): void;
 }
 
@@ -124,6 +127,20 @@ export function createServices(config: ServiceConfig): Services {
     projectService.repos.structures
   );
 
+  // Create error handling service
+  const backupDir = path.join(config.dataDir, 'backups');
+  const errorHandlingService = createErrorHandlingService({
+    db,
+    backup: {
+      backupDir,
+      databasePath: dbPath,
+    },
+    cleanup: {
+      operationJournalDays: 30,
+      backupCount: 10,
+    },
+  });
+
   return {
     db,
     drizzle,
@@ -136,6 +153,7 @@ export function createServices(config: ServiceConfig): Services {
     generation: generationPipeline,
     analysis: analysisService,
     llmClient,
+    errorHandling: errorHandlingService,
 
     close(): void {
       db.close();

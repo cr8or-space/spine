@@ -13,6 +13,7 @@ import { registerGenerationTools } from './generation';
 import { registerReviewTools } from './review';
 import { registerAnalyticsTools } from './analytics';
 import { registerSerialTools } from './serial';
+import { registerSystemTools } from './system';
 
 export interface ToolContext {
   client: FullClient;
@@ -34,4 +35,5 @@ export function registerAllTools(
   registerReviewTools(server, context);
   registerAnalyticsTools(server, context);
   registerSerialTools(server, context);
+  registerSystemTools(server, context);
 }

@@ -42,3 +42,6 @@ export * from './release';
 
 // Re-export render pipeline (Phase 7.VR.4)
 export * from './render';
+
+// Re-export error handling (Phase 6.5)
+export * from './error-handling';

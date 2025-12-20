@@ -18,6 +18,7 @@ import { createGenerationApi as createGeneration } from './api/generation';
 import { createReviewApi as createReview } from './api/review';
 import { createAnalyticsApi as createAnalytics } from './api/analytics';
 import { createSerialApi as createSerial } from './api/serial';
+import { createSystemApi as createSystem } from './api/system';
 import type { ClientConfig, SubscriptionKey, NotificationHandler } from './types';
 
 // Core client
@@ -54,6 +55,7 @@ export { createGenerationApi, type GenerationApi, type GenerationOptions, type G
 export { createReviewApi, type ReviewApi, type CommentInput, type BulkApproveResult, type CascadePreview, type CascadeResult } from './api/review';
 export { createAnalyticsApi, type AnalyticsApi, type AnalyticsScope, type QualityMetrics } from './api/analytics';
 export { createSerialApi, type SerialApi, type SerialScope, type BufferDepletionInfo, type ReleaseScheduleResult } from './api/serial';
+export { createSystemApi, type SystemApi, type HealthSummary, type HealthCheckResult, type IntegrityCheckResult, type RepairResult, type OperationStatus, type OperationType, type OperationJournalEntry, type RecoveryResult, type BackupRecord, type BackupVerifyResult, type CleanupResult } from './api/system';
 
 /**
  * Create a fully-configured Spine client with all API methods
@@ -78,7 +80,8 @@ export function createFullClient(config: ClientConfig) {
     generation: createGeneration(client),
     review: createReview(client),
     analytics: createAnalytics(client),
-    serial: createSerial(client)
+    serial: createSerial(client),
+    system: createSystem(client)
   };
 }
 

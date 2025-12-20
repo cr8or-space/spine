@@ -153,6 +153,61 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX IF NOT EXISTS idx_content_versions_created ON content_versions(created_at);
     `,
   },
+  {
+    version: 3,
+    description: 'Add operation journal, health checks, and backup history tables',
+    up: `
+      -- Operation journal for recovery
+      CREATE TABLE IF NOT EXISTS operation_journal (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        operation_type TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'in_progress', 'completed', 'failed', 'cancelled')),
+        state_json TEXT NOT NULL,
+        context_json TEXT,
+        error_message TEXT,
+        retry_count INTEGER NOT NULL DEFAULT 0,
+        max_retries INTEGER NOT NULL DEFAULT 3,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        completed_at TEXT,
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_operation_journal_project ON operation_journal(project_id);
+      CREATE INDEX IF NOT EXISTS idx_operation_journal_status ON operation_journal(status);
+      CREATE INDEX IF NOT EXISTS idx_operation_journal_type ON operation_journal(operation_type);
+
+      -- Database health checks table
+      CREATE TABLE IF NOT EXISTS health_checks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        check_type TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('ok', 'warning', 'error')),
+        details_json TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_health_checks_type ON health_checks(check_type);
+      CREATE INDEX IF NOT EXISTS idx_health_checks_created ON health_checks(created_at);
+
+      -- Backup history table
+      CREATE TABLE IF NOT EXISTS backup_history (
+        id TEXT PRIMARY KEY,
+        backup_type TEXT NOT NULL CHECK (backup_type IN ('full', 'incremental', 'content-only')),
+        file_path TEXT NOT NULL,
+        file_size INTEGER,
+        checksum TEXT,
+        status TEXT NOT NULL CHECK (status IN ('in_progress', 'completed', 'failed', 'verified')),
+        error_message TEXT,
+        created_at TEXT NOT NULL,
+        completed_at TEXT
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_backup_history_type ON backup_history(backup_type);
+      CREATE INDEX IF NOT EXISTS idx_backup_history_status ON backup_history(status);
+      CREATE INDEX IF NOT EXISTS idx_backup_history_created ON backup_history(created_at);
+    `,
+  },
 ];
 
 /**

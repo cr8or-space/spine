@@ -9,7 +9,7 @@
  * - Cross-references tracked in dedicated junction table
  */
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /**
  * SQL statements to create all tables
@@ -299,6 +299,56 @@ CREATE INDEX IF NOT EXISTS idx_cross_refs_project ON cross_references(project_id
 CREATE INDEX IF NOT EXISTS idx_cross_refs_source ON cross_references(source_id, source_type);
 CREATE INDEX IF NOT EXISTS idx_cross_refs_target ON cross_references(target_id, target_type);
 
+-- Operation journal for recovery
+CREATE TABLE IF NOT EXISTS operation_journal (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  operation_type TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'in_progress', 'completed', 'failed', 'cancelled')),
+  state_json TEXT NOT NULL,
+  context_json TEXT,
+  error_message TEXT,
+  retry_count INTEGER NOT NULL DEFAULT 0,
+  max_retries INTEGER NOT NULL DEFAULT 3,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  completed_at TEXT,
+  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_operation_journal_project ON operation_journal(project_id);
+CREATE INDEX IF NOT EXISTS idx_operation_journal_status ON operation_journal(status);
+CREATE INDEX IF NOT EXISTS idx_operation_journal_type ON operation_journal(operation_type);
+
+-- Database health checks table
+CREATE TABLE IF NOT EXISTS health_checks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  check_type TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('ok', 'warning', 'error')),
+  details_json TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_health_checks_type ON health_checks(check_type);
+CREATE INDEX IF NOT EXISTS idx_health_checks_created ON health_checks(created_at);
+
+-- Backup history table
+CREATE TABLE IF NOT EXISTS backup_history (
+  id TEXT PRIMARY KEY,
+  backup_type TEXT NOT NULL CHECK (backup_type IN ('full', 'incremental', 'content-only')),
+  file_path TEXT NOT NULL,
+  file_size INTEGER,
+  checksum TEXT,
+  status TEXT NOT NULL CHECK (status IN ('in_progress', 'completed', 'failed', 'verified')),
+  error_message TEXT,
+  created_at TEXT NOT NULL,
+  completed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_backup_history_type ON backup_history(backup_type);
+CREATE INDEX IF NOT EXISTS idx_backup_history_status ON backup_history(status);
+CREATE INDEX IF NOT EXISTS idx_backup_history_created ON backup_history(created_at);
+
 -- Full-text search for characters
 CREATE VIRTUAL TABLE IF NOT EXISTS characters_fts USING fts5(
   id UNINDEXED,
@@ -396,6 +446,9 @@ DROP TRIGGER IF EXISTS characters_ai;
 DROP TABLE IF EXISTS contents_fts;
 DROP TABLE IF EXISTS locations_fts;
 DROP TABLE IF EXISTS characters_fts;
+DROP TABLE IF EXISTS backup_history;
+DROP TABLE IF EXISTS health_checks;
+DROP TABLE IF EXISTS operation_journal;
 DROP TABLE IF EXISTS cross_references;
 DROP TABLE IF EXISTS lock_points;
 DROP TABLE IF EXISTS content_versions;

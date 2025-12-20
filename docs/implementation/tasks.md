@@ -100,10 +100,10 @@ See [docs/architecture/testing.md](../architecture/testing.md) for details.
 - [ ] Background processing
 
 ### 6.5 Error Handling
-- [ ] LLM failure handling
-- [ ] Operation recovery
-- [ ] Corruption detection
-- [ ] Backup and restore
+- [x] LLM failure handling (circuit breaker, resilient client)
+- [x] Operation recovery (journal persistence, recovery API)
+- [x] Corruption detection (integrity checks, repair)
+- [x] Backup and restore (SQLite VACUUM, verification)
 
 ## Phase 10: Web App Synchronization
 
