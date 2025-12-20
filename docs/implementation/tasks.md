@@ -545,3 +545,47 @@ See [websocket.api.md](./websocket.api.md) for detailed API specification.
   - [x] `--parent` filter for list command
 - [x] Documentation sync with implemented features (cli.md updated)
 
+## Phase 8: MCP Server
+
+See [mcp.plan.md](./mcp.plan.md) for detailed implementation plan.
+
+### 8.1 MCP Package Foundation
+- [ ] Package configuration (package.json, tsconfig.json, eslint.config.js, vitest.config.ts)
+- [ ] MCP server initialization with SDK (@modelcontextprotocol/sdk)
+- [ ] Configuration management (environment, config file)
+- [ ] WebSocket client integration (@repo/client)
+- [ ] Session context management (currentProjectId, currentStructureId)
+- [ ] Error handling and mapping
+
+### 8.2 Core Tools
+- [ ] Project tools (spine_project_list, spine_project_create, spine_project_load, spine_project_delete)
+- [ ] Bible tools (spine_bible_get, spine_bible_character_*)
+- [ ] Structure tools (spine_structure_tree, spine_structure_create, spine_structure_update)
+- [ ] Content tools (spine_content_get, spine_content_save, spine_content_history)
+- [ ] Session status tool (spine_session_status)
+
+### 8.3 Advanced Tools
+- [ ] Generation tools (spine_generate_start, spine_generate_status, spine_generate_cancel)
+- [ ] Review tools (spine_review_queue, spine_review_approve, spine_review_publish)
+- [ ] Remaining bible entity tools (location, faction, worldRule, plotThread, timelineEvent)
+- [ ] Structure beats and hooks (spine_structure_add_beat, spine_structure_set_hook)
+- [ ] Cascade tools (spine_review_cascade_preview, spine_review_cascade_execute)
+
+### 8.4 Analytics & Serial Tools
+- [ ] Analytics tools (spine_analytics_tension, spine_analytics_characters, spine_analytics_threads, spine_analytics_quality)
+- [ ] Serial tools (spine_serial_buffer, spine_serial_schedule, spine_serial_hooks, spine_serial_cycle, spine_serial_mysteries)
+
+### 8.5 Polish & Testing
+- [ ] Output formatting for LLM consumption
+- [ ] Tool documentation and descriptions
+- [ ] Unit tests for all tool handlers
+- [ ] Integration tests with Spine server
+- [ ] User documentation (docs/user/mcp.md)
+
+## Documentation
+
+### User Documentation
+- [x] CLI usage guide (docs/user/cli.md)
+- [x] WebSocket API reference (docs/user/api.md)
+- [ ] MCP server usage guide (docs/user/mcp.md)
+

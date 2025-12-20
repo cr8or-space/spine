@@ -79,3 +79,5 @@ Key docs in `docs/`:
 - `implementation/plan.md` — Phased implementation roadmap
 - `implementation/tasks.md` — Checklist of completed work
 - `development/coding-style.md` — Detailed code conventions
+- `user/api.md` — WebSocket API documentation
+- `user/cli.md` — CLI usage guide
