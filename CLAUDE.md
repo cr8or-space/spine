@@ -93,9 +93,19 @@ Key docs in `docs/`:
 - `goals.md` — Project objectives and guiding principles
 - `rationale.md` — Design decisions with justifications
 - `proposal/project-proposal.md` — Full system design
+
+Implementation:
 - `implementation/plan.md` — Phased implementation roadmap
-- `implementation/tasks.md` — Checklist of completed work
+- `implementation/tasks.md` — Implementation status checklist
+
+Architecture (developer reference):
+- `architecture/packages.md` — Package structure and dependencies
+- `architecture/testing.md` — Test infrastructure and patterns
+
+Development:
 - `development/coding-style.md` — Detailed code conventions
+
+User guides:
 - `user/api.md` — WebSocket API documentation
 - `user/cli.md` — CLI usage guide
 - `user/mcp.md` — MCP server usage guide

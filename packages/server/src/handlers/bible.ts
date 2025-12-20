@@ -140,6 +140,30 @@ export function registerBibleHandlers(router: Router, services: Services): void 
     BibleEntityDeleteParamsSchema
   );
 
+  router.register<{ projectId: string; data: Record<string, unknown> }, Location>(
+    API_METHODS.BIBLE_LOCATION_CREATE,
+    (params) => {
+      const bible = services.bible(params.projectId);
+      const data = params.data as {
+        name: string;
+        type: Location['type'];
+        description?: string;
+        parentId?: string;
+      };
+      return bible.locations.create({
+        name: data.name,
+        aliases: [],
+        description: data.description || '',
+        type: data.type,
+        parentId: data.parentId,
+        relations: [],
+        features: [],
+        associatedCharacters: [],
+        status: 'accessible'
+      });
+    }
+  );
+
   // ============ FACTION HANDLERS ============
 
   router.register<BibleEntityListParams, Faction[]>(
@@ -172,6 +196,31 @@ export function registerBibleHandlers(router: Router, services: Services): void 
       return { success };
     },
     BibleEntityDeleteParamsSchema
+  );
+
+  router.register<{ projectId: string; data: Record<string, unknown> }, Faction>(
+    API_METHODS.BIBLE_FACTION_CREATE,
+    (params) => {
+      const bible = services.bible(params.projectId);
+      const data = params.data as {
+        name: string;
+        type: Faction['type'];
+        description?: string;
+      };
+      return bible.factions.create({
+        name: data.name,
+        aliases: [],
+        description: data.description || '',
+        type: data.type,
+        goals: [],
+        ranks: [],
+        members: [],
+        relations: [],
+        locations: [],
+        status: 'active',
+        influence: 'moderate'
+      });
+    }
   );
 
   // ============ WORLD RULE HANDLERS ============
@@ -208,6 +257,30 @@ export function registerBibleHandlers(router: Router, services: Services): void 
     BibleEntityDeleteParamsSchema
   );
 
+  router.register<{ projectId: string; data: Record<string, unknown> }, WorldRule>(
+    API_METHODS.BIBLE_WORLD_RULE_CREATE,
+    (params) => {
+      const bible = services.bible(params.projectId);
+      const data = params.data as {
+        name: string;
+        category: WorldRule['category'];
+        description?: string;
+        rule?: string;
+      };
+      return bible.worldRules.create({
+        name: data.name,
+        description: data.description || '',
+        category: data.category,
+        rule: data.rule || data.description || '',
+        exceptions: [],
+        publicKnowledge: true,
+        relatedRules: [],
+        priority: 50,
+        established: false
+      });
+    }
+  );
+
   // ============ PLOT THREAD HANDLERS ============
 
   router.register<BibleEntityListParams, PlotThread[]>(
@@ -242,6 +315,32 @@ export function registerBibleHandlers(router: Router, services: Services): void 
     BibleEntityDeleteParamsSchema
   );
 
+  router.register<{ projectId: string; data: Record<string, unknown> }, PlotThread>(
+    API_METHODS.BIBLE_PLOT_THREAD_CREATE,
+    (params) => {
+      const bible = services.bible(params.projectId);
+      const data = params.data as {
+        name: string;
+        type: PlotThread['type'];
+        description?: string;
+        scope?: PlotThread['scope'];
+      };
+      return bible.plotThreads.create({
+        name: data.name,
+        description: data.description || '',
+        type: data.type,
+        status: 'planned',
+        scope: data.scope || 'chapter',
+        priority: 50,
+        involvedCharacters: [],
+        relatedLocations: [],
+        promises: [],
+        touches: [],
+        childThreads: []
+      });
+    }
+  );
+
   // ============ TIMELINE EVENT HANDLERS ============
 
   router.register<BibleEntityListParams, TimelineEvent[]>(
@@ -274,5 +373,38 @@ export function registerBibleHandlers(router: Router, services: Services): void 
       return { success };
     },
     BibleEntityDeleteParamsSchema
+  );
+
+  router.register<{ projectId: string; data: Record<string, unknown> }, TimelineEvent>(
+    API_METHODS.BIBLE_TIMELINE_EVENT_CREATE,
+    (params) => {
+      const bible = services.bible(params.projectId);
+      const data = params.data as {
+        name: string;
+        description?: string;
+        date?: string;
+        storyTime?: string;
+        type?: TimelineEvent['type'];
+        significance?: TimelineEvent['significance'];
+      };
+      return bible.timeline.createEvent({
+        name: data.name,
+        description: data.description || '',
+        position: {
+          date: data.date,
+          storyTime: data.storyTime,
+          approximate: false
+        },
+        type: data.type || 'current',
+        significance: data.significance || 'moderate',
+        involvedCharacters: [],
+        locations: [],
+        relatedThreads: [],
+        causes: [],
+        effects: [],
+        revealed: false,
+        contentRefs: []
+      });
+    }
   );
 }

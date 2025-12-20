@@ -127,8 +127,6 @@ The web app (apps/web) needs updates to work with the new API packages.
 ## Known Integration Issues
 
 Server handler registration gaps (affects MCP integration tests):
-- `bible.location.create` not registered
-- `bible.plotThread.create` not registered
 - `bible.get` and `bible.*.list` validation with projectId
 - `structure.addBeat` response missing description field
 
