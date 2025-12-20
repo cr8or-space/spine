@@ -573,17 +573,23 @@ See [mcp.plan.md](./mcp.plan.md) for detailed implementation plan.
 - [x] Analytics tools (spine_analytics_tension, spine_analytics_characters, spine_analytics_threads, spine_analytics_quality)
 - [x] Serial tools (spine_serial_buffer, spine_serial_schedule, spine_serial_hooks, spine_serial_cycle, spine_serial_mysteries)
 
-### 8.5 Polish & Testing
+### 8.5 Polish & Testing ✓
 - [x] Output formatting for LLM consumption
 - [x] Tool documentation and descriptions (in code)
 - [x] Unit tests for core modules (38 tests passing)
-- [ ] Integration tests with Spine server
-- [ ] User documentation (docs/user/mcp.md)
+- [x] Integration tests with Spine server (68 tests passing, 4 skipped)
+- [x] User documentation (docs/user/mcp.md)
+
+### Known Integration Issues
+- Server handler `bible.location.create` not registered
+- Server handler `bible.plotThread.create` not registered
+- `bible.get` and `bible.*.list` validation issues with projectId parameter
+- `structure.addBeat` response missing description field
 
 ## Documentation
 
 ### User Documentation
 - [x] CLI usage guide (docs/user/cli.md)
 - [x] WebSocket API reference (docs/user/api.md)
-- [ ] MCP server usage guide (docs/user/mcp.md)
+- [x] MCP server usage guide (docs/user/mcp.md)
 
