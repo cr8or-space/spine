@@ -28,20 +28,37 @@ pnpm lint             # Lint all packages
 pnpm format           # Format with Prettier
 pnpm check-types      # TypeScript type checking
 
-# Web app specific (from apps/web/)
+# Standalone server (from apps/server/)
+pnpm dev              # Start server in dev mode (port 8080)
+pnpm build && pnpm start  # Build and run production server
+# Options: --port, --host, --data-dir, --llm-endpoint, --llm-api-key, --llm-model
+
+# Web app (from apps/web/)
 pnpm test             # Run all tests
 pnpm test:unit        # Run unit tests (vitest)
 pnpm test:integration # Run integration tests (playwright)
 pnpm check            # Svelte type checking
+
+# CLI (from apps/cli/)
+pnpm dev -- project list  # Run CLI commands in dev mode
 ```
 
 ## Architecture
 
 **Monorepo Structure** (Turborepo + pnpm workspaces):
-- `apps/web` — SvelteKit application (Svelte 5, Vite)
+
+Applications:
+- `apps/web` — SvelteKit web application (Svelte 5, Vite)
+- `apps/server` — Standalone WebSocket server (no UI, for MCP/CLI use)
+- `apps/cli` — Command-line interface client
+
+Packages:
 - `packages/types` — Zod schemas and TypeScript types for all domain entities
 - `packages/core` — Domain logic: storage (SQLite), bible, structure, generation, analysis, version, review, continuity, release
 - `packages/llm` — OpenAI-compatible client, token counting, context assembly with relevance scoring
+- `packages/server` — WebSocket server implementation (JSON-RPC 2.0 protocol)
+- `packages/client` — WebSocket client library for connecting to server
+- `packages/mcp` — MCP (Model Context Protocol) server for LLM tool integration
 - `packages/ui` — Shared Svelte components
 - `packages/eslint-config` — Shared ESLint configuration
 - `packages/typescript-config` — Shared TypeScript configuration
@@ -81,3 +98,4 @@ Key docs in `docs/`:
 - `development/coding-style.md` — Detailed code conventions
 - `user/api.md` — WebSocket API documentation
 - `user/cli.md` — CLI usage guide
+- `user/mcp.md` — MCP server usage guide
