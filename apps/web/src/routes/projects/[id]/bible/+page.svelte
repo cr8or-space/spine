@@ -52,12 +52,14 @@
           characters={data.bible.characters}
           projectId={data.project.id}
           {searchQuery}
+          appearanceCounts={data.appearanceCounts}
         />
       {:else if activeTab === 'locations'}
         <LocationTab
           locations={data.bible.locations}
           projectId={data.project.id}
           {searchQuery}
+          appearanceCounts={data.locationAppearanceCounts}
         />
       {:else if activeTab === 'factions'}
         <FactionTab

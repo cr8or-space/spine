@@ -144,6 +144,7 @@ Issues discovered during implementation testing with "The Accident" web serial p
 ### Display/UX
 
 - [x] **Structure get missing key fields** - Fixed: Now shows summary (not synopsis), parent ID, order, target word count, notes, and full children list with titles and types.
+- [x] **Bible character/location appearances showing 0** - Fixed: Web app now computes appearance counts from content analysis data instead of the empty `appearances` array on entities.
 - [ ] **No entity type for group consciousness** - Characters like "The Collective" and "The Ancients" are civilizations but must be created as individual characters with `supporting` role.
 
 ## Future Considerations

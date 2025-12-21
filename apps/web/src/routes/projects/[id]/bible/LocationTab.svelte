@@ -2,15 +2,16 @@
   import type { Location } from '@repo/types';
   import { Button, Card, EmptyState, Badge, Dialog, TextField, TextArea, Select, FilterSelect } from '$lib/components';
   import { enhance } from '$app/forms';
-  import { Plus, MapPin, Users } from 'lucide-svelte';
+  import { Plus, MapPin, Users, BookOpen } from 'lucide-svelte';
 
   interface Props {
     locations: Location[];
     projectId: string;
     searchQuery: string;
+    appearanceCounts: Record<string, number>;
   }
 
-  let { locations, projectId, searchQuery }: Props = $props();
+  let { locations, projectId, searchQuery, appearanceCounts }: Props = $props();
 
   let typeFilter = $state('');
   let statusFilter = $state('');
@@ -192,6 +193,10 @@
                 <span class="flex items-center gap-1">
                   <Users size={14} />
                   {location.associatedCharacters.length} characters
+                </span>
+                <span class="flex items-center gap-1">
+                  <BookOpen size={14} />
+                  {appearanceCounts[location.id] ?? 0} appearances
                 </span>
               </div>
             </div>

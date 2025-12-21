@@ -1,6 +1,7 @@
 import { error, fail, redirect, isRedirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createBibleService } from '@repo/core/bible';
+import { createAnalysisRepository } from '@repo/core/analysis';
 import type { Character, Location, Faction, WorldRule, PlotThread, TimelineEvent } from '@repo/types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -16,12 +17,36 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   // Get the complete bible
   const bible = bibleService.getBible();
 
+  // Compute appearance counts from content analysis
+  const analysisRepo = createAnalysisRepository(locals.db, locals.drizzle);
+  const allAnalyses = analysisRepo.findByProject(params.id);
+
+  // Count appearances per character from analysis data
+  const appearanceCounts = new Map<string, number>();
+  for (const analysis of allAnalyses) {
+    for (const appearance of analysis.characterAppearances) {
+      const count = appearanceCounts.get(appearance.characterId) || 0;
+      appearanceCounts.set(appearance.characterId, count + 1);
+    }
+  }
+
+  // Count appearances per location from analysis data
+  const locationAppearanceCounts = new Map<string, number>();
+  for (const analysis of allAnalyses) {
+    for (const locationId of analysis.locationAppearances) {
+      const count = locationAppearanceCounts.get(locationId) || 0;
+      locationAppearanceCounts.set(locationId, count + 1);
+    }
+  }
+
   return {
     project: {
       id: project.id,
       title: project.title,
     },
     bible,
+    appearanceCounts: Object.fromEntries(appearanceCounts),
+    locationAppearanceCounts: Object.fromEntries(locationAppearanceCounts),
   };
 };
 

@@ -8,9 +8,10 @@
     characters: Character[];
     projectId: string;
     searchQuery: string;
+    appearanceCounts: Record<string, number>;
   }
 
-  let { characters, projectId, searchQuery }: Props = $props();
+  let { characters, projectId, searchQuery, appearanceCounts }: Props = $props();
 
   let roleFilter = $state('');
   let statusFilter = $state('');
@@ -186,7 +187,7 @@
                 </span>
                 <span class="flex items-center gap-1">
                   <BookOpen size={14} />
-                  {character.appearances.length} appearances
+                  {appearanceCounts[character.id] ?? 0} appearances
                 </span>
               </div>
             </div>
