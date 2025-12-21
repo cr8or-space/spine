@@ -66,9 +66,11 @@ See [web.app.refactor.plan.md](./web.app.refactor.plan.md) for details.
 ### Testing
 See [docs/architecture/testing.md](../architecture/testing.md) for details.
 
-- [ ] Update component tests for new primitives/layouts
-- [ ] Fix remaining Playwright test failures (16 failing)
-- [ ] Fix workspace empty state test
+- [x] Update component tests for new primitives/layouts (111 tests passing)
+- [x] Add $app mocks for vitest-browser tests
+- [x] Configure Playwright to use temp database directory
+- [ ] Fix remaining Playwright test failures (10 failing, mostly timing issues in review/analytics)
+- [ ] Address flaky tests (4 tests pass on retry)
 
 ## Phase 6: Polish (Not Started)
 

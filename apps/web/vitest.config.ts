@@ -8,7 +8,11 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			$lib: path.resolve('./src/lib'),
-			$app: path.resolve('./.svelte-kit/runtime/app'),
+			// Mock SvelteKit modules for vitest browser tests
+			'$app/navigation': path.resolve('./src/test-mocks/app/navigation.ts'),
+			'$app/stores': path.resolve('./src/test-mocks/app/stores.ts'),
+			'$app/environment': path.resolve('./src/test-mocks/app/environment.ts'),
+			'$app/forms': path.resolve('./src/test-mocks/app/forms.ts'),
 		},
 	},
 	optimizeDeps: {

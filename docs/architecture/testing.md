@@ -27,6 +27,20 @@ cd packages/mcp && pnpm test
 
 ## Component Testing (vitest-browser-svelte)
 
+### SvelteKit Module Mocks
+
+Components that use SvelteKit modules (`$app/*`) require mocks for vitest-browser tests:
+
+```
+src/test-mocks/app/
+├── navigation.ts   # goto, invalidate, etc.
+├── stores.ts       # page, navigating stores
+├── environment.ts  # browser, dev, building
+└── forms.ts        # enhance, applyAction
+```
+
+These are configured in `vitest.config.ts` via resolve aliases.
+
 ### Patterns
 
 - Always use locators (`page.getBy*()`) - never containers
@@ -110,6 +124,14 @@ The following patterns were identified and fixed during test development:
 8. **Back-link navigation** - Uses `getByRole('link')` instead of CSS selectors
 9. **Strict mode** - Uses `.first()` selector for multiple elements
 
+### Database Isolation
+
+Integration tests use a temporary database directory to avoid polluting development data:
+
+- `tests/global-setup.ts` - Creates temp directory at `/tmp/spine-playwright-tests`
+- `playwright.config.ts` - Configures `SPINE_DATA_DIR` environment variable for webServer
+- Cleanup runs automatically after tests complete
+
 ### Known Issues
 
 1. **Project auto-creation** - Project creation auto-creates a root book with project title (affects empty state tests)
@@ -117,30 +139,32 @@ The following patterns were identified and fixed during test development:
 3. **Chapter creation stabilization** - Some tests need longer waits after chapter creation
 4. **Server timeouts** - Can cause test flakiness in CI environments
 5. **Parallel execution** - 16 workers causes database contention; tests pass individually but may fail together
-6. **Workspace empty state** - Serial mode state persistence affects empty state test
+6. **Review queue visibility** - Content may not immediately appear in review queue after creation
 
 ### Test Status Summary
 
-**Passing (98 tests)**:
-- bible-management.spec.ts: 11/11
-- navigation.spec.ts: 5/5
-- project-management.spec.ts: 7/7
-- entity-creation.spec.ts: 21/22
-- workspace.spec.ts: 17/17
-- analytics.spec.ts: partial
-- serial.spec.ts: partial
-- review.spec.ts: partial
-- generation.spec.ts: partial
+**Unit Tests (111 tests)**: All passing
+- Button, Card, Dialog, TextField, Tabs, Select
+- ValidationPanel, ValidationBadge
+- EntityCard, EntityListPage, CreateEntityDialog
 
-**Failing (16 tests)**:
-- analytics.spec.ts: 7 failures (timing/server issues)
-- serial.spec.ts: 1 failure (mystery board timing)
-- review.spec.ts: 5 failures (content fill timing)
-- generation.spec.ts: 2 failures (analysis panel, version saving timing)
-- entity-creation.spec.ts: 1 failure (location list display timing)
+**Integration Tests (176 tests)**:
+- 122+ passing
+- 10 failing (timing/race conditions)
+- 4 flaky (pass on retry)
+- ~40 skipped (due to serial mode dependencies)
 
-**Flaky (1 test)**:
-- serial.spec.ts: hook variety warnings test
+**Failing Tests**:
+- analytics.spec.ts: Plot thread timeline, structure filtering
+- generation.spec.ts: Analysis panel, version history
+- review.spec.ts: Queue display, content review page, diff view, bulk actions
+- serial.spec.ts: Mystery board display
+
+**Flaky Tests**:
+- bible-management.spec.ts: Search filter
+- entity-creation.spec.ts: Faction list display
+- generation.spec.ts: Generation config options
+- review.spec.ts: Revision cascade
 
 ## LLM-Dependent Tests
 
