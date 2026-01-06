@@ -220,6 +220,12 @@ export interface PromptPlaceholders {
   hookRequirements?: string;
   /** Tension target */
   tensionTarget?: number;
+  /** Issues for revision stage */
+  issues?: Array<{ type: string; severity: number; description: string; suggestedFix?: string }>;
+  /** Suggestions for revision stage */
+  suggestions?: string[];
+  /** Problematic paragraphs for revision stage */
+  problematicParagraphs?: string;
 }
 
 /**

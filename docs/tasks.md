@@ -85,10 +85,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `structure/tree.ts` — Structure hierarchy
 - [x] `structure/beats.ts` — Beat management
 - [x] `structure/hooks.ts` — Hook specification
-- [ ] `generation/pipeline.ts` — Generation orchestration
-- [ ] `generation/outline.ts` — Outline generation
-- [ ] `generation/beats.ts` — Beat expansion
-- [ ] `generation/draft.ts` — Draft generation
+- [x] `generation/pipeline.ts` — Generation orchestration
+- [x] `generation/outline.ts` — Outline generation
+- [x] `generation/beats.ts` — Beat expansion
+- [x] `generation/draft.ts` — Draft generation
 - [ ] `analysis/tension.ts` — Tension scoring
 - [ ] `analysis/hooks.ts` — Hook analysis
 - [ ] `analysis/pacing.ts` — Pacing assessment
@@ -303,6 +303,8 @@ Carried forward from existing implementation:
 
 - [ ] Duplicate root structure created (by design — projects auto-create root)
 - [ ] No entity type for group consciousness (Characters like "The Collective" must use `supporting` role)
+- [ ] Generation services don't track token usage from LLM responses (pipeline.ts, draft.ts report 0 tokens)
+- [ ] Duplicated `formatContext` and `formatStructure` helpers across generation modules (outline.ts, beats.ts, draft.ts, pipeline.ts)
 
 ## Future Considerations
 

@@ -86,6 +86,11 @@ For beat expansion:
 {{constraints}}
 {{/if}}
 
+{{#if styleGuidance}}
+## Style Guidance
+{{styleGuidance}}
+{{/if}}
+
 ## Task
 Expand the outline into detailed story beats. For each beat, provide:
 1. A brief description of what happens
@@ -267,6 +272,7 @@ export function fillTemplate(template: string, placeholders: PromptPlaceholders)
   result = result.replace(/\{\{constraints\}\}/g, placeholders.constraints || '');
   result = result.replace(/\{\{hookRequirements\}\}/g, placeholders.hookRequirements || 'engaging');
   result = result.replace(/\{\{tensionTarget\}\}/g, String(placeholders.tensionTarget || 50));
+  result = result.replace(/\{\{problematicParagraphs\}\}/g, placeholders.problematicParagraphs || '');
 
   // Handle conditional blocks {{#if variable}}...{{/if}}
   result = result.replace(/\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, variable, content) => {

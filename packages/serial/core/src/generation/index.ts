@@ -48,3 +48,33 @@ export {
   createHistoryEntry,
   historyEntryToRecord,
 } from './history';
+
+// Outline service
+export type {
+  OutlineConfig,
+  OutlineInput,
+  OutlineResult,
+  OutlineService,
+  OutlineValidation,
+} from './outline';
+export { createOutlineService, DEFAULT_OUTLINE_CONFIG } from './outline';
+
+// Beats service
+export type {
+  BeatsConfig,
+  BeatsInput,
+  BeatsResult,
+  BeatsService,
+  ExpandedBeat,
+} from './beats';
+export { createBeatsService, DEFAULT_BEATS_CONFIG } from './beats';
+
+// Draft service
+export type {
+  DraftConfig,
+  DraftInput,
+  DraftResult,
+  DraftService,
+  RevisionInput,
+} from './draft';
+export { createDraftService, DEFAULT_DRAFT_CONFIG } from './draft';
