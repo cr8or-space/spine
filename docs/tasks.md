@@ -69,11 +69,11 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 ## Phase 2: Serial Domain
 
 ### 2.1 Serial Types
-- [ ] Move bible types (Character, Location, Faction, WorldRule, PlotThread, TimelineEvent)
-- [ ] Move structure types (Book, Arc, Chapter, Scene)
-- [ ] Move content types (Prose, Analysis)
-- [ ] Move serial types (HookType, ChapterType, TensionCycle, ReleaseSchedule)
-- [ ] Update imports throughout serial packages
+- [x] Bible types (Character, Location, Faction, WorldRule, PlotThread, TimelineEvent)
+- [x] Structure types (Book, Arc, Chapter, Scene via Structure hierarchy)
+- [x] Content types (Content, ContentAnalysis)
+- [x] Serial types (HookType, ChapterType, TensionCycle via analysis, ReleaseSchedule)
+- [x] Unit tests for serial types (314 tests)
 
 ### 2.2 Serial Core
 - [ ] `bible/character.ts` — Character operations
