@@ -89,10 +89,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `generation/outline.ts` — Outline generation
 - [x] `generation/beats.ts` — Beat expansion
 - [x] `generation/draft.ts` — Draft generation
-- [ ] `analysis/tension.ts` — Tension scoring
-- [ ] `analysis/hooks.ts` — Hook analysis
-- [ ] `analysis/pacing.ts` — Pacing assessment
-- [ ] `analysis/continuity.ts` — Continuity checking
+- [x] `analysis/tension.ts` — Tension scoring
+- [x] `analysis/hooks.ts` — Hook analysis
+- [x] `analysis/pacing.ts` — Pacing assessment
+- [x] `analysis/continuity.ts` — Continuity checking
 - [ ] `review/workflow.ts` — Review status management
 - [ ] `review/locks.ts` — Lock point management
 - [ ] `review/cascade.ts` — Revision cascade

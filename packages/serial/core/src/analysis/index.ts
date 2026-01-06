@@ -190,3 +190,78 @@ export {
   type EntityInfo,
   type ProseExtractorConfig,
 } from './reference-extractor';
+
+// High-level analysis reports (Phase 2.2)
+// Tension analysis report
+export {
+  analyzeTension,
+  calculateTensionTrend,
+  generateTensionWarnings,
+  generateTensionRecommendations,
+  DEFAULT_TENSION_CONFIG,
+  type TensionAnalysisInput,
+  type TensionAnalysisDependencies,
+  type TensionConfig,
+  type TensionWarning,
+  type TensionTrend,
+  type TensionSummary,
+  type TensionAnalysisReport,
+  type ChapterTensionData,
+} from './tension';
+
+// Hook analysis report
+export {
+  analyzeHooks,
+  type HookAnalysisInput,
+  type HookAnalysisDependencies,
+  type HooksConfig,
+  type HookWarning,
+  type ChapterHookData,
+  type HookDistribution,
+  type HookStrengthTrend,
+  type HookRepetition,
+  type HookRecommendation,
+  type HookSummary,
+  type HookAnalysisReport,
+} from './hooks';
+
+// Pacing analysis report
+export {
+  analyzePacing,
+  calculateProfileDistribution,
+  calculatePacingTrend,
+  detectConsecutivePatterns,
+  DEFAULT_PACING_CONFIG,
+  type PacingAnalysisInput,
+  type PacingAnalysisDependencies,
+  type PacingConfig,
+  type ChapterPacingData,
+  type PacingProfileDistribution,
+  type PacingSegmentDistribution,
+  type PacingTrend,
+  type ConsecutivePacingPattern,
+  type PacingRecommendation,
+  type PacingSummary,
+  type PacingAnalysisReport,
+} from './pacing';
+
+// Continuity analysis report
+export {
+  analyzeContinuity,
+  calculateTypeDistribution,
+  calculateSeverityDistribution,
+  detectRecurringPatterns,
+  buildEntitySummaries,
+  DEFAULT_CONTINUITY_CONFIG,
+  type ContinuityAnalysisInput,
+  type ContinuityAnalysisDependencies,
+  type ContinuityConfig,
+  type ChapterContinuityData,
+  type IssueTypeDistribution,
+  type IssueSeverityDistribution,
+  type RecurringPattern,
+  type EntityIssueSummary,
+  type ContinuityRecommendation,
+  type ContinuitySummary,
+  type ContinuityAnalysisReport,
+} from './continuity';
