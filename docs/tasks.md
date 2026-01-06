@@ -57,11 +57,11 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] Error handling standardization
 
 ### 1.5 Remove Web Frontend
-- [ ] Delete `apps/web/`
-- [ ] Delete `packages/ui/`
-- [ ] Remove web-related dependencies from root
-- [ ] Update CI/CD configuration
-- [ ] Update README
+- [x] Delete `apps/web/`
+- [x] Delete `packages/ui/`
+- [x] Remove web-related dependencies from root
+- [x] Update turbo.json configuration
+- [x] Update docs/architecture/packages.md
 
 ## Phase 2: Serial Domain
 

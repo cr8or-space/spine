@@ -7,7 +7,6 @@ Spine uses a monorepo structure with Turborepo and pnpm workspaces. This documen
 ```
 spine/
 ├── apps/
-│   ├── web/        # SvelteKit web application
 │   ├── server/     # Standalone WebSocket server
 │   └── cli/        # Command-line interface
 └── packages/
@@ -17,25 +16,11 @@ spine/
     ├── server/     # WebSocket server implementation
     ├── client/     # WebSocket client library
     ├── mcp/        # MCP server for LLM tools
-    ├── ui/         # Shared Svelte components
     ├── eslint-config/      # Shared ESLint config
     └── typescript-config/  # Shared TypeScript config
 ```
 
 ## Applications
-
-### apps/web
-
-SvelteKit web application providing the full UI experience.
-
-**Stack**: Svelte 5, Vite, Tailwind CSS v4, Bits UI
-
-**Key directories**:
-- `src/routes/` - SvelteKit routes and pages
-- `src/lib/components/` - UI components
-- `src/lib/shell/` - Application shell (AppShell, TopBar, NavRail)
-
-**Dependencies**: `@repo/types`, `@repo/core`, `@repo/llm`, `@repo/ui`
 
 ### apps/server
 
@@ -153,14 +138,6 @@ See [docs/user/mcp.md](../user/mcp.md) for usage documentation.
 
 **Dependencies**: `@repo/client`, `@modelcontextprotocol/sdk`
 
-### @repo/ui
-
-Shared Svelte components used across applications.
-
-**Components**: Design system primitives and composite components.
-
-**Dependencies**: `svelte`, `bits-ui`, `lucide-svelte`
-
 ### @repo/eslint-config
 
 Shared ESLint configuration for all packages.
@@ -172,15 +149,9 @@ Shared TypeScript configuration with base `tsconfig.json` files.
 ## Dependency Graph
 
 ```
-apps/web ─────────┬─► @repo/core ─────► @repo/types
-                  │                     │
-                  ├─► @repo/llm ────────┘
-                  │
-                  └─► @repo/ui
-
-apps/server ──────► @repo/server ─────┬─► @repo/core
-                                      │
-                                      └─► @repo/llm
+apps/server ──────► @repo/server ─────┬─► @repo/core ─────► @repo/types
+                                      │                     │
+                                      └─► @repo/llm ────────┘
 
 apps/cli ─────────► @repo/client ─────► @repo/types
 
