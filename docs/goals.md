@@ -1,98 +1,155 @@
-# Project Goals
+# Spine Framework Goals
 
-High-level objectives that guide feature development and architectural decisions.
+High-level objectives that guide framework design and determine what belongs in the shared core versus domain-specific layers.
 
 ## Primary goal
 
-Enable a single author to produce publication-quality web serials at scale (3-5 chapters/week, 250k+ words/book) using LLM assistance while maintaining creative control and narrative consistency.
+Provide a foundation for building domain-specific authoring tools where content must maintain internal consistency, track cross-references, evolve over time, and produce validated output—without reimplementing these capabilities for each domain.
+
+## Target domains
+
+### Web serials (first domain)
+
+Long-form serialized fiction with continuity tracking, pacing analysis, and release management. Content evolves linearly; published content is immutable.
+
+### Technical books (second domain)
+
+Progressive-build books where working code is tangled from prose. Checkpoints must compile and pass tests. Pedagogical ordering differs from file ordering.
+
+These two domains validate the framework. If both can be built cleanly on shared infrastructure, the framework succeeds.
 
 ## Core objectives
 
-### 1. Continuity integrity
+### 1. Structural consistency
 
-The system must prevent contradictions from reaching publication. Every fact, character trait, relationship, and world rule established in approved content becomes a constraint on future generation.
+The framework must provide primitives for tracking entities, references, and constraints that apply across domains.
 
-- No character can be in two places simultaneously
-- Established facts cannot be contradicted
-- Character voices remain consistent across chapters
-- Timeline events maintain causal coherence
+- Entities have identity, properties, lifecycle, and relationships
+- Content references entities; references are extracted and indexed automatically
+- Constraints are declared, checked, and reported uniformly
+- Cross-references are resolved for both validation and rendering
 
-### 2. Pacing visibility
+### 2. Spine abstraction
 
-The author must be able to see and shape narrative pacing before, during, and after writing.
+Different domains have different structural backbones, but they share common needs: ordering, traversal, checkpoints, snapshots.
 
-- Plan tension curves at the outline stage
-- Track actual pacing via LLM analysis as content is written
-- Identify divergence between planned and actual
-- Adjust future content to correct course
+- Linear spines (chapters in order)
+- Hierarchical spines (book → part → chapter → section)
+- Graph spines (nodes with conditional edges)
+- Versioned spines (parallel timelines, branches)
+- Domains compose or extend base implementations
 
-### 3. Efficient review workflow
+### 3. Validation pipeline
 
-LLM-generated content requires human review, but review should not become a bottleneck.
+All domains need to check constraints. The framework provides orchestration; domains provide validators.
 
-- Surface potential issues automatically (continuity, voice, pacing)
-- Enable targeted review (focus on flagged sections)
-- Support accept/reject/regenerate at paragraph granularity
-- Track review status across all content
+- Phased execution (structural → automated → computed)
+- Incremental validation (only check what changed)
+- Uniform result reporting (pass/fail/warn with location and message)
+- External tool integration (compilers, test runners, API clients)
+- LLM integration for computed constraints (subjective analysis)
 
-### 4. Controlled revision scope
+### 4. Storage consistency
 
-Changes propagate predictably and only as far as necessary.
+All domains need persistent storage with similar characteristics: structured indexes, file-based content, queryable graphs.
 
-- Published content is immutable
-- Author-specified lock points protect future content
-- Revision impact is projected within configurable bounds
-- Author decides when to cascade vs. isolate changes
+- SQLite for indexes, entity registry, reference graph, validation results
+- File system for authored content (diffable, editor-friendly)
+- Derived data is rebuildable from source
+- Single-project portability (one folder = one project)
 
-### 5. Serialization discipline
+### 5. Server architecture
 
-Web serial format has specific requirements the system must enforce.
+A WebSocket server provides a consistent API for all clients (CLI, MCP, future web apps).
 
-- Every chapter ends with a hook (revelation, decision, cliffhanger, or emotional beat)
-- Chapter types rotate appropriately (action, character, worldbuilding)
-- Tension cycles follow defined patterns
-- Release buffer is maintained and visible
+- JSON-RPC 2.0 protocol over WebSocket
+- Framework provides server infrastructure and common operations
+- Domains register handlers for domain-specific operations
+- Single tested interface regardless of client type
+
+### 6. Extension clarity
+
+The boundary between framework and domain must be obvious. Domains should know exactly what they need to provide.
+
+- Clear extension points (spine shape, entity types, content types, validators)
+- Base implementations for common patterns
+- Domain starter template
+- Type safety across the boundary
 
 ## Non-goals
 
-### Not a writing replacement
+### Not a web application
 
-The system assists, it does not replace the author. All generated content requires human approval. The author remains the creative authority.
+Spine is CLI and MCP only. No bundled web frontend. The WebSocket server enables future web clients but shipping one is not a framework goal.
 
-### Not a publishing platform
+### Not a collaborative editing platform
 
-Spine produces content. Export to publishing platforms (Royal Road, etc.) is a feature, but the system is not itself a publishing tool.
+Single-author tools. Real-time collaboration, conflict resolution, and multi-user permissions are out of scope. Version control is external (git).
 
-### Not multi-author
+### Not a runtime
 
-This is a single-author tool. Collaboration features, writing rooms, and shared editing are out of scope.
+Spine produces artifacts (manuscripts, tangled code, exported content). It does not run interactive fiction or serve documentation. Export to platforms is a feature; being a platform is not.
 
-### Not a general writing tool
+### Not infinitely flexible
 
-The system is optimized for long-form serialized fiction. Short stories, non-fiction, and other formats are not primary targets.
+The framework encodes opinions about how structured authoring works. Domains that don't fit the spine/entity/content/constraint model should use different tools.
+
+### Not a general-purpose CMS
+
+Spine is for structured authoring with consistency constraints. General content management (blogs, marketing sites, wikis) has different needs and existing solutions.
 
 ## Success metrics
 
-1. **Continuity defect rate**: Zero contradictions in published content
-2. **Pacing accuracy**: Actual tension within �15 points of planned for 80% of chapters
-3. **Review throughput**: 10x faster than manual review for routine chapters
-4. **Generation acceptance rate**: >80% of generated content approved with minor or no edits
-5. **Buffer maintenance**: Release buffer never drops below configured minimum
+1. **Extraction ratio**: >60% of code in a domain tool comes from the framework
+2. **Second-domain velocity**: Building the techbook domain takes <50% of the time the serial domain took
+3. **Extension clarity**: A new domain can be prototyped (basic spine, one entity type, one content type, one validator) in a single day
+4. **Zero framework forks**: Domains extend, they don't copy-paste-modify framework code
+5. **Validation consistency**: All domains report validation results in the same format
 
-## Guiding principles
+## Framework principles
 
-### Author authority
+### Extract, don't speculate
 
-The author's judgment overrides all automated analysis. The system suggests, the author decides.
+The serial domain exists. Extract the framework from working code. Abstractions discovered in practice are better than abstractions designed in theory.
 
-### Explainable analysis
+### Composition over inheritance
 
-When the system flags an issue or scores content, it must explain why. Black-box judgments are not actionable.
+Domains compose framework pieces; they don't inherit from deep hierarchies. Extension points are interfaces and registries, not base classes.
 
-### Graceful degradation
+### Explicit extension points
 
-If LLM services are unavailable, the system remains usable for planning, editing, and review. Generation is optional, not required.
+Every place where domains plug in is documented and typed. No "override this protected method" patterns. If it's not an explicit extension point, domains can't depend on it.
 
-### Data ownership
+### Domain logic stays in domains
 
-All content, bible entries, and project data remain local. No mandatory cloud services. Export everything.
+The framework doesn't know what a "character" or "snippet" or "checkpoint" is. It knows about entities, content, and constraints. Domains define their specific types and behaviors.
+
+### Validation is not optional
+
+Every domain must have validators. The framework makes validation easy to implement and impossible to skip. A domain with no constraints isn't using Spine correctly.
+
+### Storage is an implementation detail
+
+Domains interact with repositories and queries, not raw SQL or file paths. Storage implementation can evolve without breaking domains.
+
+### Server is the interface
+
+All operations go through the WebSocket server. CLI and MCP are clients. This ensures a single, tested API surface regardless of how users interact with the system.
+
+## Glossary
+
+**Spine**: The structural backbone of a project. Determines ordering, hierarchy, and checkpoint boundaries. Domain-specific in shape, common in interface.
+
+**Entity**: A thing that exists in the project world. Has identity, properties, lifecycle, and relationships. Domain defines entity types; framework provides registry and graph.
+
+**Content**: Authored material. Hangs from spine nodes, references entities. Domain defines content types; framework provides storage and reference extraction.
+
+**Constraint**: A rule that must hold. Checked by validators, reported uniformly. Can be structural (graph properties), automated (external tools), or computed (LLM).
+
+**Validator**: Checks constraints, produces results. Domains provide validators; framework orchestrates execution and aggregates results.
+
+**Reference**: A link from content to an entity. Extracted automatically, indexed for queries, resolved during rendering.
+
+**Checkpoint**: A named point in the spine where validation occurs and snapshots are taken. Domain determines checkpoint semantics.
+
+**Domain**: A specific authoring use case (web serial, technical book, etc.) built on the framework. Provides entity types, content types, validators, and CLI/MCP tools.

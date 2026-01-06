@@ -2,156 +2,306 @@
 
 Checklist tracking implementation progress. See [plan.md](./plan.md) for detailed descriptions.
 
-For architecture details, see [docs/architecture/](../architecture/).
+## Phase 1: Framework Extraction
 
-## Completed Phases
+### 1.1 Package Restructure
+- [ ] Create `packages/framework/` directory structure
+- [ ] Move/split `packages/types` → framework + serial types
+- [ ] Move/split `packages/core` → framework + serial core
+- [ ] Move `packages/llm` → `packages/framework/llm`
+- [ ] Refactor `packages/server` for domain handler registration
+- [ ] Move `packages/client` → `packages/framework/client`
+- [ ] Update turborepo configuration
+- [ ] Update all import paths
+- [ ] Verify builds pass
 
-### Phase 1: Foundation
-- [x] Data models and types (packages/types)
-- [x] Storage layer with SQLite (packages/core)
-- [x] Bible management - all entity CRUD
-- [x] LLM interface with streaming (packages/llm)
-- [x] Web UI foundation with Svelte 5
+### 1.2 Framework Types
+- [ ] `Spine<Node>` base interface
+- [ ] `LinearSpine<Node>` implementation
+- [ ] `TreeSpine<Node>` implementation
+- [ ] `Entity` base type with lifecycle
+- [ ] `EntityType` registration metadata
+- [ ] `EntityRegistry` interface
+- [ ] `Content` base wrapper type
+- [ ] `Reference` type
+- [ ] `Constraint` definition type
+- [ ] `ValidationResult` type
+- [ ] `Validator` interface
+- [ ] Zod schemas for all types
 
-### Phase 2: Generation
-- [x] Context assembly with token budget
-- [x] Structure management (tree, beats, hooks)
-- [x] Generation pipeline (outline, beats, draft, review)
-- [x] Basic analysis (tension, hooks, pacing, continuity)
-- [x] Writing workspace UI
+### 1.3 Framework Core
+- [ ] `storage/schema.ts` — Generic SQLite tables
+- [ ] `storage/migrations.ts` — Migration system
+- [ ] `storage/repository.ts` — Base repository class
+- [ ] `entity/registry.ts` — Entity type registration
+- [ ] `entity/repository.ts` — Entity CRUD operations
+- [ ] `entity/graph.ts` — Relationship graph
+- [ ] `entity/lifecycle.ts` — Lifecycle tracking
+- [ ] `content/repository.ts` — Content storage
+- [ ] `content/versions.ts` — Version tracking
+- [ ] `content/references.ts` — Reference extraction/indexing
+- [ ] `validation/pipeline.ts` — Orchestration
+- [ ] `validation/phases.ts` — Phase management
+- [ ] `validation/results.ts` — Result aggregation
+- [ ] `spine/linear.ts` — Linear spine implementation
+- [ ] `spine/tree.ts` — Tree spine implementation
+- [ ] `spine/checkpoints.ts` — Checkpoint management
 
-### Phase 3: Review
-- [x] Version management with diff and rollback
-- [x] Review workflow (queue, status, comments, locks)
-- [x] Revision cascade with horizon config
-- [x] Review UI with diff view
+### 1.4 Framework Server
+- [ ] Domain handler registration system
+- [ ] Generic project operations
+- [ ] Generic entity operations
+- [ ] Generic content operations
+- [ ] Validation trigger endpoints
+- [ ] Session management refactor
+- [ ] Error handling standardization
 
-### Phase 4: Analytics
-- [x] Tension curve data and visualization
-- [x] Character tracking and heatmap
-- [x] Plot thread tracking and Gantt
-- [x] Analytics dashboard UI
+### 1.5 Remove Web Frontend
+- [ ] Delete `apps/web/`
+- [ ] Delete `packages/ui/`
+- [ ] Remove web-related dependencies from root
+- [ ] Update CI/CD configuration
+- [ ] Update README
 
-### Phase 5: Serial Features
-- [x] Hook management and pattern analysis
-- [x] Cycle enforcement
-- [x] Release planning with buffer tracking
-- [x] Mystery tracking
-- [x] Serial dashboard UI
+## Phase 2: Serial Domain
 
-### Phase 7: WebSocket API
-- [x] Server package (@repo/server) with JSON-RPC 2.0
-- [x] Client package (@repo/client) with auto-reconnect
-- [x] CLI application (@repo/cli)
-- [x] User documentation (docs/user/)
+### 2.1 Serial Types
+- [ ] Move bible types (Character, Location, Faction, WorldRule, PlotThread, TimelineEvent)
+- [ ] Move structure types (Book, Arc, Chapter, Scene)
+- [ ] Move content types (Prose, Analysis)
+- [ ] Move serial types (HookType, ChapterType, TensionCycle, ReleaseSchedule)
+- [ ] Update imports throughout serial packages
 
-### Phase 8: MCP Server
-- [x] MCP package (@repo/mcp) with 60+ tools
-- [x] Integration with Spine server
-- [x] User documentation (docs/user/mcp.md)
+### 2.2 Serial Core
+- [ ] `bible/character.ts` — Character operations
+- [ ] `bible/location.ts` — Location operations
+- [ ] `bible/faction.ts` — Faction operations
+- [ ] `bible/world-rule.ts` — World rule operations
+- [ ] `bible/plot-thread.ts` — Plot thread operations
+- [ ] `bible/timeline.ts` — Timeline operations
+- [ ] `structure/tree.ts` — Structure hierarchy
+- [ ] `structure/beats.ts` — Beat management
+- [ ] `structure/hooks.ts` — Hook specification
+- [ ] `generation/pipeline.ts` — Generation orchestration
+- [ ] `generation/outline.ts` — Outline generation
+- [ ] `generation/beats.ts` — Beat expansion
+- [ ] `generation/draft.ts` — Draft generation
+- [ ] `analysis/tension.ts` — Tension scoring
+- [ ] `analysis/hooks.ts` — Hook analysis
+- [ ] `analysis/pacing.ts` — Pacing assessment
+- [ ] `analysis/continuity.ts` — Continuity checking
+- [ ] `review/workflow.ts` — Review status management
+- [ ] `review/locks.ts` — Lock point management
+- [ ] `review/cascade.ts` — Revision cascade
+- [ ] `serial/buffer.ts` — Release buffer
+- [ ] `serial/schedule.ts` — Release schedule
+- [ ] `serial/cycles.ts` — Tension cycles
+- [ ] `serial/mysteries.ts` — Mystery tracking
 
-### Phase 9: Standalone Server
-- [x] Server application (apps/server)
-- [x] CLI options and configuration
+### 2.3 Serial Validators
+- [ ] Continuity validator
+- [ ] Timeline validator
+- [ ] Pacing validator
+- [ ] Hook validator
+- [ ] Release buffer validator
 
-## In Progress
+### 2.4 Serial Server
+- [ ] Create `apps/serial-server/`
+- [ ] Server initialization
+- [ ] Register serial domain handlers
+- [ ] Bible endpoints
+- [ ] Structure endpoints
+- [ ] Content endpoints
+- [ ] Generation endpoints
+- [ ] Review endpoints
+- [ ] Analytics endpoints
+- [ ] Serial-specific endpoints
+- [ ] CLI options (port, data-dir, llm config)
 
-### Web App Refactor
-See [web.app.refactor.plan.md](./web.app.refactor.plan.md) for details.
+### 2.5 Serial CLI
+- [ ] Create `apps/serial-cli/`
+- [ ] `serial project list|create|load|delete`
+- [ ] `serial bible character|location|faction|rule|thread|event` subcommands
+- [ ] `serial structure tree|create|update|delete|reorder`
+- [ ] `serial content get|save|history|rollback`
+- [ ] `serial generate start|status|cancel`
+- [ ] `serial review queue|approve|reject|publish|lock`
+- [ ] `serial analyze tension|pacing|continuity`
+- [ ] `serial release buffer|schedule|hooks|cycles`
+- [ ] `serial export` to formats
+- [ ] Help text and documentation
 
-- [x] Phase 1: Design tokens and layout primitives
-- [x] Phase 2-8: Page implementations (basic structure)
-- [ ] Align Settings layout and finalize responsive/motion/accessibility polish
+### 2.6 Serial MCP
+- [ ] Refactor `packages/mcp` → `packages/serial/mcp`
+- [ ] Update tool registrations
+- [ ] Verify all existing tools work
+- [ ] Update MCP documentation
 
-### Testing
-See [docs/architecture/testing.md](../architecture/testing.md) for details.
+## Phase 3: TechBook Domain
 
-- [x] Update component tests for new primitives/layouts (111 tests passing)
-- [x] Add $app mocks for vitest-browser tests
-- [x] Configure Playwright to use temp database directory
-- [ ] Fix remaining Playwright test failures (10 failing, mostly timing issues in review/analytics)
-- [ ] Address flaky tests (4 tests pass on retry)
+### 3.1 TechBook Types
+- [ ] `Concept` type (Term, Type, Algorithm, Pattern)
+- [ ] `ConceptDependency` type
+- [ ] `Snippet` type with metadata
+- [ ] `SnippetOperation` enum (introduce, replace, append, prepend, delete)
+- [ ] `FilePart` type for named code sections
+- [ ] `Checkpoint` type
+- [ ] `ExpectedOutput` type for fixtures
+- [ ] `TangledFile` type
+- [ ] Zod schemas for all types
 
-## Phase 6: Polish (Not Started)
+### 3.2 TechBook Core
+- [ ] `concepts/registry.ts` — Concept CRUD
+- [ ] `concepts/dependencies.ts` — Dependency graph
+- [ ] `concepts/symbols.ts` — Symbol-to-concept linking
+- [ ] `snippets/repository.ts` — Snippet storage
+- [ ] `snippets/parts.ts` — Named part management
+- [ ] `snippets/operations.ts` — Operation application
+- [ ] `tangle/assembler.ts` — File assembly
+- [ ] `tangle/incremental.ts` — Change tracking
+- [ ] `tangle/output.ts` — File writing
+- [ ] `checkpoints/manager.ts` — Checkpoint CRUD
+- [ ] `checkpoints/snapshots.ts` — Snapshot creation
+- [ ] `checkpoints/immutability.ts` — Release locking
+- [ ] `validation/compile.ts` — Compilation runner
+- [ ] `validation/test.ts` — Test runner
+- [ ] `validation/output.ts` — Fixture comparison
+- [ ] `weave/renderer.ts` — Content rendering
+- [ ] `weave/syntax.ts` — Syntax highlighting
+- [ ] `weave/diffs.ts` — Diff marking
+- [ ] `weave/crossrefs.ts` — Cross-reference generation
 
-### 6.1 Bible Extraction
-- [x] Entity detection from content (LLM-powered extraction service)
-- [x] New entity suggestions (stored with confidence, evidence)
-- [x] Update suggestions (field-level updates for existing entities)
-- [x] Aggressiveness config (conservative/moderate/aggressive)
-- [x] Suggestion review - CLI + MCP (spine extract, spine_extraction_* tools)
-- [ ] Suggestion review UI (web app - not implemented)
+### 3.3 TechBook Validators
+- [ ] Compile validator
+- [ ] Test validator
+- [ ] Output fixture validator
+- [ ] Concept prerequisite validator
+- [ ] Symbol explanation validator
+- [ ] Coverage validator (all code explained)
 
-### 6.2 Export
-- [ ] EPUB generation
-- [ ] Royal Road format
-- [ ] Plain text export
-- [ ] Project backup/restore
+### 3.4 TechBook Server
+- [ ] Create `apps/techbook-server/`
+- [ ] Server initialization
+- [ ] Register techbook domain handlers
+- [ ] Concept endpoints
+- [ ] Snippet endpoints
+- [ ] Checkpoint endpoints
+- [ ] Tangle endpoints
+- [ ] Validation endpoints
+- [ ] Weave endpoints
+- [ ] CLI options
 
-### 6.3 Offline Support
-- [ ] Service worker
-- [ ] Local SQLite in browser
-- [ ] Request queue
-- [ ] Sync on reconnect
-- [ ] Offline indicator
+### 3.5 TechBook CLI
+- [ ] Create `apps/techbook-cli/`
+- [ ] `techbook project list|create|load|delete`
+- [ ] `techbook concept list|create|update|delete|deps`
+- [ ] `techbook snippet list|create|update|delete|show`
+- [ ] `techbook checkpoint list|create|release|snapshot`
+- [ ] `techbook tangle [checkpoint]` — Generate files
+- [ ] `techbook validate [checkpoint]` — Run validation
+- [ ] `techbook weave html|pdf|epub` — Render output
+- [ ] `techbook export` — Export project
+- [ ] Help text and documentation
 
-### 6.4 Performance Optimization
-- [ ] Lazy loading
-- [ ] Virtual scrolling for long lists
-- [ ] Analysis caching
-- [ ] Incremental indexing
-- [ ] Background processing
+### 3.6 TechBook MCP
+- [ ] Create `packages/techbook/mcp`
+- [ ] Project tools
+- [ ] Concept tools
+- [ ] Snippet tools
+- [ ] Checkpoint tools
+- [ ] Tangle tools
+- [ ] Validation tools
+- [ ] Weave tools
 
-### 6.5 Error Handling
-- [x] LLM failure handling (circuit breaker, resilient client)
-- [x] Operation recovery (journal persistence, recovery API)
-- [x] Corruption detection (integrity checks, repair)
-- [x] Backup and restore (SQLite VACUUM, verification)
+## Phase 4: Polish & Documentation
 
-## Phase 10: Web App Synchronization
+### 4.1 Error Handling
+- [ ] Verify circuit breaker in framework
+- [ ] Operation journaling
+- [ ] Recovery API
+- [ ] Corruption detection
+- [ ] Repair utilities
+- [ ] Backup/restore commands
 
-The web app (apps/web) needs updates to work with the new API packages.
+### 4.2 Performance
+- [ ] Incremental validation implementation
+- [ ] Lazy loading for large projects
+- [ ] Background processing queue
+- [ ] Caching layer
+- [ ] Performance benchmarks
 
-### 10.1 Client Integration
-- [ ] Evaluate using @repo/client vs direct service calls
-- [ ] Consider WebSocket support in web app for real-time updates
-- [ ] Document decision on web app architecture
+### 4.3 Framework Documentation
+- [ ] `docs/framework/architecture.md`
+- [ ] `docs/framework/extension-points.md`
+- [ ] `docs/framework/domain-starter.md`
+- [ ] `docs/framework/api-reference.md`
+- [ ] `docs/framework/storage.md`
+- [ ] `docs/framework/validation.md`
 
-### 10.2 API Alignment
-- [ ] Verify web app uses same API patterns as CLI/MCP
-- [ ] Update any divergent API usage
-- [ ] Add missing API features if needed
+### 4.4 Domain Documentation
+- [ ] `docs/serial/getting-started.md`
+- [ ] `docs/serial/cli-reference.md`
+- [ ] `docs/serial/mcp-reference.md`
+- [ ] `docs/serial/migration.md` (from current web app)
+- [ ] `docs/techbook/getting-started.md`
+- [ ] `docs/techbook/cli-reference.md`
+- [ ] `docs/techbook/mcp-reference.md`
+- [ ] `docs/techbook/literate-programming.md`
 
-### 10.3 Feature Parity
-- [ ] Compare CLI commands with web app features
-- [ ] Identify any gaps in web app functionality
-- [ ] Add missing features from CLI/MCP
+### 4.5 Testing
+- [ ] Framework unit test suite
+- [ ] Serial domain unit tests
+- [ ] TechBook domain unit tests
+- [ ] CLI integration tests (serial)
+- [ ] CLI integration tests (techbook)
+- [ ] Server integration tests
+- [ ] Cross-domain validation tests
+- [ ] CI pipeline updates
 
-## MCP Implementation Issues
+## Migration Notes
 
-Issues discovered during implementation testing with "The Accident" web serial proposal.
+### From Current Codebase
 
-### Critical (Blocking)
+The existing implementation has completed:
+- Foundation (types, storage, bible, LLM, web UI)
+- Generation pipeline
+- Review workflow with version management
+- Analytics (tension, characters, threads)
+- Serial features (hooks, cycles, release planning, mysteries)
+- WebSocket API and CLI
+- MCP server with 60+ tools
 
-- [x] **Structure tree not displaying hierarchy** - Fixed: `spine_structure_tree` now builds complete tree from all structures, showing all root-level books with their children.
-- [x] **Structure parent relationships not stored/displayed** - Fixed: `spine_structure_get` now shows parent ID, order, and full children list with titles.
-- [ ] **Duplicate root structure created** - Structure list shows "The Accident" as "book" type that was auto-created, separate from user-created books. This is by design - projects auto-create a root structure.
+This work will be preserved and reorganized:
+- Web UI code → deleted
+- Core logic → split between framework and serial domain
+- Types → split between framework and serial domain
+- Server → refactored for domain registration
+- CLI → becomes serial-cli
+- MCP → becomes serial-mcp
 
-### Schema Mismatch
+### Breaking Changes
 
-- [x] **Faction type enum mismatch (MCP vs Database)** - Fixed: MCP now uses correct enum values from `@repo/types`: `government`, `military`, `religious`, `criminal`, `corporate`, `secret-society`, `guild`, `family`, `informal`, `other`.
-- [x] **Location type enum mismatch** - Fixed: MCP now uses correct enum values: `world`, `continent`, `country`, `region`, `city`, `district`, `building`, `room`, `natural`, `virtual`, `other`.
-- [x] **Plot thread type/status enum mismatch** - Fixed: Type now uses `main-plot`, `subplot`, `mystery`, `romance`, `conflict`, `character-arc`, `worldbuilding`, `other`. Status now uses `planned`, `active`, `dormant`, `resolved`, `abandoned`.
+1. Package imports change (e.g., `@repo/core` → `@repo/framework/core` or `@repo/serial/core`)
+2. Server requires domain registration
+3. CLI commands may be reorganized
+4. MCP tool names may be prefixed with domain
 
-### Display/UX
+### Data Migration
 
-- [x] **Structure get missing key fields** - Fixed: Now shows summary (not synopsis), parent ID, order, target word count, notes, and full children list with titles and types.
-- [x] **Bible character/location appearances showing 0** - Fixed: Web app now computes appearance counts from content analysis data instead of the empty `appearances` array on entities.
-- [ ] **No entity type for group consciousness** - Characters like "The Collective" and "The Ancients" are civilizations but must be created as individual characters with `supporting` role.
+- Existing SQLite databases remain compatible (serial domain uses same schema)
+- No data migration required for serial projects
+- TechBook projects use new schema
+
+## Known Issues
+
+Carried forward from existing implementation:
+
+- [ ] Duplicate root structure created (by design — projects auto-create root)
+- [ ] No entity type for group consciousness (Characters like "The Collective" must use `supporting` role)
 
 ## Future Considerations
 
-- [ ] TUI workspace for CLI (optional)
-- [ ] MCP resources for project state
-- [ ] MCP prompts for guided workflows
-- [ ] Streaming generation in MCP (pending MCP support)
+- Additional domains (API docs, interactive fiction, TTRPG)
+- Web frontend (future, not in scope)
+- Real-time collaboration (explicitly out of scope)
+- Multi-language techbook support

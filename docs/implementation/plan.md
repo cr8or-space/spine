@@ -1,314 +1,347 @@
 # Implementation Plan
 
-Detailed implementation roadmap for Spine, organized into phases with concrete deliverables.
+Phased implementation roadmap for Spine Framework extraction and domain implementations.
 
-## Phase 1: Foundation (Complete)
+## Overview
 
-Core infrastructure, data models, and minimal UI.
+The plan follows an extraction strategy: the existing web serial code becomes the first domain while framework abstractions are extracted. The technical book domain validates the extraction by building on the framework without modifying it.
 
-### 1.1 Data models and types
+```
+Phase 1: Framework Extraction
+Phase 2: Serial Domain (from existing code)
+Phase 3: TechBook Domain (validates framework)
+Phase 4: Polish & Documentation
+```
 
-**Package**: `packages/types`
+## Phase 1: Framework Extraction
 
-- Project, Bible, Structure, Content interfaces
-- Character, Location, Faction, WorldRule, PlotThread types
-- Timeline and event types
-- Analysis and review types
-- Zod schemas for runtime validation
-- Base entity interfaces (BaseEntity, BaseContent, Spine, Validator)
+Extract domain-agnostic infrastructure from the existing codebase.
 
-### 1.2 Storage layer
+### 1.1 Package restructure
 
-**Package**: `packages/core/storage`
+**Current** → **Target**:
+- `packages/types` → `packages/framework/types` (generic) + `packages/serial/types` (domain)
+- `packages/core` → `packages/framework/core` (generic) + `packages/serial/core` (domain)
+- `packages/llm` → `packages/framework/llm` (unchanged, already generic)
+- `packages/server` → `packages/framework/server` (with domain handler registration)
+- `packages/client` → `packages/framework/client` (unchanged, already generic)
+- `packages/mcp` → `packages/serial/mcp` (domain-specific)
+- `packages/ui` → removed (no web frontend)
+- `apps/web` → removed
+- `apps/server` → `apps/serial-server` (domain launcher)
+- `apps/cli` → `apps/serial-cli` (domain CLI)
 
-- SQLite database schema and migrations (libsql)
-- Repository pattern for bible entities
-- Generic EntityRepository interface
-- File-based content storage (markdown)
-- Project save/load operations
-- Auto-save implementation
+### 1.2 Framework types
 
-### 1.3 Bible management
+**Package**: `packages/framework/types`
 
-**Package**: `packages/core/bible`
+Define generic interfaces that domains implement:
 
-- Character, Location, Faction, WorldRule, PlotThread, Timeline CRUD
-- Relationship graph operations
-- Cross-reference tracking
-- Content status transitions
+- `Spine<Node>` — Base spine interface (traversal, checkpoints, snapshots)
+- `LinearSpine<Node>` — Ordered sequence implementation
+- `TreeSpine<Node>` — Hierarchical structure implementation
+- `Entity` — Base entity with id, lifecycle, relationships
+- `EntityType` — Registration metadata for domain entity types
+- `Content` — Base content wrapper (id, type, spine position, status, references)
+- `Reference` — Link from content to entity
+- `Constraint` — Rule definition
+- `ValidationResult` — Pass/fail/warn with location and message
+- `Validator` — Interface for constraint checkers
 
-### 1.4 LLM interface
+### 1.3 Framework core
 
-**Package**: `packages/llm`
+**Package**: `packages/framework/core`
 
-- OpenAI-compatible client
-- Configuration management
-- Streaming support
-- Token counting utilities
-- Context assembly with relevance scoring
+Extract domain-agnostic logic:
 
-### 1.5 Web UI foundation
+- `storage/` — SQLite schema (generic tables), repository base classes, migrations
+- `entity/` — Entity registry, relationship graph, lifecycle tracking
+- `content/` — Content storage, version tracking, reference indexing
+- `validation/` — Pipeline orchestration, result aggregation, phase management
+- `spine/` — Base spine implementations, checkpoint management
 
-**App**: `apps/web`
+### 1.4 Framework server
 
-- SvelteKit application with Svelte 5 runes
-- Tailwind CSS v4 with CSS-first configuration
-- Bits UI for accessible components (Dialog, Tabs, Select)
-- Lucide icons
-- Generic components: EntityCard, EntityListPage, CreateEntityDialog
-- Project list and settings pages
-- Bible editor with all tabs
+**Package**: `packages/framework/server`
 
-## Phase 2: Generation (Complete)
+Generalize WebSocket server:
 
-Content generation pipeline with context assembly.
+- Domain handler registration system
+- Common operations (project CRUD, entity CRUD, content CRUD)
+- Validation trigger endpoints
+- Session management
+- Authentication hooks (for future use)
 
-### 2.1 Context assembly
+### 1.5 Remove web frontend
 
-**Package**: `packages/llm/context`
+- Delete `apps/web/`
+- Delete `packages/ui/`
+- Update turborepo configuration
+- Remove web-specific dependencies
 
-- Token budget allocation
-- Relevance scoring for bible entities
-- Content summarization
-- Constraint extraction
-- Task-specific assembly
+## Phase 2: Serial Domain
 
-### 2.2 Structure management
+Refactor existing serial-specific code into a domain package.
 
-**Package**: `packages/core/structure`
+### 2.1 Serial types
 
-- Structure tree operations (Book → Arc → Chapter → Scene)
-- Beat sheet management
-- Tension targets
-- Chapter types
-- Hook specification
+**Package**: `packages/serial/types`
 
-### 2.3 Generation pipeline
+Domain-specific type definitions:
 
-**Package**: `packages/core/generation`
+- Bible entities: Character, Location, Faction, WorldRule, PlotThread, TimelineEvent
+- Structure types: Book, Arc, Chapter, Scene with tension targets and hooks
+- Content types: Prose with analysis scores
+- Serial-specific: HookType, ChapterType, TensionCycle, ReleaseSchedule
 
-- Pipeline stage definitions
-- Outline generation
-- Beat expansion
-- Draft generation
-- Self-review pass
-- Generation history tracking
+### 2.2 Serial core
 
-### 2.4 Basic analysis
+**Package**: `packages/serial/core`
 
-**Package**: `packages/core/analysis`
+Domain logic (extracted from current `packages/core`):
 
-- Tension scoring
-- Hook strength scoring
-- Pacing assessment
-- Continuity checking
-- Analysis storage
+- `bible/` — Character, Location, Faction, WorldRule, PlotThread, Timeline CRUD
+- `structure/` — Book → Arc → Chapter → Scene hierarchy, beat management
+- `generation/` — Outline → Beats → Draft → Review pipeline
+- `analysis/` — Tension scoring, hook analysis, pacing, continuity checking
+- `review/` — Review workflow, lock points, revision cascade
+- `serial/` — Release buffer, hook patterns, tension cycles, mystery tracking
 
-### 2.5 Writing workspace UI
+### 2.3 Serial validators
 
-**App**: `apps/web`
+Domain-specific constraint checkers:
 
-- Outline editor
-- Writing workspace layout
-- Generation controls
-- Analysis panel
-- Continuity warnings
-- Draft history
+- Continuity validator (no contradictions with established facts)
+- Timeline validator (events in causal order)
+- Pacing validator (tension within targets)
+- Hook validator (every chapter ends with appropriate hook)
+- Release validator (buffer maintained)
 
-## Phase 3: Review (In Progress)
+### 2.4 Serial server
 
-Version tracking, diff generation, and review workflows.
+**App**: `apps/serial-server`
 
-### 3.1 Version management (Complete)
+Standalone server that:
 
-- Content version storage
-- Diff generation
-- Version metadata
-- Rollback support
+- Initializes framework server
+- Registers serial domain handlers
+- Configures serial-specific routes
+- Launches with serial-appropriate defaults
 
-### 3.2 Review workflow (Complete)
+### 2.5 Serial CLI
 
-- Review queue management
-- Status transitions
-- Paragraph-level actions
-- Review comments
-- Lock points
-- Published immutability
+**App**: `apps/serial-cli`
 
-### 3.3 Revision cascade (Complete)
+Command-line interface:
 
-- Horizon configuration
-- Impact analysis
-- Lock point detection
-- Cascade execution and preview
+- `serial project` — Project management
+- `serial bible` — Bible entity CRUD
+- `serial structure` — Outline management
+- `serial content` — Content operations
+- `serial generate` — Generation pipeline
+- `serial review` — Review workflow
+- `serial analyze` — Run analysis
+- `serial release` — Release planning
+- `serial export` — Export to formats
 
-### 3.4 Review UI (Pending)
+### 2.6 Serial MCP
 
-- Review queue page
-- Side-by-side diff view
-- Inline annotation interface
-- Action buttons
-- Bulk approval actions
-- Lock point visualization
-- Status indicators
+**Package**: `packages/serial/mcp`
 
-## Phase 4: Analytics (Complete)
+MCP server exposing serial tools (existing tools, reorganized):
 
-Visualization and tracking dashboards.
+- Project tools
+- Bible tools (character, location, faction, rule, thread, timeline)
+- Structure tools
+- Content tools
+- Generation tools
+- Review tools
+- Analytics tools
+- Serial-specific tools (buffer, schedule, hooks, cycles, mysteries)
 
-### 4.1 Tension curve data (Complete)
+## Phase 3: TechBook Domain
 
-- Planned tension extraction
-- Actual tension aggregation
-- Chapter data points
-- Divergence calculation
+Build technical book domain on the framework, validating the extraction.
 
-### 4.2 Character tracking (Complete)
+### 3.1 TechBook types
 
-- Appearance tracking per chapter
-- Presence intensity levels
-- Relationship evolution
-- Arc progress indicators
+**Package**: `packages/techbook/types`
 
-### 4.3 Plot thread tracking (Complete)
+Domain-specific type definitions:
 
-- Thread status tracking
-- Thread timeline
-- Dangling detection
-- Promise/payoff matching
+- Concepts: Term, Type, Algorithm, Pattern (glossary entries)
+- Snippets: Code fragment with file, part, operation metadata
+- Checkpoints: Named validated states
+- Operations: Introduce, Replace, Append, Prepend, Delete
+- Outputs: ExpectedOutput for validation fixtures
 
-### 4.4 Visualization components (Complete)
+### 3.2 TechBook core
 
-- Tension curve chart
-- Character presence heatmap
-- Plot thread Gantt chart
-- Quality trend charts
-- Chapter type distribution
+**Package**: `packages/techbook/core`
 
-### 4.5 Analytics dashboard UI (Complete)
+Domain logic:
 
-- Analytics dashboard page
-- Tension curve view with divergence tracking
-- Character presence heatmap
-- Plot thread Gantt timeline
-- Quality metrics chart (tension, pacing, hook strength)
-- Chapter type distribution (pie/bar chart)
-- Structure filtering controls
+- `concepts/` — Concept registry, dependency graph, symbol linking
+- `snippets/` — Snippet management, part tracking, operation application
+- `tangle/` — File assembly from snippets, incremental tangling
+- `checkpoints/` — Checkpoint declaration, snapshot management
+- `validation/` — Build orchestration (tangle → compile → test → compare)
+- `weave/` — Render pipeline (syntax highlighting, diff marking, cross-refs)
 
-## Phase 5: Serial features (Partial)
+### 3.3 TechBook validators
 
-Web serial specific tooling.
+Domain-specific constraint checkers:
 
-### 5.1 Hook management (Complete)
+- Compile validator (tangled code compiles)
+- Test validator (tests pass at checkpoint)
+- Output validator (actual matches expected fixtures)
+- Concept validator (prerequisites before dependents)
+- Symbol validator (code symbols explained before use)
+- Coverage validator (all code has explanation)
 
-- Hook type classification
-- Pattern analysis
-- Strength trending
-- Variety warnings
+### 3.4 TechBook server
 
-### 5.2 Cycle enforcement (Complete)
+**App**: `apps/techbook-server`
 
-- Cycle configuration
-- Position targets
-- Phase detection
-- Rebalancing suggestions
+Standalone server that:
 
-### 5.3 Release planning (Complete)
+- Initializes framework server
+- Registers techbook domain handlers
+- Configures techbook-specific routes
 
-- Schedule configuration
-- Buffer calculation
-- Depletion projection
-- Deadline tracking
+### 3.5 TechBook CLI
 
-### 5.4 Mystery tracking (Pending)
+**App**: `apps/techbook-cli`
 
-- Layer classification
-- Lifecycle tracking
-- Resolution detection
-- Unfulfilled warnings
+Command-line interface:
 
-### 5.5 Serial dashboard UI (Pending)
+- `techbook project` — Project management
+- `techbook concept` — Glossary/concept CRUD
+- `techbook snippet` — Snippet management
+- `techbook checkpoint` — Checkpoint operations
+- `techbook tangle` — Generate source files
+- `techbook validate` — Run validation pipeline
+- `techbook weave` — Render output formats
+- `techbook export` — Export to PDF, HTML, EPUB
 
-- Release calendar
-- Buffer status display
-- Hook patterns
-- Cycle indicator
-- Mystery board
+### 3.6 TechBook MCP
 
-## Phase 6: Polish (Pending)
+**Package**: `packages/techbook/mcp`
 
-Quality of life and production readiness.
+MCP server exposing techbook tools:
 
-### 6.1 Bible extraction
+- Project tools
+- Concept tools
+- Snippet tools
+- Checkpoint tools
+- Tangle tools
+- Validation tools
+- Weave tools
 
-- Entity detection in content
-- New entity suggestions
-- Update suggestions
-- Aggressiveness config
-- Suggestion review workflow
+## Phase 4: Polish & Documentation
 
-### 6.2 Export
+Production readiness and documentation.
 
-- EPUB generation
-- Royal Road format
-- Plain text export
-- Project backup
+### 4.1 Error handling
 
-### 6.3 Offline support
+- Circuit breaker for LLM calls (already exists, verify framework placement)
+- Operation recovery and journaling
+- Corruption detection and repair
+- Backup and restore utilities
 
-- Service worker for static assets
-- Local SQLite via sql.js
-- Request queue
-- Sync on reconnection
-- Offline indicator
+### 4.2 Performance
 
-### 6.4 Performance optimization
+- Incremental validation (only check what changed)
+- Lazy loading for large projects
+- Background processing for expensive operations
+- Caching strategies
 
-- Lazy loading
-- Virtual scrolling
-- Analysis caching
-- Incremental indexing
-- Background processing
+### 4.3 Framework documentation
 
-### 6.5 Error handling
+- Architecture overview
+- Extension point reference
+- Domain starter guide
+- API documentation (server endpoints)
 
-- LLM failure handling
-- Operation recovery
-- Corruption detection
-- Backup and restore
+### 4.4 Domain documentation
 
-## Tech Stack
+- Serial user guide (CLI, MCP)
+- TechBook user guide (CLI, MCP)
+- Migration guide (from current web-based serial)
 
-### Frontend
-- **SvelteKit 2** with **Svelte 5** runes
-- **Tailwind CSS v4** (CSS-first configuration via @theme)
-- **Bits UI** for accessible headless components
-- **Lucide Svelte** for icons
-- **vitest-browser-svelte** with Playwright for component tests
-- **Playwright** for integration tests
+### 4.5 Testing
 
-### Backend/Core
-- **TypeScript** strict mode
-- **Zod** for runtime validation
-- **libsql** (SQLite) for structured data
-- File system for prose content
+- Framework unit tests
+- Domain unit tests
+- Integration tests (CLI → Server → Core)
+- Cross-domain validation (ensure framework is truly generic)
 
-### Tooling
-- **Turborepo** + pnpm workspaces
-- **ESLint** + **Prettier** (with Tailwind plugin)
-- **Vitest** for unit tests
+## Package Structure (Final)
+
+```
+packages/
+├── framework/
+│   ├── types/        # Generic interfaces and base types
+│   ├── core/         # Storage, entity, content, validation, spine
+│   ├── llm/          # OpenAI-compatible client, context assembly
+│   ├── server/       # WebSocket server infrastructure
+│   └── client/       # WebSocket client library
+├── serial/
+│   ├── types/        # Bible, structure, content types
+│   ├── core/         # Bible, generation, analysis, review, release
+│   └── mcp/          # Serial MCP server
+└── techbook/
+    ├── types/        # Concept, snippet, checkpoint types
+    ├── core/         # Tangle, weave, validation
+    └── mcp/          # TechBook MCP server
+
+apps/
+├── serial-server/    # Serial domain server launcher
+├── serial-cli/       # Serial CLI
+├── techbook-server/  # TechBook domain server launcher
+└── techbook-cli/     # TechBook CLI
+
+docs/
+├── framework/        # Framework documentation
+├── serial/           # Serial domain documentation
+└── techbook/         # TechBook domain documentation
+```
 
 ## Dependencies
 
 ```
-Phase 1 ─┬─► Phase 2 ─┬─► Phase 3 ───► Phase 4 ───► Phase 5 ───► Phase 6
-         │            │
-         └────────────┴─► (UI can progress in parallel)
+Phase 1 (Framework) ──► Phase 2 (Serial) ──► Phase 4 (Polish)
+         │                                        ▲
+         └──────────► Phase 3 (TechBook) ─────────┘
+
+Phases 2 and 3 can proceed in parallel after Phase 1 completes.
 ```
 
-## Related documents
+## Tech Stack
 
-- [Project Goals](../goals.md)
-- [Design Rationale](../rationale.md)
-- [Project Proposal](../proposal/project-proposal.md)
+### Framework
+- **TypeScript** strict mode
+- **Zod** for runtime validation
+- **libsql** (SQLite) for structured data
+- File system for content
+- **Vitest** for testing
+
+### Server
+- **WebSocket** with JSON-RPC 2.0
+- Domain handler registration
+
+### CLI
+- **Commander.js** or similar for argument parsing
+- Table formatting for output
+- Interactive prompts where appropriate
+
+### MCP
+- MCP SDK for protocol compliance
+- Domain-specific tool registration
+
+## Related Documents
+
+- [Framework Goals](./goals.md)
 - [Implementation Status](./tasks.md)
+- [Serial Rationale](./serial/rationale.md) — to be created
+- [TechBook Rationale](./techbook/rationale.md) — to be created
