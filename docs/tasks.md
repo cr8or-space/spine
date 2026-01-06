@@ -5,15 +5,15 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 ## Phase 1: Framework Extraction
 
 ### 1.1 Package Restructure
-- [ ] Create `packages/framework/` directory structure
-- [ ] Move/split `packages/types` → framework + serial types
-- [ ] Move/split `packages/core` → framework + serial core
-- [ ] Move `packages/llm` → `packages/framework/llm`
-- [ ] Refactor `packages/server` for domain handler registration
-- [ ] Move `packages/client` → `packages/framework/client`
-- [ ] Update turborepo configuration
-- [ ] Update all import paths
-- [ ] Verify builds pass
+- [x] Create `packages/framework/` directory structure
+- [x] Move/split `packages/types` → framework + serial types
+- [x] Move/split `packages/core` → framework + serial core
+- [x] Move `packages/llm` → `packages/framework/llm`
+- [x] Refactor `packages/server` for domain handler registration
+- [x] Move `packages/client` → `packages/framework/client`
+- [x] Update turborepo configuration
+- [x] Update all import paths
+- [x] Verify builds pass
 
 ### 1.2 Framework Types
 - [ ] `Spine<Node>` base interface
@@ -106,8 +106,8 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] Release buffer validator
 
 ### 2.4 Serial Server
-- [ ] Create `apps/serial-server/`
-- [ ] Server initialization
+- [x] Create `apps/serial-server/`
+- [x] Server initialization
 - [ ] Register serial domain handlers
 - [ ] Bible endpoints
 - [ ] Structure endpoints
@@ -119,7 +119,7 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] CLI options (port, data-dir, llm config)
 
 ### 2.5 Serial CLI
-- [ ] Create `apps/serial-cli/`
+- [x] Create `apps/serial-cli/`
 - [ ] `serial project list|create|load|delete`
 - [ ] `serial bible character|location|faction|rule|thread|event` subcommands
 - [ ] `serial structure tree|create|update|delete|reorder`
@@ -132,9 +132,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] Help text and documentation
 
 ### 2.6 Serial MCP
-- [ ] Refactor `packages/mcp` → `packages/serial/mcp`
-- [ ] Update tool registrations
-- [ ] Verify all existing tools work
+- [x] Refactor `packages/mcp` → `packages/serial/mcp`
+- [x] Update tool registrations
+- [x] Verify all existing tools work
 - [ ] Update MCP documentation
 
 ## Phase 3: TechBook Domain
