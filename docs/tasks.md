@@ -76,12 +76,12 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Unit tests for serial types (314 tests)
 
 ### 2.2 Serial Core
-- [ ] `bible/character.ts` — Character operations
-- [ ] `bible/location.ts` — Location operations
-- [ ] `bible/faction.ts` — Faction operations
-- [ ] `bible/world-rule.ts` — World rule operations
-- [ ] `bible/plot-thread.ts` — Plot thread operations
-- [ ] `bible/timeline.ts` — Timeline operations
+- [x] `bible/character.ts` — Character operations
+- [x] `bible/location.ts` — Location operations
+- [x] `bible/faction.ts` — Faction operations
+- [x] `bible/world-rule.ts` — World rule operations
+- [x] `bible/plot-thread.ts` — Plot thread operations
+- [x] `bible/timeline.ts` — Timeline operations
 - [ ] `structure/tree.ts` — Structure hierarchy
 - [ ] `structure/beats.ts` — Beat management
 - [ ] `structure/hooks.ts` — Hook specification
