@@ -59,6 +59,7 @@ $ARGUMENTS
 
 **Always update docs/tasks.md:**
 - Check off completed tasks
+  * It is NOT considered complete until it is tested
 - Add tasks for anything skipped or not completed
 - Add tasks for any identified changes you did not implement
 - Keep entries concise - this is a summary/checklist

@@ -189,7 +189,7 @@ Missing tests are CRITICAL.  New code must have tests, and edge cases and error 
 
 ## Final Assessment
 
-**Recommendation**: [APPROVE / APPROVE WITH CHANGES / REQUEST CHANGES]
+**Recommendation**: [APPROVE / REQUEST CHANGES]
 
 **Confidence**: [HIGH / MEDIUM / LOW]
 

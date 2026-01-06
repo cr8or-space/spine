@@ -9,7 +9,7 @@ Missing tests are CRITICAL.  New code must have tests, and edge cases and error 
 ## Task Checklist
 
 - [ ] Review uncommitted changes for **workarounds or hacks**
-  - Add tasks to tasks.md for any workarounds found
+  - REQUIRE tasks in tasks.md for any workarounds found
   - Include what needs to be done for a fully correct solution
   
 - [ ] Review uncommitted changes for **correctness and style**
@@ -29,7 +29,7 @@ Missing tests are CRITICAL.  New code must have tests, and edge cases and error 
   - Not just moving the problem elsewhere
   
 - [ ] Review uncommitted changes for **missing tests**
-  - New functions should have tests
+  - REQUIRE New functions to have tests
   - Edge cases covered
   - Error paths tested
   
@@ -87,5 +87,5 @@ Provide feedback in this structure:
 - [ ] [Task description for tasks.md]
 
 ## Approval
-[APPROVED / APPROVED WITH CHANGES / NEEDS WORK]
+[APPROVED / NEEDS WORK]
 ```
