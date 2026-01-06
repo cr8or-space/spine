@@ -240,6 +240,7 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] `docs/framework/api-reference.md`
 - [ ] `docs/framework/storage.md`
 - [ ] `docs/framework/validation.md`
+- [ ] `docs/framework/llm-integration.md` (Levels 1-2 usage guide)
 
 ### 4.4 Domain Documentation
 - [ ] `docs/serial/getting-started.md`

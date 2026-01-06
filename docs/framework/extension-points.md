@@ -128,9 +128,11 @@ Validators are organized into phases that run in order:
 |-------|---------|----------|
 | `structural` | Fast, schema-based checks | Required fields, type validation |
 | `automated` | Rule-based checks | Timeline consistency, reference resolution |
-| `computed` | LLM-assisted checks | Continuity, style analysis, pacing |
+| `computed` | LLM-assisted checks (Level 2) | Continuity, style analysis, pacing |
 
 The framework runs all validators in a phase before proceeding to the next. Within a phase, validators run in parallel.
+
+**Note**: Computed validators use the internal LLM infrastructure (Level 2 in the [LLM Architecture](./architecture.md#llm-architecture)), not the external interface LLM. They have their own context assembly optimized for validation tasks.
 
 ## Server Handlers
 
