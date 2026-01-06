@@ -72,6 +72,56 @@ export interface TreeSpine<Node> extends Spine<Node> {
 }
 
 /**
+ * Linear spine interface for flat, ordered content structures.
+ *
+ * A linear spine has no hierarchy - all nodes are at the same level.
+ * Think of it as a simple list or array with navigation and position tracking.
+ *
+ * Examples:
+ * - Chapters in a simple book
+ * - Episodes in a podcast
+ * - Steps in a tutorial
+ *
+ * @typeParam Node - The type of nodes in the spine
+ */
+export interface LinearSpine<Node> extends Spine<Node> {
+  /**
+   * Get the first node in the spine.
+   * Returns null if the spine is empty.
+   */
+  first(): Node | null;
+
+  /**
+   * Get the last node in the spine.
+   * Returns null if the spine is empty.
+   */
+  last(): Node | null;
+
+  /**
+   * Get the next node after the given node.
+   * Returns null if this is the last node.
+   */
+  next(node: Node): Node | null;
+
+  /**
+   * Get the previous node before the given node.
+   * Returns null if this is the first node.
+   */
+  previous(node: Node): Node | null;
+
+  /**
+   * Get the node at the given index.
+   * Returns null if the index is out of bounds.
+   */
+  at(index: number): Node | null;
+
+  /**
+   * Get the number of nodes in the spine.
+   */
+  length(): number;
+}
+
+/**
  * Mutable spine interface for structures that can be modified.
  *
  * Extends the base Spine with mutation operations.

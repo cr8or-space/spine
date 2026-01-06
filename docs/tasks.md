@@ -16,18 +16,21 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Verify builds pass
 
 ### 1.2 Framework Types
-- [ ] `Spine<Node>` base interface
-- [ ] `LinearSpine<Node>` implementation
-- [ ] `TreeSpine<Node>` implementation
-- [ ] `Entity` base type with lifecycle
-- [ ] `EntityType` registration metadata
-- [ ] `EntityRegistry` interface
-- [ ] `Content` base wrapper type
-- [ ] `Reference` type
-- [ ] `Constraint` definition type
-- [ ] `ValidationResult` type
-- [ ] `Validator` interface
-- [ ] Zod schemas for all types
+- [x] `Spine<Node>` base interface
+- [x] `LinearSpine<Node>` interface
+- [x] `TreeSpine<Node>` interface
+- [x] `MutableSpine<Node>` interface
+- [x] `Entity` base type with lifecycle (`BaseEntity`, `EntityLifecycle`)
+- [x] `EntityType` registration metadata
+- [x] `EntityRegistry` interface
+- [x] `Content` base wrapper type (`BaseContent`)
+- [x] `Reference` type
+- [x] `Constraint` definition type
+- [x] `ConstraintExtractor` interface
+- [x] `ValidationResult` type
+- [x] `Validator` interface
+- [x] `ValidatorRegistry` interface
+- [x] Zod schemas for all types
 
 ### 1.3 Framework Core
 - [ ] `storage/schema.ts` — Generic SQLite tables
