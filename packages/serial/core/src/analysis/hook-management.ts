@@ -21,6 +21,10 @@ import type {
 import type { AnalysisRepository } from './repository';
 import type { ContentRepository } from '../storage/repositories';
 
+// Import HOOK_TYPES from structure layer (canonical source)
+// Use non-type import since we need the value at runtime
+import { HOOK_TYPES as HOOK_TYPES_IMPORT } from '../structure/hooks';
+
 /**
  * Hook data point extracted from content analysis
  */
@@ -108,18 +112,9 @@ export const DEFAULT_HOOK_ANALYSIS_CONFIG: Required<HookAnalysisConfig> = {
   includeUnanalyzed: false,
 };
 
-/**
- * All valid hook types (excluding 'none')
- */
-export const HOOK_TYPES: HookType[] = [
-  'revelation',
-  'decision',
-  'cliffhanger',
-  'emotional',
-  'question',
-  'twist',
-  'promise',
-];
+// Re-export HOOK_TYPES for backward compatibility
+// The canonical source is now ../structure/hooks
+export const HOOK_TYPES = HOOK_TYPES_IMPORT;
 
 /**
  * Extract hook data points from content analyses

@@ -107,6 +107,8 @@ export {
 } from './prompts';
 
 // Hook management (Phase 5.1)
+// Note: HOOK_TYPES is exported from structure/hooks (canonical source)
+// and re-exported via ../structure/index.ts
 export {
   analyzeHookPatterns,
   analyzeHookPatternsWithDeps,
@@ -119,7 +121,6 @@ export {
   extractHookDataPoints,
   generateVarietyWarnings,
   getHookUsageSummary,
-  HOOK_TYPES,
   suggestNextHookType,
   type HookAnalysisConfig,
   type HookDataPoint,

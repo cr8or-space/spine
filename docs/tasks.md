@@ -82,9 +82,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `bible/world-rule.ts` — World rule operations
 - [x] `bible/plot-thread.ts` — Plot thread operations
 - [x] `bible/timeline.ts` — Timeline operations
-- [ ] `structure/tree.ts` — Structure hierarchy
-- [ ] `structure/beats.ts` — Beat management
-- [ ] `structure/hooks.ts` — Hook specification
+- [x] `structure/tree.ts` — Structure hierarchy
+- [x] `structure/beats.ts` — Beat management
+- [x] `structure/hooks.ts` — Hook specification
 - [ ] `generation/pipeline.ts` — Generation orchestration
 - [ ] `generation/outline.ts` — Outline generation
 - [ ] `generation/beats.ts` — Beat expansion
