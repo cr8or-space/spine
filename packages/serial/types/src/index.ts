@@ -238,6 +238,7 @@ export {
   type ParagraphAction,
   type Review,
   type LockPoint,
+  type LockPointType,
   type GenerationRecord,
   type RevisionImpact,
   type ReviewQueueItem,

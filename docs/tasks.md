@@ -93,9 +93,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `analysis/hooks.ts` — Hook analysis
 - [x] `analysis/pacing.ts` — Pacing assessment
 - [x] `analysis/continuity.ts` — Continuity checking
-- [ ] `review/workflow.ts` — Review status management
-- [ ] `review/locks.ts` — Lock point management
-- [ ] `review/cascade.ts` — Revision cascade
+- [x] `review/workflow.ts` — Review status management (implemented as service.ts)
+- [x] `review/locks.ts` — Lock point management
+- [x] `review/cascade.ts` — Revision cascade (implemented in continuity/service.ts)
 - [ ] `serial/buffer.ts` — Release buffer
 - [ ] `serial/schedule.ts` — Release schedule
 - [ ] `serial/cycles.ts` — Tension cycles

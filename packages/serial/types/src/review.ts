@@ -76,6 +76,7 @@ export const LockPointSchema = z.object({
   createdAt: TimestampSchema,
 });
 export type LockPoint = z.infer<typeof LockPointSchema>;
+export type LockPointType = LockPoint['type'];
 
 /**
  * Generation record - history of how content was generated
