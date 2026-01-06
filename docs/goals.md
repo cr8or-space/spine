@@ -19,6 +19,11 @@ Progressive-build books where working code is tangled from prose. Checkpoints mu
 These two domains validate the framework. If both can be built cleanly on shared infrastructure, the framework succeeds.
 
 ## Core objectives
+### 0. Language Model Driven
+Language models should be first-class citizens in the framework, enabling advanced content analysis, generation, and validation capabilities across all domains.
+- Provide built-in support for integrating with popular LLM APIs.
+- Facilitate the creation of LLM-based validators for subjective content analysis.
+- Ensure that all domains can leverage LLMs for ALL content generation and validation.
 
 ### 1. Structural consistency
 
