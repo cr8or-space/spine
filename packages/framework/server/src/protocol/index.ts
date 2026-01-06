@@ -11,6 +11,13 @@ export {
   type ErrorCodeType,
   RpcErrorSchema,
   type RpcError,
+  // Framework-generic API methods
+  FRAMEWORK_API_METHODS,
+  type FrameworkApiMethod,
+  // Framework-generic subscription channels
+  FRAMEWORK_SUBSCRIPTION_CHANNELS,
+  type FrameworkSubscriptionChannel,
+  // All methods (framework + serial for backwards compatibility)
   API_METHODS,
   type ApiMethod,
   SUBSCRIPTION_CHANNELS,

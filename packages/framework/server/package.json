@@ -29,8 +29,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@repo/serial-core": "workspace:*",
+    "@repo/framework-core": "workspace:*",
     "@repo/framework-llm": "workspace:*",
+    "@repo/framework-types": "workspace:*",
+    "@repo/serial-core": "workspace:*",
     "@repo/serial-types": "workspace:*",
     "libsql": "^0.5.22",
     "ws": "^8.18.0",

@@ -51,13 +51,13 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `spine/checkpoints.ts` — Checkpoint management
 
 ### 1.4 Framework Server
-- [ ] Domain handler registration system
-- [ ] Generic project operations
-- [ ] Generic entity operations
-- [ ] Generic content operations
-- [ ] Validation trigger endpoints
-- [ ] Session management refactor
-- [ ] Error handling standardization
+- [x] Domain handler registration system
+- [x] Generic project operations
+- [x] Generic entity operations
+- [x] Generic content operations
+- [x] Validation trigger endpoints
+- [x] Session management refactor
+- [x] Error handling standardization
 
 ### 1.5 Remove Web Frontend
 - [x] Delete `apps/web/`

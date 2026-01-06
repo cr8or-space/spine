@@ -141,16 +141,23 @@ function createMockServices(): Services {
 
   return {
     db: {} as unknown as import('libsql').Database,
-    drizzle: {} as unknown as import('@repo/core').DrizzleDB,
-    project: mockProject as unknown as import('@repo/core').ProjectService,
+    drizzle: {} as unknown as import('@repo/serial-core').DrizzleDB,
+    project: mockProject as unknown as import('@repo/serial-core').ProjectService,
     bible: mockBible,
     structure: mockStructure,
-    version: {} as unknown as import('@repo/core').VersionService,
+    version: {} as unknown as import('@repo/serial-core').VersionService,
     review: mockReview,
-    cascade: mockCascade as unknown as import('@repo/core').RevisionCascadeService,
+    cascade: mockCascade as unknown as import('@repo/serial-core').RevisionCascadeService,
     generation: undefined, // LLM not configured
     analysis: undefined,
+    extraction: undefined,
     llmClient: undefined,
+    errorHandling: {
+      withRetry: vi.fn(),
+      withBackup: vi.fn(),
+      createBackup: vi.fn(),
+      cleanup: vi.fn(),
+    } as unknown as import('@repo/serial-core').ErrorHandlingService,
     close: vi.fn()
   };
 }
@@ -305,7 +312,7 @@ describe('Review Handlers', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       settings: {}
-    } as unknown as import('@repo/types').Project);
+    } as unknown as import('@repo/serial-types').Project);
 
     const responseJson = await router.handle(
       {
@@ -409,7 +416,7 @@ describe('Serial Handlers', () => {
           releaseDay: 'monday'
         }
       }
-    } as unknown as import('@repo/types').Project);
+    } as unknown as import('@repo/serial-types').Project);
 
     const responseJson = await router.handle(
       {
@@ -473,7 +480,7 @@ describe('Cascade Handlers', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       settings: {}
-    } as unknown as import('@repo/types').Project);
+    } as unknown as import('@repo/serial-types').Project);
 
     const responseJson = await router.handle(
       {

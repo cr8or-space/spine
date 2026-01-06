@@ -1,23 +1,39 @@
 /**
- * @repo/server - WebSocket server for Spine API
+ * @repo/framework/server - WebSocket server for Spine Framework
  *
  * This package provides:
  * - WebSocket server for real-time communication
  * - JSON-RPC 2.0 style protocol
- * - All domain API handlers (project, bible, structure, content, generation, review, analytics, serial)
+ * - Domain handler registration system
+ * - Generic handlers for entities, content, validation
  * - Subscription system for real-time updates
- * - Connection management
+ * - Connection and session management
  *
- * Usage:
+ * For domains:
  * ```typescript
- * import { createSpineServer, type SpineServerConfig } from '@repo/server';
+ * import {
+ *   createServer,
+ *   createBaseServices,
+ *   registerFrameworkHandlers,
+ *   createSessionManager,
+ * } from '@repo/framework-server';
  *
- * const server = createSpineServer({
- *   dataDir: './data',
- *   port: 3001
- * });
+ * const services = createBaseServices({ dataDir: './data' });
+ * const sessionManager = createSessionManager();
+ * const server = createServer({ port: 8080 });
+ *
+ * registerFrameworkHandlers(server.router, services, server.subscriptions, sessionManager);
+ * registerMyDomainHandlers(server.router, services);
  *
  * await server.start();
+ * ```
+ *
+ * For serial domain (backwards compatible):
+ * ```typescript
+ * import { createSpineServer } from '@repo/framework-server';
+ *
+ * const instance = createSpineServer({ dataDir: './data', port: 8080 });
+ * await instance.start();
  * ```
  */
 
@@ -39,6 +55,9 @@ export interface SpineServerInstance {
 
 /**
  * Create a fully configured Spine server with all handlers registered.
+ *
+ * This creates a server with serial-domain handlers for backwards compatibility.
+ * For new domains, use createServer + registerFrameworkHandlers + domain handlers.
  */
 export function createSpineServer(config: SpineServerConfig): SpineServerInstance {
   // Create services
@@ -55,7 +74,7 @@ export function createSpineServer(config: SpineServerConfig): SpineServerInstanc
   };
   const server = createServer(serverConfig);
 
-  // Register all handlers
+  // Register all handlers (serial domain)
   registerAllHandlers(server.router, services, server.subscriptions);
 
   return {
@@ -73,9 +92,11 @@ export function createSpineServer(config: SpineServerConfig): SpineServerInstanc
   };
 }
 
-// Re-export core types
+// ============================================================================
+// Core Server Infrastructure
+// ============================================================================
+
 export { createServer, type SpineServer, type ServerConfig } from './server';
-export { createServices, type Services, type ServiceConfig } from './services';
 export { createConnectionManager, type ConnectionManager, type ConnectionState } from './connection';
 export { createRouter, ApiError, type Router, type Handler, type HandlerContext } from './router';
 export {
@@ -86,10 +107,81 @@ export {
   type SubscriptionKey
 } from './subscriptions';
 
-// Re-export handlers
-export { registerAllHandlers } from './handlers';
+// ============================================================================
+// Framework Types (for domains to extend)
+// ============================================================================
 
-// Re-export protocol (available as @repo/server/protocol)
+export type {
+  BaseServices,
+  BaseProject,
+  ProjectService,
+  ValidationService,
+  ValidationContext,
+  DomainHandlerRegistry,
+  HandlerDefinition,
+  SessionState,
+  SessionManager,
+} from './types';
+
+// ============================================================================
+// Base Services (for domains to use)
+// ============================================================================
+
+export {
+  createBaseServices,
+  extendServices,
+  type BaseServicesConfig,
+  type BaseServicesState,
+} from './base-services';
+
+// ============================================================================
+// Session Management
+// ============================================================================
+
+export {
+  createSessionManager,
+  createSessionContext,
+  type SessionContext,
+} from './session';
+
+// ============================================================================
+// Handler Registration
+// ============================================================================
+
+export {
+  // Framework handlers
+  registerFrameworkHandlers,
+  type FrameworkHandlerOptions,
+  registerEntityHandlers,
+  registerGenericContentHandlers,
+  registerGenericProjectHandlers,
+  registerValidationHandlers,
+  // Serial domain handlers (backwards compatible)
+  registerAllHandlers,
+  registerProjectHandlers,
+  registerBibleHandlers,
+  registerStructureHandlers,
+  registerContentHandlers,
+  registerSubscriptionHandlers,
+  registerGenerationHandlers,
+  registerReviewHandlers,
+  registerAnalyticsHandlers,
+  registerSerialHandlers,
+  registerCascadeHandlers,
+  registerSystemHandlers,
+  registerExtractionHandlers,
+} from './handlers';
+
+// ============================================================================
+// Serial Domain Services (backwards compatible)
+// ============================================================================
+
+export { createServices, type Services, type ServiceConfig } from './services';
+
+// ============================================================================
+// Protocol
+// ============================================================================
+
 export * from './protocol';
 
 // Standalone server entry point

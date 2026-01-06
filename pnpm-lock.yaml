@@ -227,9 +227,15 @@ importers:
 
   packages/framework/server:
     dependencies:
+      '@repo/framework-core':
+        specifier: workspace:*
+        version: link:../core
       '@repo/framework-llm':
         specifier: workspace:*
         version: link:../llm
+      '@repo/framework-types':
+        specifier: workspace:*
+        version: link:../types
       '@repo/serial-core':
         specifier: workspace:*
         version: link:../../serial/core

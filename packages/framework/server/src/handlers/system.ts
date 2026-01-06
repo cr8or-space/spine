@@ -3,6 +3,7 @@
  */
 
 import type { Router } from '../router';
+import { ApiError } from '../router';
 import type { Services } from '../services';
 import type {
   HealthStatus,
@@ -239,7 +240,7 @@ export function registerSystemHandlers(router: Router, services: Services): void
     (params) => {
       const data = services.errorHandling.backup.exportProjectData(params.projectId);
       if (!data) {
-        throw new Error('Project not found');
+        throw ApiError.projectNotFound(params.projectId);
       }
       return data;
     }

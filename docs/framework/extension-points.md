@@ -134,16 +134,53 @@ The framework runs all validators in a phase before proceeding to the next. With
 
 ## Server Handlers
 
-Server handlers implement API endpoints. The framework provides the router and protocol; domains add their methods.
+Server handlers implement API endpoints. The framework provides the router, protocol, and generic handlers; domains add their specific methods.
+
+### Framework vs Domain Handlers
+
+The framework provides two categories of handlers:
+
+1. **Generic Framework Handlers** - CRUD operations for entities, content, projects, and validation that work across all domains
+2. **Domain Handlers** - Domain-specific operations registered by each domain
+
+### Using Framework Base Services
+
+Domains extend the framework's `BaseServices` with their own services:
+
+```typescript
+import {
+  createBaseServices,
+  extendServices,
+  type BaseServices,
+} from '@repo/framework/server';
+
+interface MyDomainServices extends BaseServices {
+  bible(projectId: string): BibleService;
+  structure(projectId: string): StructureService;
+}
+
+export function createServices(config: ServiceConfig): MyDomainServices {
+  const base = createBaseServices({
+    dataDir: config.dataDir,
+    llm: config.llm,
+  });
+
+  return extendServices(base, {
+    bible: (projectId) => createBibleService(base.db, projectId),
+    structure: (projectId) => createStructureService(base.db, projectId),
+  });
+}
+```
 
 ### Defining a Handler
 
 ```typescript
 import { z } from 'zod';
 import type { Router } from '@repo/framework/server';
+import { ApiError } from '@repo/framework/server';
 import type { Services } from './services';
 
-// Define parameter and result schemas
+// Define parameter schema
 const CharacterCreateParams = z.object({
   projectId: z.string(),
   data: z.object({
@@ -153,28 +190,19 @@ const CharacterCreateParams = z.object({
   }),
 });
 
-const CharacterResult = z.object({
-  id: z.string(),
-  name: z.string(),
-  role: z.string(),
-  // ... other fields
-});
-
 export function registerCharacterHandlers(
   router: Router,
   services: Services
 ): void {
   router.register(
     'bible.character.create',
-    CharacterCreateParams,
-    CharacterResult,
     async (params) => {
-      const character = await services.bible.createCharacter(
-        params.projectId,
-        params.data
-      );
+      const validated = CharacterCreateParams.parse(params);
+      const character = await services.bible(validated.projectId)
+        .createCharacter(validated.data);
       return character;
-    }
+    },
+    CharacterCreateParams
   );
 
   // ... more handlers
@@ -186,21 +214,90 @@ export function registerCharacterHandlers(
 Domain server launchers combine framework handlers with domain-specific ones:
 
 ```typescript
-import { createServer, registerAllHandlers } from '@repo/framework/server';
+import {
+  createServer,
+  createBaseServices,
+  createSessionManager,
+  registerFrameworkHandlers,
+} from '@repo/framework/server';
 import { registerSerialHandlers } from './handlers';
+import { createSerialServices } from './services';
+import { serialValidationService } from './validation';
 
 export async function startSerialServer(options: ServerOptions) {
-  const server = await createServer(options);
+  const services = createSerialServices(options);
+  const sessionManager = createSessionManager();
+  const server = createServer({ port: options.port });
 
-  // Register framework handlers (project, system, etc.)
-  registerAllHandlers(server.router, server.services, server.subscriptions);
+  // Register framework generic handlers (entities, content, validation)
+  registerFrameworkHandlers(server.router, services, server.subscriptions, sessionManager, {
+    projectService: services.project,
+    validationService: serialValidationService,
+  });
 
   // Register domain-specific handlers
-  registerSerialHandlers(server.router, server.services);
+  registerSerialHandlers(server.router, services);
 
   await server.start();
 }
 ```
+
+### Generic Framework Handlers
+
+The framework provides these generic handlers out of the box:
+
+| Namespace | Methods | Description |
+|-----------|---------|-------------|
+| `entity.*` | list, get, create, update, delete | Entity CRUD operations |
+| `content.*` | list, get, create, update, delete | Content CRUD operations |
+| `project.*` | list, get, create, update, delete, load | Project management |
+| `validation.*` | run, results, summary, clear, phases | Validation operations |
+
+Domains can use these as-is or override specific methods with domain-specific implementations.
+
+### Session Management
+
+Handlers can use session context for connection-scoped state:
+
+```typescript
+import { createSessionContext } from '@repo/framework/server';
+
+router.register('structure.get', async (params, context) => {
+  const session = createSessionContext(sessionManager, context.connection.id);
+
+  // Use explicit param or fall back to session
+  const projectId = params.projectId ?? session.requireProject();
+
+  return services.structure(projectId).get(params.id);
+});
+```
+
+### Error Handling
+
+Use `ApiError` for consistent error responses:
+
+```typescript
+import { ApiError } from '@repo/framework/server';
+
+router.register('entity.get', async (params) => {
+  const entity = await services.entity.get(params.id);
+  if (!entity) {
+    throw ApiError.entityNotFound('Character', params.id);
+  }
+  return entity;
+});
+```
+
+Available error factory methods:
+- `ApiError.projectNotFound(id)` - Project not found
+- `ApiError.entityNotFound(type, id)` - Entity not found
+- `ApiError.validationError(message, data?)` - Validation failed
+- `ApiError.generationError(message, data?)` - Generation failed
+- `ApiError.reviewError(message, data?)` - Review operation failed
+- `ApiError.contentLocked(structureId)` - Content is locked
+- `ApiError.databaseError(message)` - Database operation failed
+- `ApiError.llmError(message)` - LLM operation failed
+- `ApiError.subscriptionError(message)` - Subscription failed
 
 ## Spine Implementations
 

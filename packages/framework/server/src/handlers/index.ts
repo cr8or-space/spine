@@ -1,7 +1,11 @@
 /**
  * Handler registration module.
  *
- * Exports a function to register all API handlers on the router.
+ * Exports functions to register API handlers on the router.
+ *
+ * Two registration approaches:
+ * 1. registerFrameworkHandlers - Only framework-generic handlers (for new domains)
+ * 2. registerAllHandlers - All handlers including serial-specific (for backwards compatibility)
  */
 
 import type { Router } from '../router';
@@ -22,6 +26,12 @@ import { registerExtractionHandlers } from './extraction';
 
 /**
  * Register all API handlers on the router.
+ *
+ * This includes both framework-generic and serial-specific handlers.
+ * Used by serial-server for backwards compatibility.
+ *
+ * For new domains, use registerFrameworkHandlers instead and register
+ * domain-specific handlers separately.
  */
 export function registerAllHandlers(
   router: Router,
@@ -42,7 +52,26 @@ export function registerAllHandlers(
   registerExtractionHandlers(router, services);
 }
 
-// Re-export individual handler registrations for selective use
+// ============================================================================
+// Framework Handlers (domain-agnostic)
+// ============================================================================
+
+// Export framework handler registration
+export {
+  registerFrameworkHandlers,
+  type FrameworkHandlerOptions,
+} from './framework';
+
+// Export individual framework handlers
+export { registerEntityHandlers } from './entity';
+export { registerGenericContentHandlers } from './generic-content';
+export { registerGenericProjectHandlers } from './generic-project';
+export { registerValidationHandlers } from './validation';
+
+// ============================================================================
+// Serial Domain Handlers (serial-specific, for backwards compatibility)
+// ============================================================================
+
 export { registerProjectHandlers } from './project';
 export { registerBibleHandlers } from './bible';
 export { registerStructureHandlers } from './structure';

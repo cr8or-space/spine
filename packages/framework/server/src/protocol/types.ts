@@ -43,15 +43,82 @@ export const RpcErrorSchema = z.object({
 });
 export type RpcError = z.infer<typeof RpcErrorSchema>;
 
-// API Method categories
-export const API_METHODS = {
+// ============================================================================
+// Framework API Methods (domain-agnostic)
+// ============================================================================
+
+export const FRAMEWORK_API_METHODS = {
   // Project operations
   PROJECT_LIST: 'project.list',
+  PROJECT_GET: 'project.get',
   PROJECT_CREATE: 'project.create',
   PROJECT_LOAD: 'project.load',
-  PROJECT_DELETE: 'project.delete',
-  PROJECT_UPDATE_SETTINGS: 'project.updateSettings',
+  PROJECT_UPDATE: 'project.update',
   PROJECT_UPDATE_METADATA: 'project.updateMetadata',
+  PROJECT_DELETE: 'project.delete',
+
+  // Session operations
+  SESSION_STATUS: 'session.status',
+  SESSION_CLEAR: 'session.clear',
+
+  // Entity operations (generic)
+  ENTITY_LIST: 'entity.list',
+  ENTITY_GET: 'entity.get',
+  ENTITY_CREATE: 'entity.create',
+  ENTITY_UPDATE: 'entity.update',
+  ENTITY_DELETE: 'entity.delete',
+
+  // Content operations (generic)
+  CONTENT_LIST: 'content.list',
+  CONTENT_GET: 'content.get',
+  CONTENT_GET_BY_ID: 'content.getById',
+  CONTENT_CREATE: 'content.create',
+  CONTENT_UPDATE: 'content.update',
+  CONTENT_UPDATE_STATUS: 'content.updateStatus',
+  CONTENT_DELETE: 'content.delete',
+
+  // Validation operations
+  VALIDATION_RUN: 'validation.run',
+  VALIDATION_RESULTS: 'validation.results',
+  VALIDATION_SUMMARY: 'validation.summary',
+  VALIDATION_CLEAR: 'validation.clear',
+  VALIDATION_PHASES: 'validation.phases',
+
+  // System operations
+  SYSTEM_HEALTH: 'system.health',
+  SYSTEM_INTEGRITY_CHECK: 'system.integrityCheck',
+  SYSTEM_HEALTH_CHECKS: 'system.healthChecks',
+  SYSTEM_REPAIR: 'system.repair',
+  SYSTEM_RECOVERABLE_OPERATIONS: 'system.recoverableOperations',
+  SYSTEM_OPERATIONS: 'system.operations',
+  SYSTEM_RECOVER: 'system.recover',
+  SYSTEM_CANCEL_OPERATION: 'system.cancelOperation',
+  SYSTEM_CREATE_BACKUP: 'system.createBackup',
+  SYSTEM_LIST_BACKUPS: 'system.listBackups',
+  SYSTEM_VERIFY_BACKUP: 'system.verifyBackup',
+  SYSTEM_DELETE_BACKUP: 'system.deleteBackup',
+  SYSTEM_EXPORT_PROJECT: 'system.exportProject',
+  SYSTEM_CLEANUP: 'system.cleanup',
+
+  // Subscription operations
+  SUBSCRIBE: 'subscribe',
+  UNSUBSCRIBE: 'unsubscribe',
+} as const;
+
+export type FrameworkApiMethod =
+  (typeof FRAMEWORK_API_METHODS)[keyof typeof FRAMEWORK_API_METHODS];
+
+// ============================================================================
+// Serial Domain API Methods (serial-specific)
+// ============================================================================
+
+// API Method categories (includes both framework and serial for backwards compatibility)
+export const API_METHODS = {
+  // Framework methods (re-exported)
+  ...FRAMEWORK_API_METHODS,
+
+  // Legacy project operations (some renamed in framework)
+  PROJECT_UPDATE_SETTINGS: 'project.updateSettings',
 
   // Bible operations
   BIBLE_GET: 'bible.get',
@@ -151,16 +218,37 @@ export const API_METHODS = {
 
 export type ApiMethod = (typeof API_METHODS)[keyof typeof API_METHODS];
 
-// Subscription channels
-export const SUBSCRIPTION_CHANNELS = {
+// ============================================================================
+// Framework Subscription Channels (domain-agnostic)
+// ============================================================================
+
+export const FRAMEWORK_SUBSCRIPTION_CHANNELS = {
+  // Generic updates
   PROJECT_UPDATED: 'project.updated',
+  ENTITY_UPDATED: 'entity.updated',
+  CONTENT_UPDATED: 'content.updated',
+  VALIDATION_COMPLETE: 'validation.complete',
+} as const;
+
+export type FrameworkSubscriptionChannel =
+  (typeof FRAMEWORK_SUBSCRIPTION_CHANNELS)[keyof typeof FRAMEWORK_SUBSCRIPTION_CHANNELS];
+
+// ============================================================================
+// Serial Domain Subscription Channels
+// ============================================================================
+
+// Subscription channels (includes both framework and serial for backwards compatibility)
+export const SUBSCRIPTION_CHANNELS = {
+  // Framework channels (re-exported)
+  ...FRAMEWORK_SUBSCRIPTION_CHANNELS,
+
+  // Serial-specific channels
   BIBLE_UPDATED: 'bible.updated',
   STRUCTURE_UPDATED: 'structure.updated',
-  CONTENT_UPDATED: 'content.updated',
   GENERATION_PROGRESS: 'generation.progress',
   GENERATION_COMPLETE: 'generation.complete',
   GENERATION_ERROR: 'generation.error',
-  REVIEW_UPDATED: 'review.updated'
+  REVIEW_UPDATED: 'review.updated',
 } as const;
 
 export type SubscriptionChannel =
