@@ -30,6 +30,7 @@ $ARGUMENTS
 - If something is NOT specified, use goals.md as the source of truth for decisions
 - Migration and legacy support is not needed
 - Make sure unit tests pass before completing
+- Unit tests are REQUIRED for new functionality
 
 ### Framework vs Domain
 - Code mentioning domain-specific types (Character, Snippet, etc.) belongs in domain packages

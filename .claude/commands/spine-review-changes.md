@@ -2,6 +2,10 @@
 
 Quick review of uncommitted changes before commit/submit.
 
+Ensure ALL tasks are tracked, even optional and low priority ones.  There is no such thing as a "small" workaround or hack.
+
+Missing tests are CRITICAL.  New code must have tests, and edge cases and error paths must be covered.
+
 ## Task Checklist
 
 - [ ] Review uncommitted changes for **workarounds or hacks**

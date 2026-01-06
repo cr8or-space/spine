@@ -2,6 +2,10 @@
 
 Comprehensive review of uncommitted changes. Use this for larger changes, PRs, or before major milestones.
 
+Ensure ALL tasks are tracked, even optional and low priority ones.  There is no such thing as a "small" workaround or hack.
+
+Missing tests are CRITICAL.  New code must have tests, and edge cases and error paths must be covered.
+
 ## Task Checklist
 
 ### 1. Workarounds & Technical Debt
