@@ -130,6 +130,7 @@ Domains extend the framework through:
 ### Serial Domain
 - `docs/serial/cli.md` — CLI usage guide
 - `docs/serial/mcp.md` — MCP tools reference
+- `docs/serial/api.md` — WebSocket API reference
 
 ### TechBook Domain
 - `docs/techbook/cli.md` — CLI usage guide

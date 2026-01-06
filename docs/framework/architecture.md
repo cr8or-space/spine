@@ -1,0 +1,286 @@
+# Framework Architecture
+
+Spine Framework provides domain-agnostic infrastructure for building structured authoring tools. This document describes the package structure, core abstractions, and data flow.
+
+## Package Structure
+
+```
+packages/framework/
+├── types/     # Generic interfaces and base types
+├── core/      # Storage, entity registry, validation pipeline, spine implementations
+├── llm/       # OpenAI-compatible client, token counting, context assembly
+├── server/    # WebSocket server infrastructure
+└── client/    # WebSocket client library
+```
+
+### types
+
+Defines the core abstractions that domains implement:
+
+| Type | Purpose |
+|------|---------|
+| `Spine<Node>` | Ordered content structure interface |
+| `TreeSpine<Node>` | Hierarchical spine with depth and ancestors |
+| `LinearSpine<Node>` | Flat ordered spine with prev/next navigation |
+| `MutableSpine<Node>` | Spine with insert/remove/move operations |
+| `BaseEntity` | Entity base with id, type, lifecycle positions |
+| `EntityType<T>` | Registration metadata for domain entity types |
+| `EntityRegistry` | Interface for registering and validating entity types |
+| `BaseContent` | Content base with id, type, spine position, status, references |
+| `Reference` | Link from content to an entity |
+| `Constraint` | Rule that content must follow |
+| `ConstraintExtractor<T>` | Interface for extracting constraints from entities |
+| `ValidationResult` | Pass/fail/warn with location and message |
+| `Validator<Context>` | Interface for constraint checkers |
+| `ValidatorRegistry<Context>` | Interface for managing validators |
+
+### core
+
+Provides implementations of framework abstractions (planned):
+
+| Module | Purpose |
+|--------|---------|
+| `storage/` | SQLite schema, migrations, repository base classes |
+| `entity/` | Entity registry, relationship graph, lifecycle tracking |
+| `content/` | Content storage, version tracking, reference indexing |
+| `validation/` | Pipeline orchestration, phase management, result aggregation |
+| `spine/` | Linear and tree spine implementations, checkpoint management |
+
+### llm
+
+LLM integration utilities:
+
+| Module | Purpose |
+|--------|---------|
+| `client.ts` | OpenAI-compatible API client |
+| `resilient-client.ts` | Client with circuit breaker and retry logic |
+| `circuit-breaker.ts` | Fault tolerance for LLM calls |
+| `token-counter.ts` | Token counting for context budgeting |
+| `context/` | Context assembly, budget management, relevance scoring |
+
+### server
+
+WebSocket server with JSON-RPC 2.0:
+
+| Module | Purpose |
+|--------|---------|
+| `server.ts` | WebSocket server setup |
+| `router.ts` | Method routing and handler dispatch |
+| `connection.ts` | Connection lifecycle management |
+| `subscriptions.ts` | Pub/sub for real-time updates |
+| `handlers/` | API endpoint implementations |
+| `protocol/` | JSON-RPC request/response types |
+
+### client
+
+WebSocket client library:
+
+| Module | Purpose |
+|--------|---------|
+| `client.ts` | Connection management, reconnection |
+| `types.ts` | Client configuration and options |
+| `api/` | Typed API methods for each handler group |
+
+## Core Abstractions
+
+### Spine
+
+The spine is the structural backbone of a project. It provides ordering, traversal, and checkpoint boundaries.
+
+```typescript
+interface Spine<Node> {
+  roots(): Node[];
+  children(node: Node): Node[];
+  parent(node: Node): Node | null;
+  linearize(): Node[];
+  position(node: Node): number;
+}
+```
+
+**TreeSpine** extends this with hierarchy-aware operations:
+
+```typescript
+interface TreeSpine<Node> extends Spine<Node> {
+  depth(node: Node): number;
+  ancestors(node: Node): Node[];
+  descendants(node: Node): Node[];
+}
+```
+
+**LinearSpine** provides flat list navigation:
+
+```typescript
+interface LinearSpine<Node> extends Spine<Node> {
+  first(): Node | null;
+  last(): Node | null;
+  next(node: Node): Node | null;
+  previous(node: Node): Node | null;
+  at(index: number): Node | null;
+  length(): number;
+}
+```
+
+### Entity
+
+Entities are things that exist in the project world. They have identity, properties, lifecycle, and relationships.
+
+```typescript
+// Base entity interface
+interface BaseEntity {
+  id: string;
+  type: string;
+  introducedAt?: SpinePosition;
+  retiredAt?: SpinePosition;
+}
+
+// Entity type registration
+interface EntityType<T extends BaseEntity> {
+  name: string;
+  schema: ZodSchema<T>;
+  plural: string;
+  description: string;
+  create?: (partial: Partial<T>) => T;
+}
+```
+
+Domains register their entity types with `EntityRegistry`:
+
+```typescript
+interface EntityRegistry {
+  register<T extends BaseEntity>(entityType: EntityType<T>): void;
+  get(name: string): EntityType | null;
+  getAll(): EntityType[];
+  has(name: string): boolean;
+  validate(entity: BaseEntity): string[];
+}
+```
+
+### Content
+
+Content is authored material. It hangs from spine nodes, references entities, and follows a review workflow.
+
+```typescript
+interface BaseContent {
+  id: string;
+  type: string;
+  spineNode: string;
+  status: 'draft' | 'review' | 'approved' | 'published';
+  references: Reference[];
+}
+
+interface Reference {
+  entityId: string;
+  entityType: string;
+  position: { start: number; end: number };
+}
+```
+
+### Constraint
+
+Constraints are rules that content must follow. They are extracted from entities and checked during validation.
+
+```typescript
+interface Constraint {
+  id: string;
+  type: 'fact' | 'rule' | 'relationship' | 'timeline' | 'style' | 'structural';
+  sourceEntityId: string;
+  sourceEntityType: string;
+  statement: string;
+  priority: number;
+  severity: 'error' | 'warning' | 'info';
+  active: boolean;
+  scope?: {
+    after?: string;
+    before?: string;
+    contentTypes?: string[];
+  };
+}
+```
+
+Domains implement `ConstraintExtractor` to extract constraints from their entity types:
+
+```typescript
+interface ConstraintExtractor<Entity> {
+  entityType: string;
+  extract(entity: Entity): Omit<Constraint, 'id'>[];
+}
+```
+
+### Validator
+
+Validators check constraints and produce results. They are organized into phases:
+
+- **structural**: Basic structure validation (required fields, types)
+- **automated**: Rule-based validation (consistency checks, format rules)
+- **computed**: AI-assisted or expensive validation (continuity, style)
+
+```typescript
+interface Validator<Context> {
+  name: string;
+  phase: 'structural' | 'automated' | 'computed';
+  validate(context: Context): Promise<ValidationResult[]>;
+}
+
+interface ValidationResult {
+  status: 'pass' | 'fail' | 'warn';
+  message: string;
+  location?: SpinePosition;
+  fix?: string;
+}
+```
+
+## Data Flow
+
+```
+Client (CLI/MCP) → WebSocket → Server → Handlers → Services → Storage
+                                                      ↓
+                                                  Validation
+                                                      ↓
+                                               LLM (if needed)
+```
+
+1. **Client** sends JSON-RPC request over WebSocket
+2. **Server** routes request to appropriate handler
+3. **Handler** validates params and calls services
+4. **Services** perform business logic, access storage
+5. **Validation** runs when content changes
+6. **LLM** used for generation and computed validation
+7. **Response** sent back to client
+
+## Storage
+
+Storage uses two complementary systems:
+
+- **SQLite**: Indexes, entity registry, reference graph, validation results, metadata
+- **File system**: Authored content (diffable, editor-friendly)
+
+Derived data is rebuildable from source. A single folder contains a complete project.
+
+## Server Protocol
+
+The server uses JSON-RPC 2.0 over WebSocket:
+
+```json
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": "req-1",
+  "method": "project.list",
+  "params": {}
+}
+
+// Response
+{
+  "jsonrpc": "2.0",
+  "id": "req-1",
+  "result": [...]
+}
+```
+
+Handlers are registered with the router during server startup. Domain handlers extend the base set.
+
+## See Also
+
+- [Extension Points](./extension-points.md) - How to extend the framework
+- [Goals](../goals.md) - Framework objectives and principles
+- [Plan](../plan.md) - Implementation roadmap

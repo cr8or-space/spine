@@ -234,8 +234,8 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] Performance benchmarks
 
 ### 4.3 Framework Documentation
-- [ ] `docs/framework/architecture.md`
-- [ ] `docs/framework/extension-points.md`
+- [x] `docs/framework/architecture.md`
+- [x] `docs/framework/extension-points.md`
 - [ ] `docs/framework/domain-starter.md`
 - [ ] `docs/framework/api-reference.md`
 - [ ] `docs/framework/storage.md`
@@ -243,12 +243,13 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 
 ### 4.4 Domain Documentation
 - [ ] `docs/serial/getting-started.md`
-- [ ] `docs/serial/cli-reference.md`
-- [ ] `docs/serial/mcp-reference.md`
+- [x] `docs/serial/cli.md` (CLI reference)
+- [x] `docs/serial/mcp.md` (MCP reference)
+- [x] `docs/serial/api.md` (WebSocket API reference)
 - [ ] `docs/serial/migration.md` (from current web app)
 - [ ] `docs/techbook/getting-started.md`
-- [ ] `docs/techbook/cli-reference.md`
-- [ ] `docs/techbook/mcp-reference.md`
+- [x] `docs/techbook/cli.md` (CLI reference placeholder)
+- [x] `docs/techbook/mcp.md` (MCP reference placeholder)
 - [ ] `docs/techbook/literate-programming.md`
 
 ### 4.5 Testing

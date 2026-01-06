@@ -1,10 +1,10 @@
-# WebSocket API Reference
+# Serial WebSocket API Reference
 
-Spine provides a WebSocket API for programmatic access to all features. This enables integration with CLI tools, MCP servers, and custom applications.
+The Serial domain provides a WebSocket API for programmatic access to all web serial authoring features. This enables integration with CLI tools, MCP servers, and custom applications.
 
 ## Connection
 
-Connect to the Spine server via WebSocket:
+Connect to the Serial server via WebSocket:
 
 ```
 ws://localhost:8080
