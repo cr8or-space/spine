@@ -74,7 +74,7 @@ Provide feedback in this structure:
 ### Critical (must fix before commit)
 - [Issue description and suggested fix]
 
-### Recommended (should fix)
+### Recommended (must fix before commit)
 - [Issue description and suggested fix]
 
 ### Minor (optional improvements)
