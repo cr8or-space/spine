@@ -24,7 +24,8 @@
     "@repo/framework-types": "workspace:*",
     "drizzle-orm": "^0.45.0",
     "libsql": "^0.5.22",
-    "nanoid": "^5.0.9"
+    "nanoid": "^5.0.9",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

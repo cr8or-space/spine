@@ -36,14 +36,14 @@ Defines the core abstractions that domains implement:
 
 ### core
 
-Provides implementations of framework abstractions (planned):
+Provides implementations of framework abstractions:
 
 | Module | Purpose |
 |--------|---------|
-| `storage/` | SQLite schema, migrations, repository base classes |
-| `entity/` | Entity registry, relationship graph, lifecycle tracking |
-| `content/` | Content storage, version tracking, reference indexing |
-| `validation/` | Pipeline orchestration, phase management, result aggregation |
+| `storage/` | SQLite schema, migrations, database connection, repository base classes |
+| `entity/` | Entity registry, entity repository, relationship graph, lifecycle tracking |
+| `content/` | Content repository, version tracking, reference extraction and indexing |
+| `validation/` | Pipeline orchestration, validator registry, result storage and aggregation |
 | `spine/` | Linear and tree spine implementations, checkpoint management |
 
 ### llm

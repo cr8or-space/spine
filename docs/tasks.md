@@ -33,22 +33,22 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Zod schemas for all types
 
 ### 1.3 Framework Core
-- [ ] `storage/schema.ts` — Generic SQLite tables
-- [ ] `storage/migrations.ts` — Migration system
-- [ ] `storage/repository.ts` — Base repository class
-- [ ] `entity/registry.ts` — Entity type registration
-- [ ] `entity/repository.ts` — Entity CRUD operations
-- [ ] `entity/graph.ts` — Relationship graph
-- [ ] `entity/lifecycle.ts` — Lifecycle tracking
-- [ ] `content/repository.ts` — Content storage
-- [ ] `content/versions.ts` — Version tracking
-- [ ] `content/references.ts` — Reference extraction/indexing
-- [ ] `validation/pipeline.ts` — Orchestration
-- [ ] `validation/phases.ts` — Phase management
-- [ ] `validation/results.ts` — Result aggregation
-- [ ] `spine/linear.ts` — Linear spine implementation
-- [ ] `spine/tree.ts` — Tree spine implementation
-- [ ] `spine/checkpoints.ts` — Checkpoint management
+- [x] `storage/schema.ts` — Generic SQLite tables
+- [x] `storage/migrations.ts` — Migration system
+- [x] `storage/repository.ts` — Base repository class
+- [x] `storage/database.ts` — Database connection wrapper
+- [x] `entity/registry.ts` — Entity type registration
+- [x] `entity/repository.ts` — Entity CRUD operations
+- [x] `entity/graph.ts` — Relationship graph
+- [x] `entity/lifecycle.ts` — Lifecycle tracking
+- [x] `content/repository.ts` — Content storage
+- [x] `content/versions.ts` — Version tracking
+- [x] `content/references.ts` — Reference extraction/indexing
+- [x] `validation/pipeline.ts` — Orchestration
+- [x] `validation/results.ts` — Result aggregation (includes phase management)
+- [x] `spine/linear.ts` — Linear spine implementation
+- [x] `spine/tree.ts` — Tree spine implementation
+- [x] `spine/checkpoints.ts` — Checkpoint management
 
 ### 1.4 Framework Server
 - [ ] Domain handler registration system
