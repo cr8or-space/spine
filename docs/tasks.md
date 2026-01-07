@@ -169,10 +169,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `validation/compile.ts` — Compilation runner (31 unit tests)
 - [x] `validation/test.ts` — Test runner (38 unit tests)
 - [x] `validation/output.ts` — Fixture comparison (58 unit tests)
-- [ ] `weave/renderer.ts` — Content rendering
-- [ ] `weave/syntax.ts` — Syntax highlighting
-- [ ] `weave/diffs.ts` — Diff marking
-- [ ] `weave/crossrefs.ts` — Cross-reference generation
+- [x] `weave/renderer.ts` — Content rendering (27 unit tests)
+- [x] `weave/syntax.ts` — Syntax highlighting (45 unit tests)
+- [x] `weave/diffs.ts` — Diff marking (35 unit tests)
+- [x] `weave/crossrefs.ts` — Cross-reference generation (29 unit tests)
 
 ### 3.3 TechBook Validators
 - [ ] Compile validator
