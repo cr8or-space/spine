@@ -272,8 +272,8 @@ describe('PlotThreadService', () => {
       const thread = service.create(createTestThread({ name: 'Thread' }));
       const updated = service.addTouch(thread.id, {
         contentId: 'chapter-1',
-        type: 'advance',
-        summary: 'Plot advances',
+        type: 'development',
+        description: 'Plot advances',
       });
 
       expect(updated?.touches.length).toBe(1);
@@ -284,13 +284,13 @@ describe('PlotThreadService', () => {
       const thread = service.create(createTestThread({ name: 'Thread' }));
       service.addTouch(thread.id, {
         contentId: 'chapter-1',
-        type: 'setup',
-        summary: 'Introduce thread',
+        type: 'introduction',
+        description: 'Introduce thread',
       });
       const updated = service.addTouch(thread.id, {
         contentId: 'chapter-2',
-        type: 'advance',
-        summary: 'Plot advances',
+        type: 'development',
+        description: 'Plot advances',
       });
 
       expect(updated?.touches.length).toBe(2);
@@ -300,9 +300,9 @@ describe('PlotThreadService', () => {
       const thread = service.create(createTestThread({
         name: 'Thread',
         touches: [
-          { contentId: 'ch-1', type: 'setup', summary: 'S1' },
-          { contentId: 'ch-2', type: 'advance', summary: 'S2' },
-          { contentId: 'ch-3', type: 'payoff', summary: 'S3' },
+          { contentId: 'ch-1', type: 'introduction', description: 'S1' },
+          { contentId: 'ch-2', type: 'development', description: 'S2' },
+          { contentId: 'ch-3', type: 'resolution', description: 'S3' },
         ],
       }));
       const updated = service.removeTouch(thread.id, 1);

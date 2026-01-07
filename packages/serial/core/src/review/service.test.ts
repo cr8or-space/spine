@@ -162,9 +162,10 @@ describe('ReviewWorkflowService', () => {
   describe('addComment', () => {
     it('should add a comment to content', () => {
       const updated = reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'This needs more detail',
         type: 'suggestion',
+        resolved: false,
       });
 
       expect(updated).toBeDefined();
@@ -176,15 +177,17 @@ describe('ReviewWorkflowService', () => {
 
     it('should add comments to existing review', () => {
       reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'Comment 1',
         type: 'suggestion',
+        resolved: false,
       });
 
       const updated = reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 1,
+        location: { paragraphIndex: 1 },
         text: 'Comment 2',
         type: 'issue',
+        resolved: false,
       });
 
       expect(updated?.reviews.length).toBe(1);
@@ -193,9 +196,10 @@ describe('ReviewWorkflowService', () => {
 
     it('should return undefined for non-existent content', () => {
       const updated = reviewService.addComment(projectId, 'non-existent', {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'Comment',
         type: 'suggestion',
+        resolved: false,
       });
 
       expect(updated).toBeUndefined();
@@ -205,9 +209,10 @@ describe('ReviewWorkflowService', () => {
   describe('resolveComment', () => {
     it('should resolve a comment', () => {
       const withComment = reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'Issue',
         type: 'issue',
+        resolved: false,
       });
 
       const commentId = withComment!.reviews[0].comments[0].id;
@@ -377,9 +382,10 @@ describe('ReviewWorkflowService', () => {
 
       // Add an unresolved issue
       reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'Critical issue',
         type: 'issue',
+        resolved: false,
       });
 
       const result = reviewService.transitionStatus(projectId, contentId, 'approved');
@@ -393,9 +399,10 @@ describe('ReviewWorkflowService', () => {
 
       // Add and resolve an issue
       const withComment = reviewService.addComment(projectId, contentId, {
-        paragraphIndex: 0,
+        location: { paragraphIndex: 0 },
         text: 'Critical issue',
         type: 'issue',
+        resolved: false,
       });
       const commentId = withComment!.reviews[0].comments[0].id;
       reviewService.resolveComment(projectId, contentId, commentId);
@@ -416,9 +423,10 @@ describe('ReviewWorkflowService', () => {
         comments: [
           {
             id: 'test-comment',
-            paragraphIndex: 0,
+            location: { paragraphIndex: 0 },
             text: 'Good',
             type: 'praise',
+            resolved: false,
             createdAt: new Date().toISOString(),
           },
         ],

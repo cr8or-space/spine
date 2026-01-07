@@ -274,7 +274,7 @@ describe('LocationService', () => {
 
       const updated = service.addRelation(loc1.id, {
         targetId: loc2.id,
-        type: 'trade-route',
+        type: 'connected',
         description: 'Main trade route',
       });
 
@@ -288,17 +288,17 @@ describe('LocationService', () => {
 
       service.addRelation(loc1.id, {
         targetId: loc2.id,
-        type: 'trade-route',
+        type: 'connected',
         description: 'Original description',
       });
       const updated = service.addRelation(loc1.id, {
         targetId: loc2.id,
-        type: 'road',
+        type: 'adjacent',
         description: 'Updated description',
       });
 
       expect(updated?.relations.length).toBe(1);
-      expect(updated?.relations[0].type).toBe('road');
+      expect(updated?.relations[0].type).toBe('adjacent');
     });
 
     it('should remove a relation', () => {
@@ -307,7 +307,7 @@ describe('LocationService', () => {
 
       service.addRelation(loc1.id, {
         targetId: loc2.id,
-        type: 'trade-route',
+        type: 'connected',
         description: 'Main trade route',
       });
       const updated = service.removeRelation(loc1.id, loc2.id);
@@ -321,14 +321,14 @@ describe('LocationService', () => {
 
       service.addRelation(loc1.id, {
         targetId: loc2.id,
-        type: 'trade-route',
+        type: 'connected',
         description: 'Main trade route',
       });
 
       const related = service.getRelatedLocations(loc1.id);
       expect(related.length).toBe(1);
       expect(related[0].location.name).toBe('Town');
-      expect(related[0].relation.type).toBe('trade-route');
+      expect(related[0].relation.type).toBe('connected');
     });
   });
 
@@ -355,7 +355,7 @@ describe('LocationService', () => {
       const updated = service.addFeature(loc.id, {
         name: 'Great Hall',
         description: 'Updated description',
-        significance: 'plot-critical',
+        significance: 'plot-relevant',
       });
 
       expect(updated?.features.length).toBe(1);

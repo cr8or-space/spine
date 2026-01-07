@@ -343,25 +343,25 @@ describe('CharacterService', () => {
     it('should update character arc', () => {
       const char = service.create(createTestCharacter({ name: 'Hero' }));
       const updated = service.updateArc(char.id, {
-        type: 'growth',
-        startState: 'Naive farmboy',
-        targetState: 'Confident hero',
-        currentState: 'Learning',
+        type: 'positive-change',
+        startingPoint: 'Naive farmboy',
+        destination: 'Confident hero',
+        progress: 25,
         milestones: [],
       });
 
       expect(updated?.arc).toBeDefined();
-      expect(updated?.arc?.type).toBe('growth');
-      expect(updated?.arc?.startState).toBe('Naive farmboy');
+      expect(updated?.arc?.type).toBe('positive-change');
+      expect(updated?.arc?.startingPoint).toBe('Naive farmboy');
     });
 
     it('should clear character arc', () => {
       const char = service.create(createTestCharacter({ name: 'Hero' }));
       service.updateArc(char.id, {
-        type: 'growth',
-        startState: 'Start',
-        targetState: 'End',
-        currentState: 'Middle',
+        type: 'positive-change',
+        startingPoint: 'Start',
+        destination: 'End',
+        progress: 50,
         milestones: [],
       });
       const updated = service.updateArc(char.id, undefined);
@@ -375,7 +375,7 @@ describe('CharacterService', () => {
       const char = service.create(createTestCharacter({ name: 'Hero' }));
       const updated = service.addAppearance(char.id, {
         contentId: 'chapter-1',
-        role: 'featured',
+        type: 'scene',
       });
 
       expect(updated?.appearances.length).toBe(1);
@@ -385,7 +385,7 @@ describe('CharacterService', () => {
     it('should return undefined for non-existent character', () => {
       const result = service.addAppearance('non-existent', {
         contentId: 'chapter-1',
-        role: 'featured',
+        type: 'scene',
       });
       expect(result).toBeUndefined();
     });
