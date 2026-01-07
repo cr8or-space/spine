@@ -2,25 +2,136 @@ import { z } from 'zod';
 
 import { IdSchema, TimestampSchema } from '@repo/framework-types';
 
+import {
+  CharacterArcTypeSchema,
+  CharacterRoleSchema,
+  PlotThreadScopeSchema,
+  PlotThreadStatusSchema,
+  PlotThreadTypeSchema,
+  PromisePayoffSchema,
+  PromiseStatusSchema,
+  RelationshipTypeSchema,
+} from './shared';
+
+// Re-export for convenience (these are also exported from their canonical sources)
+export {
+  CharacterArcTypeSchema,
+  CharacterRoleSchema,
+  PlotThreadScopeSchema,
+  PlotThreadStatusSchema,
+  PromisePayoffSchema,
+  PromiseStatusSchema,
+  RelationshipTypeSchema,
+};
+
+// ============================================================================
+// Core Enums (defined early for reuse within this file)
+// ============================================================================
+
+/**
+ * Presence type for character appearances in content.
+ * - mention: Character is mentioned but not present
+ * - scene: Character appears in a scene
+ * - pov: Chapter/scene is from this character's point of view
+ */
+export const PresenceTypeSchema = z.enum(['mention', 'scene', 'pov']);
+export type PresenceType = z.infer<typeof PresenceTypeSchema>;
+
+/**
+ * Touch type for plot thread interactions.
+ * Tracks how a thread progresses through the narrative.
+ */
+export const ThreadTouchTypeSchema = z.enum([
+  'introduction',
+  'development',
+  'complication',
+  'climax',
+  'resolution',
+]);
+export type ThreadTouchType = z.infer<typeof ThreadTouchTypeSchema>;
+
+/**
+ * Continuity issue type - what kind of continuity problem was detected.
+ */
+export const ContinuityIssueTypeSchema = z.enum([
+  'character-inconsistency',
+  'location-error',
+  'timeline-conflict',
+  'fact-contradiction',
+  'world-rule-violation',
+  'character-voice',
+  'relationship-error',
+  'other',
+]);
+export type ContinuityIssueType = z.infer<typeof ContinuityIssueTypeSchema>;
+
+/**
+ * Continuity issue severity.
+ */
+export const ContinuityIssueSeveritySchema = z.enum([
+  'critical',
+  'major',
+  'minor',
+  'nitpick',
+]);
+export type ContinuityIssueSeverity = z.infer<typeof ContinuityIssueSeveritySchema>;
+
+/**
+ * Entity type that a continuity issue conflicts with.
+ */
+export const ConflictEntityTypeSchema = z.enum([
+  'character',
+  'location',
+  'world-rule',
+  'content',
+  'timeline-event',
+]);
+export type ConflictEntityType = z.infer<typeof ConflictEntityTypeSchema>;
+
+/**
+ * Hook type for analysis - includes 'none' for cases where no hook was detected.
+ * Based on HookTypeSchema from structure.ts but extended for analysis purposes.
+ */
+export const AnalysisHookTypeSchema = z.enum([
+  'revelation',
+  'decision',
+  'cliffhanger',
+  'emotional',
+  'question',
+  'twist',
+  'promise',
+  'none',
+]);
+export type AnalysisHookType = z.infer<typeof AnalysisHookTypeSchema>;
+
+/**
+ * Hook type for pattern analysis - excludes 'none' since patterns only track actual hooks.
+ */
+export const PatternHookTypeSchema = z.enum([
+  'revelation',
+  'decision',
+  'cliffhanger',
+  'emotional',
+  'question',
+  'twist',
+  'promise',
+]);
+export type PatternHookType = z.infer<typeof PatternHookTypeSchema>;
+
+// ============================================================================
+// Content Analysis Types
+// ============================================================================
+
 /**
  * Continuity issue detected in content
  */
 export const ContinuityIssueSchema = z.object({
   id: IdSchema,
   /** Type of continuity problem */
-  type: z.enum([
-    'character-inconsistency',
-    'location-error',
-    'timeline-conflict',
-    'fact-contradiction',
-    'world-rule-violation',
-    'character-voice',
-    'relationship-error',
-    'other',
-  ]),
+  type: ContinuityIssueTypeSchema,
   /** Severity of the issue */
-  severity: z.enum(['critical', 'major', 'minor', 'nitpick']),
-  description: z.string(),
+  severity: ContinuityIssueSeveritySchema,
+  description: z.string().min(1),
   /** Location in content where issue occurs */
   location: z.object({
     paragraphIndex: z.number().int().min(0).optional(),
@@ -29,7 +140,7 @@ export const ContinuityIssueSchema = z.object({
   }),
   /** Reference to conflicting bible entry or content */
   conflictsWith: z.object({
-    type: z.enum(['character', 'location', 'world-rule', 'content', 'timeline-event']),
+    type: ConflictEntityTypeSchema,
     id: IdSchema,
     detail: z.string().optional(),
   }),
@@ -89,7 +200,7 @@ export const ContentAnalysisSchema = z.object({
   characterAppearances: z.array(
     z.object({
       characterId: IdSchema,
-      type: z.enum(['mention', 'scene', 'pov']),
+      type: PresenceTypeSchema,
       dialogueLines: z.number().int().min(0).optional(),
     })
   ),
@@ -99,7 +210,7 @@ export const ContentAnalysisSchema = z.object({
   threadTouches: z.array(
     z.object({
       threadId: IdSchema,
-      type: z.enum(['introduction', 'development', 'complication', 'climax', 'resolution']),
+      type: ThreadTouchTypeSchema,
     })
   ),
   /** When this analysis was performed */
@@ -142,7 +253,7 @@ export const AggregatedAnalysisSchema = z.object({
     IdSchema,
     z.object({
       touches: z.number().int().min(0),
-      lastTouchType: z.enum(['introduction', 'development', 'complication', 'climax', 'resolution']),
+      lastTouchType: ThreadTouchTypeSchema,
     })
   ),
   calculatedAt: TimestampSchema,
@@ -157,15 +268,7 @@ export const HookPatternAnalysisSchema = z.object({
   recentHooks: z.array(
     z.object({
       contentId: IdSchema,
-      hookType: z.enum([
-        'revelation',
-        'decision',
-        'cliffhanger',
-        'emotional',
-        'question',
-        'twist',
-        'promise',
-      ]),
+      hookType: PatternHookTypeSchema,
       strength: z.number().min(0).max(100),
     })
   ),
@@ -262,12 +365,6 @@ export const TensionCurveDataSchema = z.object({
 export type TensionCurveData = z.infer<typeof TensionCurveDataSchema>;
 
 /**
- * Presence type for character appearances
- */
-export const PresenceTypeSchema = z.enum(['mention', 'scene', 'pov']);
-export type PresenceType = z.infer<typeof PresenceTypeSchema>;
-
-/**
  * Character appearance in a specific chapter/scene
  */
 export const CharacterAppearanceDataPointSchema = z.object({
@@ -297,16 +394,7 @@ export const RelationshipSnapshotSchema = z.object({
   /** Target character name (for display) */
   targetCharacterName: z.string(),
   /** Relationship type */
-  type: z.enum([
-    'family',
-    'friend',
-    'enemy',
-    'romantic',
-    'professional',
-    'rival',
-    'mentor',
-    'other',
-  ]),
+  type: RelationshipTypeSchema,
   /** Intensity at this point (-100 to 100) */
   intensity: z.number().min(-100).max(100),
   /** Chapter position where this was measured */
@@ -325,16 +413,7 @@ export const RelationshipEvolutionSchema = z.object({
   /** Target character name */
   targetCharacterName: z.string(),
   /** Relationship type */
-  type: z.enum([
-    'family',
-    'friend',
-    'enemy',
-    'romantic',
-    'professional',
-    'rival',
-    'mentor',
-    'other',
-  ]),
+  type: RelationshipTypeSchema,
   /** Snapshots over time */
   snapshots: z.array(RelationshipSnapshotSchema),
   /** Starting intensity */
@@ -368,15 +447,7 @@ export type ArcMilestoneProgress = z.infer<typeof ArcMilestoneProgressSchema>;
  */
 export const CharacterArcProgressSchema = z.object({
   /** Arc type */
-  arcType: z.enum([
-    'positive-change',
-    'negative-change',
-    'flat',
-    'corruption',
-    'redemption',
-    'coming-of-age',
-    'disillusionment',
-  ]),
+  arcType: CharacterArcTypeSchema,
   /** Starting point description */
   startingPoint: z.string(),
   /** Destination description */
@@ -401,7 +472,7 @@ export const CharacterTrackingDataSchema = z.object({
   /** Character name */
   characterName: z.string(),
   /** Character role */
-  role: z.enum(['protagonist', 'antagonist', 'major', 'supporting', 'minor']),
+  role: CharacterRoleSchema,
   /** Appearance data points */
   appearances: z.array(CharacterAppearanceDataPointSchema),
   /** Relationship evolution data */
@@ -456,18 +527,6 @@ export const CharacterPresenceHeatmapSchema = z.object({
 export type CharacterPresenceHeatmap = z.infer<typeof CharacterPresenceHeatmapSchema>;
 
 /**
- * Touch type for plot thread interactions
- */
-export const ThreadTouchTypeSchema = z.enum([
-  'introduction',
-  'development',
-  'complication',
-  'climax',
-  'resolution',
-]);
-export type ThreadTouchType = z.infer<typeof ThreadTouchTypeSchema>;
-
-/**
  * A single data point tracking thread status at a chapter position
  */
 export const ThreadStatusPointSchema = z.object({
@@ -497,9 +556,9 @@ export const PromiseTrackingSchema = z.object({
   /** Content ID where promise was made */
   madeAtContentId: IdSchema.optional(),
   /** Expected payoff timeframe */
-  expectedPayoff: z.enum(['immediate', 'short-term', 'medium-term', 'long-term', 'series-end']),
+  expectedPayoff: PromisePayoffSchema,
   /** Current status */
-  status: z.enum(['pending', 'fulfilled', 'subverted', 'abandoned']),
+  status: PromiseStatusSchema,
   /** Chapter position where fulfilled (if applicable) */
   fulfilledAtPosition: z.number().int().positive().optional(),
   /** Content ID where fulfilled (if applicable) */
@@ -531,20 +590,11 @@ export const PlotThreadTrackingDataSchema = z.object({
   /** Thread name */
   threadName: z.string(),
   /** Thread type */
-  threadType: z.enum([
-    'main-plot',
-    'subplot',
-    'mystery',
-    'romance',
-    'conflict',
-    'character-arc',
-    'worldbuilding',
-    'other',
-  ]),
+  threadType: PlotThreadTypeSchema,
   /** Thread scope */
-  scope: z.enum(['scene', 'chapter', 'arc', 'book', 'series']),
+  scope: PlotThreadScopeSchema,
   /** Current thread status */
-  status: z.enum(['planned', 'active', 'dormant', 'resolved', 'abandoned']),
+  status: PlotThreadStatusSchema,
   /** Thread priority (0-100) */
   priority: z.number().int().min(0).max(100),
   /** Introduction point if detected in content */
@@ -635,22 +685,13 @@ export type ThreadActivityHeatmap = z.infer<typeof ThreadActivityHeatmapSchema>;
  */
 export const HookDataPointSchema = z.object({
   /** Content ID */
-  contentId: z.string(),
+  contentId: IdSchema,
   /** Chapter title */
   title: z.string().optional(),
   /** Position in reading order (1-indexed) */
   position: z.number().int().positive(),
-  /** Hook type */
-  hookType: z.enum([
-    'revelation',
-    'decision',
-    'cliffhanger',
-    'emotional',
-    'question',
-    'twist',
-    'promise',
-    'none',
-  ]),
+  /** Hook type (includes 'none' for chapters without detected hooks) */
+  hookType: AnalysisHookTypeSchema,
   /** Hook strength (0-100) */
   strength: z.number().min(0).max(100),
 });

@@ -9,7 +9,14 @@
  */
 
 import { z } from 'zod';
+
 import { IdSchema } from '@repo/framework-types';
+
+import { ContentLocationSchema } from './shared';
+
+// Re-export for convenience
+export { ContentLocationSchema };
+export type { ContentLocation } from './shared';
 
 /**
  * Mystery depth layer classification
@@ -66,15 +73,16 @@ export type ResolutionType = z.infer<typeof ResolutionTypeSchema>;
  */
 export const MysteryClueSchema = z.object({
 	id: IdSchema,
-	description: z.string(),
+	description: z.string().min(1),
 	type: ClueTypeSchema,
-	revealedAt: z.object({
-		contentId: IdSchema,
-		chapterNumber: z.number().int().positive().optional(),
+	/** Where and when the clue was revealed */
+	revealedAt: ContentLocationSchema.extend({
 		position: z.number().int().positive(),
 	}),
-	importance: z.number().min(0).max(100), // How critical to resolution
-	fulfilled: z.boolean().default(false), // Whether clue was resolved
+	/** How critical to resolution (0-100) */
+	importance: z.number().min(0).max(100),
+	/** Whether clue was resolved */
+	fulfilled: z.boolean().default(false),
 });
 
 export type MysteryClue = z.infer<typeof MysteryClueSchema>;
@@ -84,14 +92,15 @@ export type MysteryClue = z.infer<typeof MysteryClueSchema>;
  */
 export const MysteryResolutionSchema = z.object({
 	id: IdSchema,
-	resolvedAt: z.object({
-		contentId: IdSchema,
-		chapterNumber: z.number().int().positive().optional(),
+	/** Where and when the resolution occurred */
+	resolvedAt: ContentLocationSchema.extend({
 		position: z.number().int().positive(),
 	}),
 	type: ResolutionTypeSchema,
-	satisfying: z.boolean(), // Whether resolution felt earned
-	cluesResolved: z.array(IdSchema), // Which clues this resolution addressed
+	/** Whether resolution felt earned */
+	satisfying: z.boolean(),
+	/** Which clues this resolution addressed */
+	cluesResolved: z.array(IdSchema),
 });
 
 export type MysteryResolution = z.infer<typeof MysteryResolutionSchema>;
@@ -106,29 +115,20 @@ export const MysteryTrackingDataSchema = z.object({
 	status: MysteryStatusSchema,
 
 	// Lifecycle tracking
-	planted: z
-		.object({
-			position: z.number().int().positive(),
-			contentId: IdSchema,
-			chapterNumber: z.number().int().positive().optional(),
-		})
-		.optional(),
+	/** When and where the mystery was planted */
+	planted: ContentLocationSchema.extend({
+		position: z.number().int().positive(),
+	}).optional(),
 
-	climax: z
-		.object({
-			position: z.number().int().positive(),
-			contentId: IdSchema,
-			chapterNumber: z.number().int().positive().optional(),
-		})
-		.optional(),
+	/** When and where the climactic revelation occurred */
+	climax: ContentLocationSchema.extend({
+		position: z.number().int().positive(),
+	}).optional(),
 
-	resolution: z
-		.object({
-			position: z.number().int().positive(),
-			contentId: IdSchema,
-			chapterNumber: z.number().int().positive().optional(),
-		})
-		.optional(),
+	/** When and where the mystery was resolved */
+	resolution: ContentLocationSchema.extend({
+		position: z.number().int().positive(),
+	}).optional(),
 
 	// Clue tracking
 	clues: z.array(MysteryClueSchema),

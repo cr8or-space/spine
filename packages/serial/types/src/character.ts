@@ -2,13 +2,46 @@ import { z } from 'zod';
 
 import { IdSchema, SpinePositionSchema, TimestampSchema } from '@repo/framework-types';
 
+import {
+  CharacterArcTypeSchema,
+  CharacterRoleSchema,
+  RelationshipTypeSchema,
+} from './shared';
+
+// Re-export for convenience
+export { CharacterArcTypeSchema, CharacterRoleSchema, RelationshipTypeSchema };
+export type { CharacterArcType, CharacterRole, RelationshipType } from './shared';
+
+/**
+ * Character trait category
+ */
+export const TraitCategorySchema = z.enum([
+  'personality',
+  'physical',
+  'skill',
+  'background',
+  'quirk',
+]);
+export type TraitCategory = z.infer<typeof TraitCategorySchema>;
+
+/**
+ * Character status in the story
+ */
+export const CharacterStatusSchema = z.enum([
+  'active',
+  'deceased',
+  'absent',
+  'unknown',
+]);
+export type CharacterStatus = z.infer<typeof CharacterStatusSchema>;
+
 /**
  * Character trait with category
  */
 export const TraitSchema = z.object({
-  category: z.enum(['personality', 'physical', 'skill', 'background', 'quirk']),
+  category: TraitCategorySchema,
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().min(1),
 });
 export type Trait = z.infer<typeof TraitSchema>;
 
@@ -17,17 +50,8 @@ export type Trait = z.infer<typeof TraitSchema>;
  */
 export const RelationshipSchema = z.object({
   targetId: IdSchema,
-  type: z.enum([
-    'family',
-    'friend',
-    'enemy',
-    'romantic',
-    'professional',
-    'rival',
-    'mentor',
-    'other',
-  ]),
-  description: z.string(),
+  type: RelationshipTypeSchema,
+  description: z.string().min(1),
   /** Relationship strength from -100 (hostile) to 100 (devoted) */
   intensity: z.number().min(-100).max(100),
   /** Whether this relationship is mutual or one-sided */
@@ -39,15 +63,7 @@ export type Relationship = z.infer<typeof RelationshipSchema>;
  * Character arc status and progression
  */
 export const CharacterArcSchema = z.object({
-  type: z.enum([
-    'positive-change',
-    'negative-change',
-    'flat',
-    'corruption',
-    'redemption',
-    'coming-of-age',
-    'disillusionment',
-  ]),
+  type: CharacterArcTypeSchema,
   /** Where the character starts emotionally/morally */
   startingPoint: z.string(),
   /** Where the character is meant to end */
@@ -107,9 +123,9 @@ export const CharacterSchema = z.object({
   /** Links to content where character appears */
   appearances: z.array(AppearanceRefSchema),
   /** Whether this is a major or minor character */
-  role: z.enum(['protagonist', 'antagonist', 'major', 'supporting', 'minor']),
+  role: CharacterRoleSchema,
   /** Whether character is currently active in the story */
-  status: z.enum(['active', 'deceased', 'absent', 'unknown']),
+  status: CharacterStatusSchema,
   createdAt: TimestampSchema,
   updatedAt: TimestampSchema,
 });

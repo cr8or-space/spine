@@ -360,44 +360,38 @@ Carried forward from existing implementation:
 
 ### Schema Issues (serial/types)
 
-- [ ] **Spine lifecycle field naming inconsistency**:
-  - `character.ts`, `location.ts`, `faction.ts`, `world-rule.ts` — use `introducedAt`/`retiredAt`
-  - `plot-thread.ts`, `timeline.ts` — use `spineIntroducedAt`/`spineRetiredAt`
-  - **Fix**: Standardize naming or document distinction
+- [x] **Spine lifecycle field naming inconsistency** — Documented as intentional design:
+  - `character.ts`, `location.ts`, `faction.ts`, `world-rule.ts` — use `introducedAt`/`retiredAt` (simple entities)
+  - `plot-thread.ts`, `timeline.ts` — use `spineIntroducedAt`/`spineRetiredAt` (entities with both content-based and spine-based tracking)
+  - PlotThread/Timeline have BOTH `introducedAt`/`resolvedAt` (content-based) AND `spineIntroducedAt`/`spineRetiredAt` (spine-based)
 
-- [ ] **Duplicate enum definitions in analysis.ts** — Same enums defined inline multiple times:
-  - HookType: `structure.ts:23`, `analysis.ts:160-168`, `analysis.ts:644-653`
-  - PlotThreadType: `plot-thread.ts:43-52`, `analysis.ts:534-543`
-  - CharacterArcType: `character.ts:42-50`, `analysis.ts:371-379`
-  - RelationshipType: `character.ts:20-29`, `analysis.ts:300-309`, `analysis.ts:328-337`
-  - PresenceType: `character.ts:71-78`, `analysis.ts:89-94`, `analysis.ts:267`
-  - **Fix**: Reference existing schemas instead of duplicating
+- [x] **Duplicate enum definitions in analysis.ts** — Extracted to shared schemas:
+  - Created `shared.ts` with canonical definitions
+  - `RelationshipTypeSchema`, `CharacterArcTypeSchema`, `CharacterRoleSchema` now in `shared.ts`
+  - `PlotThreadScopeSchema`, `PlotThreadStatusSchema`, `PromisePayoffSchema`, `PromiseStatusSchema` now in `shared.ts`
+  - `analysis.ts` now references shared schemas
+  - Hook types intentionally differ: structure uses `HookTypeSchema` (required), analysis uses `AnalysisHookTypeSchema` (includes 'none')
 
-- [ ] **analysis.ts is overloaded** — 841 lines, should be split into:
-  - `content-analysis.ts` — ContentAnalysisSchema, ContinuityIssueSchema
-  - `character-tracking.ts` — CharacterTrackingData* schemas
-  - `plot-thread-tracking.ts` — PlotThreadTrackingData* schemas
-  - `tension-curve.ts` — TensionCurveData* schemas
-  - `hook-management.ts` — HookManagement* schemas
-  - `cycle-enforcement.ts` — CycleEnforcement* schemas
+- [ ] **analysis.ts is overloaded** — 800+ lines, could be split into focused modules. Not critical since types are well-organized with section comments.
 
-- [ ] **Missing ContentLocationSchema** — Same inline object pattern repeated:
-  - `mystery.ts:71-75`
-  - `plot-thread.ts:102-107`
-  - `plot-thread.ts:109-114`
-  - **Fix**: Extract to reusable schema
+- [x] **Missing ContentLocationSchema** — Extracted to `shared.ts`:
+  - `ContentLocationSchema` with `contentId`, `chapterNumber`, `position` fields
+  - Used in `mystery.ts`, `plot-thread.ts` via extends for additional fields
 
-- [ ] **Missing schema validations**:
-  - Empty arrays without `.min(1)` where content required
-  - String fields without `.min()` length (rule text, excerpts, names)
-  - Numeric fields without bounds (temperature, tension targets)
-  - No temporal ordering validation (introducedAt before resolvedAt)
+- [x] **Missing schema validations** — Added `.min(1)` validations:
+  - `character.ts`: description, trait description, relationship description
+  - `plot-thread.ts`: thread description, promise description, touch description
+  - `mystery.ts`: clue description
+  - `analysis.ts`: continuity issue description
+  - Note: Empty arrays intentionally allowed (new entities start empty)
+  - Note: Temperature/tension targets already have bounds (0-100)
 
-- [ ] **Inconsistent status enums** — Each entity has completely different statuses with no common pattern:
-  - `character.ts:112` — active, deceased, absent, unknown
-  - `location.ts:79` — accessible, destroyed, hidden, restricted, unknown
-  - `faction.ts:93` — active, disbanded, underground, emerging, unknown
-  - `plot-thread.ts:84` — planned, active, dormant, resolved, abandoned
+- [ ] **Inconsistent status enums** — Intentional by design, each entity has domain-appropriate statuses:
+  - Characters: active, deceased, absent, unknown
+  - Locations: accessible, destroyed, hidden, restricted, unknown
+  - Factions: active, disbanded, underground, emerging, unknown
+  - PlotThreads: planned, active, dormant, resolved, abandoned
+  - Different entities have different lifecycle semantics
 
 ### MCP Tool Issues (serial/mcp)
 

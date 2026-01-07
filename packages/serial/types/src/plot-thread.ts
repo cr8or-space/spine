@@ -2,27 +2,58 @@ import { z } from 'zod';
 
 import { IdSchema, SpinePositionSchema, TimestampSchema } from '@repo/framework-types';
 
+import {
+  ContentLocationSchema,
+  PlotThreadScopeSchema,
+  PlotThreadStatusSchema,
+  PlotThreadTypeSchema,
+  PromisePayoffSchema,
+  PromiseStatusSchema,
+} from './shared';
+
+// Re-export for convenience
+export {
+  ContentLocationSchema,
+  PlotThreadScopeSchema,
+  PlotThreadStatusSchema,
+  PlotThreadTypeSchema,
+  PromisePayoffSchema,
+  PromiseStatusSchema,
+};
+export type {
+  ContentLocation,
+  PlotThreadScope,
+  PlotThreadStatus,
+  PlotThreadType,
+  PromisePayoff,
+  PromiseStatus,
+} from './shared';
+
+/**
+ * Thread touch type - how a thread is interacted with at a content point.
+ */
+export const ThreadTouchTypeSchema = z.enum([
+  'introduction',
+  'development',
+  'complication',
+  'climax',
+  'resolution',
+]);
+export type ThreadTouchType = z.infer<typeof ThreadTouchTypeSchema>;
+
 /**
  * A promise made to the reader that requires payoff
  */
 export const NarrativePromiseSchema = z.object({
   id: IdSchema,
-  description: z.string(),
+  description: z.string().min(1),
   /** When the promise was made */
-  madeAt: z.object({
-    contentId: IdSchema,
-    chapterNumber: z.number().int().positive().optional(),
-  }),
+  madeAt: ContentLocationSchema,
   /** When/if the promise was fulfilled */
-  fulfilledAt: z
-    .object({
-      contentId: IdSchema,
-      chapterNumber: z.number().int().positive().optional(),
-    })
-    .optional(),
+  fulfilledAt: ContentLocationSchema.optional(),
   /** Expected timeframe for payoff */
-  expectedPayoff: z.enum(['immediate', 'short-term', 'medium-term', 'long-term', 'series-end']),
-  status: z.enum(['pending', 'fulfilled', 'subverted', 'abandoned']),
+  expectedPayoff: PromisePayoffSchema,
+  status: PromiseStatusSchema,
 });
 export type NarrativePromise = z.infer<typeof NarrativePromiseSchema>;
 
@@ -32,25 +63,10 @@ export type NarrativePromise = z.infer<typeof NarrativePromiseSchema>;
 export const ThreadTouchSchema = z.object({
   contentId: IdSchema,
   chapterNumber: z.number().int().positive().optional(),
-  type: z.enum(['introduction', 'development', 'complication', 'climax', 'resolution']),
-  description: z.string(),
+  type: ThreadTouchTypeSchema,
+  description: z.string().min(1),
 });
 export type ThreadTouch = z.infer<typeof ThreadTouchSchema>;
-
-/**
- * Plot thread type discriminator
- */
-export const PlotThreadTypeSchema = z.enum([
-  'main-plot',
-  'subplot',
-  'mystery',
-  'romance',
-  'conflict',
-  'character-arc',
-  'worldbuilding',
-  'other',
-]);
-export type PlotThreadType = z.infer<typeof PlotThreadTypeSchema>;
 
 /**
  * Plot thread entity in the story bible.
@@ -77,13 +93,13 @@ export const PlotThreadSchema = z.object({
 
   // PlotThread-specific fields
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().min(1),
   /** Type of plot thread */
   type: PlotThreadTypeSchema,
   /** Current status */
-  status: z.enum(['planned', 'active', 'dormant', 'resolved', 'abandoned']),
+  status: PlotThreadStatusSchema,
   /** Expected scope */
-  scope: z.enum(['scene', 'chapter', 'arc', 'book', 'series']),
+  scope: PlotThreadScopeSchema,
   /** Priority for inclusion in context (higher = more important) */
   priority: z.number().int().min(0).max(100),
   /** Characters involved in this thread */
@@ -99,19 +115,9 @@ export const PlotThreadSchema = z.object({
   /** Child threads */
   childThreads: z.array(IdSchema),
   /** When this thread was introduced (content-based tracking) */
-  introducedAt: z
-    .object({
-      contentId: IdSchema,
-      chapterNumber: z.number().int().positive().optional(),
-    })
-    .optional(),
+  introducedAt: ContentLocationSchema.optional(),
   /** When this thread was resolved (content-based tracking) */
-  resolvedAt: z
-    .object({
-      contentId: IdSchema,
-      chapterNumber: z.number().int().positive().optional(),
-    })
-    .optional(),
+  resolvedAt: ContentLocationSchema.optional(),
   createdAt: TimestampSchema,
   updatedAt: TimestampSchema,
 });

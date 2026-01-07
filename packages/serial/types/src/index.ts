@@ -37,15 +37,41 @@ export {
   type ValidatorRegistry,
 } from '@repo/framework-types';
 
+// Shared types (reusable schemas extracted from multiple files)
+export {
+  ContentLocationSchema,
+  RelationshipTypeSchema,
+  CharacterArcTypeSchema,
+  CharacterRoleSchema,
+  PlotThreadTypeSchema,
+  PlotThreadScopeSchema,
+  PlotThreadStatusSchema,
+  PromisePayoffSchema,
+  PromiseStatusSchema,
+  type ContentLocation,
+  type RelationshipType,
+  type CharacterArcType,
+  type CharacterRole,
+  type PlotThreadType,
+  type PlotThreadScope,
+  type PlotThreadStatus,
+  type PromisePayoff,
+  type PromiseStatus,
+} from './shared';
+
 // Character types
 export {
+  TraitCategorySchema,
   TraitSchema,
+  CharacterStatusSchema,
   RelationshipSchema,
   CharacterArcSchema,
   AppearanceRefSchema,
   CharacterSchema,
   CharacterSummarySchema,
+  type TraitCategory,
   type Trait,
+  type CharacterStatus,
   type Relationship,
   type CharacterArc,
   type AppearanceRef,
@@ -97,14 +123,14 @@ export {
 
 // Plot thread types
 export {
+  ThreadTouchTypeSchema,
   NarrativePromiseSchema,
   ThreadTouchSchema,
-  PlotThreadTypeSchema,
   PlotThreadSchema,
   PlotThreadSummarySchema,
+  type ThreadTouchType,
   type NarrativePromise,
   type ThreadTouch,
-  type PlotThreadType,
   type PlotThread,
   type PlotThreadSummary,
 } from './plot-thread';
@@ -155,15 +181,24 @@ export {
 
 // Analysis types
 export {
+  // Core enums
+  PresenceTypeSchema,
+  ContinuityIssueTypeSchema,
+  ContinuityIssueSeveritySchema,
+  ConflictEntityTypeSchema,
+  AnalysisHookTypeSchema,
+  PatternHookTypeSchema,
+  // Content analysis
   ContinuityIssueSchema,
   ExplainedScoreSchema,
   ContentAnalysisSchema,
   AggregatedAnalysisSchema,
   HookPatternAnalysisSchema,
+  // Tension curve
   TensionCurveDataPointSchema,
   TensionCurveMetadataSchema,
   TensionCurveDataSchema,
-  PresenceTypeSchema,
+  // Character tracking
   CharacterAppearanceDataPointSchema,
   RelationshipSnapshotSchema,
   RelationshipEvolutionSchema,
@@ -171,12 +206,19 @@ export {
   CharacterArcProgressSchema,
   CharacterTrackingDataSchema,
   CharacterPresenceHeatmapSchema,
-  ThreadTouchTypeSchema,
+  // Plot thread tracking
   ThreadStatusPointSchema,
   PromiseTrackingSchema,
   DormantPeriodSchema,
   PlotThreadTrackingDataSchema,
   ThreadActivityHeatmapSchema,
+  // Types
+  type PresenceType,
+  type ContinuityIssueType,
+  type ContinuityIssueSeverity,
+  type ConflictEntityType,
+  type AnalysisHookType,
+  type PatternHookType,
   type ContinuityIssue,
   type ExplainedScore,
   type ContentAnalysis,
@@ -185,7 +227,6 @@ export {
   type TensionCurveDataPoint,
   type TensionCurveMetadata,
   type TensionCurveData,
-  type PresenceType,
   type CharacterAppearanceDataPoint,
   type RelationshipSnapshot,
   type RelationshipEvolution,
@@ -193,7 +234,6 @@ export {
   type CharacterArcProgress,
   type CharacterTrackingData,
   type CharacterPresenceHeatmap,
-  type ThreadTouchType,
   type ThreadStatusPoint,
   type PromiseTracking,
   type DormantPeriod,
