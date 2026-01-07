@@ -6,3 +6,6 @@
 
 // Re-export concepts module
 export * from './concepts';
+
+// Re-export snippets module
+export * from './snippets';

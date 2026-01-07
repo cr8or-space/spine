@@ -157,9 +157,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `concepts/registry.ts` — Concept CRUD (93 unit tests)
 - [x] `concepts/dependencies.ts` — Dependency graph
 - [x] `concepts/symbols.ts` — Symbol-to-concept linking
-- [ ] `snippets/repository.ts` — Snippet storage
-- [ ] `snippets/parts.ts` — Named part management
-- [ ] `snippets/operations.ts` — Operation application
+- [x] `snippets/repository.ts` — Snippet storage (28 unit tests)
+- [x] `snippets/parts.ts` — Named part management (35 unit tests)
+- [x] `snippets/operations.ts` — Operation application (25 unit tests)
 - [ ] `tangle/assembler.ts` — File assembly
 - [ ] `tangle/incremental.ts` — Change tracking
 - [ ] `tangle/output.ts` — File writing
@@ -516,6 +516,14 @@ Carried forward from existing implementation:
 
 - [ ] Console logging in production code — `console.error` in `extraction/service.ts:131`, `console.warn` in `analysis/service.ts:41,48`. Consider proper logging abstraction or removal.
 - [ ] Empty model string in extraction service — `extraction/service.ts:189` passes `model: ''` with comment. Use `client.getConfig().defaultModel` explicitly.
+
+### Implementation Simplifications (techbook/core)
+
+- [ ] **Simple content hash** — `snippets/operations.ts:32-42` uses a basic djb2-style hash that could have collisions. Replace with a proper hash function (crypto.subtle or similar) if collision detection becomes important.
+
+- [ ] **Naive line diff algorithm** — `snippets/operations.ts:276-304` uses line-by-line comparison rather than a proper diff algorithm (Myers, patience, etc.). Works for basic cases but won't produce optimal diffs for reordered or moved lines.
+
+- [ ] **Simple part assembly** — `snippets/parts.ts:321-333` uses basic concatenation of parts. A more sophisticated approach would use markers or insertion points in the source content to control where parts are inserted.
 
 ## Future Considerations
 
