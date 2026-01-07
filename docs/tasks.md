@@ -163,9 +163,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `tangle/assembler.ts` — File assembly (30 unit tests)
 - [x] `tangle/incremental.ts` — Change tracking (24 unit tests)
 - [x] `tangle/output.ts` — File writing (21 unit tests)
-- [ ] `checkpoints/manager.ts` — Checkpoint CRUD
-- [ ] `checkpoints/snapshots.ts` — Snapshot creation
-- [ ] `checkpoints/immutability.ts` — Release locking
+- [x] `checkpoints/manager.ts` — Checkpoint CRUD (50 unit tests)
+- [x] `checkpoints/snapshots.ts` — Snapshot creation (35 unit tests)
+- [x] `checkpoints/immutability.ts` — Release locking (38 unit tests)
 - [ ] `validation/compile.ts` — Compilation runner
 - [ ] `validation/test.ts` — Test runner
 - [ ] `validation/output.ts` — Fixture comparison

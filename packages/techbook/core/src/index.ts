@@ -12,3 +12,6 @@ export * from './snippets';
 
 // Re-export tangle module
 export * from './tangle';
+
+// Re-export checkpoints module
+export * from './checkpoints';
