@@ -143,15 +143,15 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 ## Phase 3: TechBook Domain
 
 ### 3.1 TechBook Types
-- [ ] `Concept` type (Term, Type, Algorithm, Pattern)
-- [ ] `ConceptDependency` type
-- [ ] `Snippet` type with metadata
-- [ ] `SnippetOperation` enum (introduce, replace, append, prepend, delete)
-- [ ] `FilePart` type for named code sections
-- [ ] `Checkpoint` type
-- [ ] `ExpectedOutput` type for fixtures
-- [ ] `TangledFile` type
-- [ ] Zod schemas for all types
+- [x] `Concept` type (Term, Type, Algorithm, Pattern, Principle)
+- [x] `ConceptDependency` type
+- [x] `Snippet` type with metadata
+- [x] `SnippetOperation` enum (introduce, replace, append, prepend, delete)
+- [x] `FilePart` type for named code sections
+- [x] `Checkpoint` type
+- [x] `ExpectedOutput` type for fixtures
+- [x] `TangledFile` type
+- [x] Zod schemas for all types (89 unit tests)
 
 ### 3.2 TechBook Core
 - [ ] `concepts/registry.ts` — Concept CRUD
