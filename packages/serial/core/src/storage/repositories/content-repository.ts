@@ -12,6 +12,7 @@ import type { Content, ContentAnalysis, ContentStatus, ContentVersion, Generatio
 
 import type { DrizzleDB } from '../database';
 import { contents, contentVersions } from '../drizzle-schema';
+import { appendToArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 import { countWords, formatFts5PrefixQuery } from '../../utils/text';
 
@@ -510,16 +511,24 @@ export function createContentRepository(db: Database.Database, drizzleDb: Drizzl
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const reviews = [...existing.reviews, review];
-      return this.update(projectId, id, { reviews });
+      return appendToArray({
+        entity: existing,
+        field: 'reviews',
+        item: review,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addGenerationRecord(projectId: string, id: string, record: GenerationRecord): Content | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const generationHistory = [...existing.generationHistory, record];
-      return this.update(projectId, id, { generationHistory });
+      return appendToArray({
+        entity: existing,
+        field: 'generationHistory',
+        item: record,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
   };
 }

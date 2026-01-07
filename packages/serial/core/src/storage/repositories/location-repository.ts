@@ -12,6 +12,7 @@ import type { Location, LocationFeature, LocationRelation } from '@repo/serial-t
 
 import type { DrizzleDB } from '../database';
 import { locations } from '../drizzle-schema';
+import { addIfNotPresent, appendToArray, upsertInArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 import { formatFts5PrefixQuery } from '../../utils/text';
 
@@ -244,26 +245,37 @@ export function createLocationRepository(db: Database.Database, drizzleDb: Drizz
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const relations = [...existing.relations.filter((r) => r.targetId !== relation.targetId), relation];
-      return this.update(projectId, id, { relations });
+      return upsertInArray({
+        entity: existing,
+        field: 'relations',
+        item: relation,
+        getKey: (r) => r.targetId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addFeature(projectId: string, id: string, feature: LocationFeature): Location | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const features = [...existing.features, feature];
-      return this.update(projectId, id, { features });
+      return appendToArray({
+        entity: existing,
+        field: 'features',
+        item: feature,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     associateCharacter(projectId: string, id: string, characterId: string): Location | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      if (existing.associatedCharacters.includes(characterId)) return existing;
-
-      const associatedCharacters = [...existing.associatedCharacters, characterId];
-      return this.update(projectId, id, { associatedCharacters });
+      return addIfNotPresent({
+        entity: existing,
+        field: 'associatedCharacters',
+        item: characterId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
   };
 }

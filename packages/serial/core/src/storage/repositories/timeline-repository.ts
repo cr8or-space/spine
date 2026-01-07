@@ -11,6 +11,7 @@ import type { CausalLink, TimelineEvent, TimelinePosition, TimelineSpan } from '
 
 import type { DrizzleDB } from '../database';
 import { timelineEvents, timelineSpans } from '../drizzle-schema';
+import { addIfNotPresent, removePrimitive, upsertInArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 // ============================================================================
@@ -206,18 +207,25 @@ export function createTimelineEventRepository(_db: Database.Database, drizzleDb:
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const causes = [...existing.causes.filter((c) => c.causeEventId !== cause.causeEventId), cause];
-      return this.update(projectId, id, { causes });
+      return upsertInArray({
+        entity: existing,
+        field: 'causes',
+        item: cause,
+        getKey: (c) => c.causeEventId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addEffect(projectId: string, id: string, effectId: string): TimelineEvent | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      if (existing.effects.includes(effectId)) return existing;
-
-      const effects = [...existing.effects, effectId];
-      return this.update(projectId, id, { effects });
+      return addIfNotPresent({
+        entity: existing,
+        field: 'effects',
+        item: effectId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     markRevealed(projectId: string, id: string, contentId: string): TimelineEvent | undefined {
@@ -346,18 +354,24 @@ export function createTimelineSpanRepository(_db: Database.Database, drizzleDb: 
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      if (existing.events.includes(eventId)) return existing;
-
-      const events = [...existing.events, eventId];
-      return this.update(projectId, id, { events });
+      return addIfNotPresent({
+        entity: existing,
+        field: 'events',
+        item: eventId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     removeEvent(projectId: string, id: string, eventId: string): TimelineSpan | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const events = existing.events.filter((e) => e !== eventId);
-      return this.update(projectId, id, { events });
+      return removePrimitive({
+        entity: existing,
+        field: 'events',
+        item: eventId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
   };
 }

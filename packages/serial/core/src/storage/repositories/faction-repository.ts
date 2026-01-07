@@ -11,6 +11,7 @@ import type { Faction, FactionMember, FactionRank, FactionRelation } from '@repo
 
 import type { DrizzleDB } from '../database';
 import { factions } from '../drizzle-schema';
+import { removeFromArray, upsertInArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
@@ -184,24 +185,39 @@ export function createFactionRepository(_db: Database.Database, drizzleDb: Drizz
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const members = [...existing.members.filter((m) => m.characterId !== member.characterId), member];
-      return this.update(projectId, id, { members });
+      return upsertInArray({
+        entity: existing,
+        field: 'members',
+        item: member,
+        getKey: (m) => m.characterId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     removeMember(projectId: string, id: string, characterId: string): Faction | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const members = existing.members.filter((m) => m.characterId !== characterId);
-      return this.update(projectId, id, { members });
+      return removeFromArray({
+        entity: existing,
+        field: 'members',
+        getKey: (m) => m.characterId,
+        keyToRemove: characterId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addRelation(projectId: string, id: string, relation: FactionRelation): Faction | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const relations = [...existing.relations.filter((r) => r.targetId !== relation.targetId), relation];
-      return this.update(projectId, id, { relations });
+      return upsertInArray({
+        entity: existing,
+        field: 'relations',
+        item: relation,
+        getKey: (r) => r.targetId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
   };
 }

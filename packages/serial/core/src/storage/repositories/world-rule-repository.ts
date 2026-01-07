@@ -11,6 +11,7 @@ import type { RuleException, WorldRule } from '@repo/serial-types';
 
 import type { DrizzleDB } from '../database';
 import { worldRules } from '../drizzle-schema';
+import { addIfNotPresent, appendToArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
@@ -190,18 +191,24 @@ export function createWorldRuleRepository(_db: Database.Database, drizzleDb: Dri
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const exceptions = [...existing.exceptions, exception];
-      return this.update(projectId, id, { exceptions });
+      return appendToArray({
+        entity: existing,
+        field: 'exceptions',
+        item: exception,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addRelatedRule(projectId: string, id: string, relatedRuleId: string): WorldRule | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      if (existing.relatedRules.includes(relatedRuleId)) return existing;
-
-      const relatedRules = [...existing.relatedRules, relatedRuleId];
-      return this.update(projectId, id, { relatedRules });
+      return addIfNotPresent({
+        entity: existing,
+        field: 'relatedRules',
+        item: relatedRuleId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     markEstablished(projectId: string, id: string): WorldRule | undefined {

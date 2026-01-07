@@ -12,6 +12,7 @@ import type { AppearanceRef, Character, CharacterArc, Relationship, Trait } from
 
 import type { DrizzleDB } from '../database';
 import { characters } from '../drizzle-schema';
+import { appendToArray, removeFromArray, upsertInArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 import { formatFts5PrefixQuery } from '../../utils/text';
 
@@ -248,24 +249,38 @@ export function createCharacterRepository(db: Database.Database, drizzleDb: Driz
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const relationships = [...existing.relationships.filter((r) => r.targetId !== relationship.targetId), relationship];
-      return this.update(projectId, id, { relationships });
+      return upsertInArray({
+        entity: existing,
+        field: 'relationships',
+        item: relationship,
+        getKey: (r) => r.targetId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     removeRelationship(projectId: string, id: string, targetId: string): Character | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const relationships = existing.relationships.filter((r) => r.targetId !== targetId);
-      return this.update(projectId, id, { relationships });
+      return removeFromArray({
+        entity: existing,
+        field: 'relationships',
+        getKey: (r) => r.targetId,
+        keyToRemove: targetId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     addAppearance(projectId: string, id: string, appearance: AppearanceRef): Character | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const appearances = [...existing.appearances, appearance];
-      return this.update(projectId, id, { appearances });
+      return appendToArray({
+        entity: existing,
+        field: 'appearances',
+        item: appearance,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     updateArc(projectId: string, id: string, arc: CharacterArc | undefined): Character | undefined {

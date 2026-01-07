@@ -11,6 +11,7 @@ import type { NarrativePromise, PlotThread, ThreadTouch } from '@repo/serial-typ
 
 import type { DrizzleDB } from '../database';
 import { plotThreads } from '../drizzle-schema';
+import { appendToArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 interface ContentRef {
@@ -242,16 +243,24 @@ export function createPlotThreadRepository(_db: Database.Database, drizzleDb: Dr
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const touches = [...existing.touches, touch];
-      return this.update(projectId, id, { touches, status: 'active' });
+      return appendToArray({
+        entity: existing,
+        field: 'touches',
+        item: touch,
+        update: (data) => this.update(projectId, id, { ...data, status: 'active' }),
+      });
     },
 
     addPromise(projectId: string, id: string, promise: NarrativePromise): PlotThread | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const promises = [...existing.promises, promise];
-      return this.update(projectId, id, { promises });
+      return appendToArray({
+        entity: existing,
+        field: 'promises',
+        item: promise,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     fulfillPromise(projectId: string, id: string, promiseId: string, fulfilledAt: ContentRef): PlotThread | undefined {

@@ -11,6 +11,7 @@ import type { Beat, ChapterType, Hook, Structure, StructureType } from '@repo/se
 
 import type { DrizzleDB } from '../database';
 import { structures } from '../drizzle-schema';
+import { appendToArray, removeFromArray } from '../relation-helpers';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
 
 /**
@@ -234,16 +235,25 @@ export function createStructureRepository(db: Database.Database, drizzleDb: Driz
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const beats = [...existing.beats, beat];
-      return this.update(projectId, id, { beats });
+      return appendToArray({
+        entity: existing,
+        field: 'beats',
+        item: beat,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     removeBeat(projectId: string, id: string, beatId: string): Structure | undefined {
       const existing = this.findById(projectId, id);
       if (!existing) return undefined;
 
-      const beats = existing.beats.filter((b) => b.id !== beatId);
-      return this.update(projectId, id, { beats });
+      return removeFromArray({
+        entity: existing,
+        field: 'beats',
+        getKey: (b) => b.id,
+        keyToRemove: beatId,
+        update: (data) => this.update(projectId, id, data),
+      });
     },
 
     updateBeat(projectId: string, id: string, beatId: string, updates: Partial<Beat>): Structure | undefined {

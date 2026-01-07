@@ -369,8 +369,15 @@ Carried forward from existing implementation:
   - `storage/repositories/content-repository.ts:352-355`
   - **Fixed**: Extracted `formatFts5PrefixQuery()` to `utils/text.ts`
 
-- [ ] **Duplicate add-relation pattern** — Filter + update pattern repeated across entity repositories
-  - **Fix**: Extract to base repository or mixin
+- [x] **Duplicate add-relation pattern** — Filter + update pattern repeated across entity repositories
+  - **Fixed**: Extracted to `storage/relation-helpers.ts` with typed utility functions:
+    - `appendToArray()` — Simple append (e.g., addAppearance, addException)
+    - `upsertInArray()` — Replace existing if key matches (e.g., addRelationship)
+    - `addIfNotPresent()` — Idempotent add for primitives (e.g., associateCharacter)
+    - `addObjectIfNotPresent()` — Idempotent add for objects with keys
+    - `removeFromArray()` — Remove by key (e.g., removeRelationship)
+    - `removePrimitive()` — Remove primitive from array
+  - Updated 8 repository files to use helpers (20 unit tests)
 
 ### Error Handling Issues (serial/core)
 
