@@ -96,10 +96,10 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `review/workflow.ts` — Review status management (implemented as service.ts)
 - [x] `review/locks.ts` — Lock point management
 - [x] `review/cascade.ts` — Revision cascade (implemented in continuity/service.ts)
-- [ ] `serial/buffer.ts` — Release buffer
-- [ ] `serial/schedule.ts` — Release schedule
-- [ ] `serial/cycles.ts` — Tension cycles
-- [ ] `serial/mysteries.ts` — Mystery tracking
+- [x] `release/buffer.ts` — Release buffer (implemented in release/release-planning.ts)
+- [x] `release/schedule.ts` — Release schedule (implemented in release/release-planning.ts)
+- [x] `analysis/cycles.ts` — Tension cycles (implemented in analysis/cycle-enforcement.ts)
+- [x] `analysis/mysteries.ts` — Mystery tracking (implemented in analysis/mystery-tracking.ts)
 
 ### 2.3 Serial Validators
 - [ ] Continuity validator
@@ -247,7 +247,6 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `docs/serial/cli.md` (CLI reference)
 - [x] `docs/serial/mcp.md` (MCP reference)
 - [x] `docs/serial/api.md` (WebSocket API reference)
-- [ ] `docs/serial/migration.md` (from current web app)
 - [ ] `docs/techbook/getting-started.md`
 - [x] `docs/techbook/cli.md` (CLI reference placeholder)
 - [x] `docs/techbook/mcp.md` (MCP reference placeholder)
@@ -303,8 +302,223 @@ Carried forward from existing implementation:
 
 - [ ] Duplicate root structure created (by design — projects auto-create root)
 - [ ] No entity type for group consciousness (Characters like "The Collective" must use `supporting` role)
-- [ ] Generation services don't track token usage from LLM responses (pipeline.ts, draft.ts report 0 tokens)
-- [ ] Duplicated `formatContext` and `formatStructure` helpers across generation modules (outline.ts, beats.ts, draft.ts, pipeline.ts)
+
+### Type Safety Issues
+
+- [ ] **JSON fields parsed without Zod validation** — Repositories use `JSON.parse(row.someJson) as SomeType` throughout, risking runtime crashes if data is malformed. Affected files:
+  - `storage/repositories/character-repository.ts` (arc field)
+  - `storage/repositories/content-repository.ts` (analysis field)
+  - `storage/repositories/location-repository.ts` (features)
+  - `storage/repositories/plot-thread-repository.ts` (introducedAt, resolvedAt)
+  - `storage/repositories/project-repository.ts` (stats, settings, metadata)
+  - `storage/repositories/structure-repository.ts` (hook field)
+  - `storage/repositories/timeline-repository.ts` (end position)
+  - `extraction/repository.ts` (suggestedData, fieldUpdates, evidence)
+  - `error-handling/operation-journal.ts` (state fields)
+  - `error-handling/backup.ts` (record fields)
+  - `analysis/repository.ts` (analysis data)
+  - `bible/cross-reference-repository.ts` (entity refs)
+  - **Fix**: Use Zod `.safeParse()` on JSON fields and handle parse failures gracefully
+
+### Missing Test Coverage
+
+- [ ] `extraction/service.ts` — No unit tests for entity extraction service
+- [ ] `extraction/repository.ts` — No unit tests for suggestion persistence
+- [ ] `extraction/prompts.ts` — No unit tests for extraction prompt building
+- [ ] `error-handling/service.ts` — No unit tests for error handling coordinator
+- [ ] `error-handling/backup.ts` — No unit tests for backup creation/verification
+- [ ] `error-handling/integrity.ts` — No unit tests for integrity checking
+- [ ] `error-handling/operation-journal.ts` — No unit tests for operation journaling
+- [ ] `bible/cross-reference-repository.ts` — No unit tests for cross-reference queries
+- [ ] `bible/relationship-graph.ts` — No unit tests for relationship graph operations
+
+### Duplicate Code (serial/core)
+
+- [ ] **Duplicate `formatContext()` function** — Nearly identical implementations in 3 files with slight variations:
+  - `generation/outline.ts:128-175`
+  - `generation/beats.ts:155-186`
+  - `generation/draft.ts:173-219` (most detailed, includes voiceNotes/sensoryDetails)
+  - **Fix**: Extract to shared module in `generation/utils.ts`
+
+- [ ] **Duplicate `formatStructure()` function** — Nearly identical in 3 files:
+  - `generation/outline.ts:180-199`
+  - `generation/beats.ts:191-207`
+  - `generation/draft.ts:224-243`
+  - **Fix**: Extract to shared module
+
+- [ ] **Duplicate `countWords()` function** — Identical implementation in 4 files:
+  - `generation/draft.ts:248-250`
+  - `generation/pipeline.ts:678-680`
+  - `analysis/service.ts:66-68`
+  - `storage/repositories/content-repository.ts:163-165`
+  - **Fix**: Extract to `@repo/serial-core/utils`
+
+- [ ] **Duplicate beat parsing logic** — 4 separate implementations with inconsistent logic:
+  - `generation/outline.ts:204-228` — `parseOutlineResponse()` creates basic Beat
+  - `generation/beats.ts:212-299` — `parseBeatsResponse()` creates ExpandedBeat
+  - `generation/pipeline.ts:174-194` — duplicates outline parsing
+  - `generation/pipeline.ts:199-245` — duplicates beats parsing with variations
+  - **Fix**: Consolidate into single parsing module
+
+- [ ] **Duplicate bible service implementations** — `bible/bible-service.ts` has two factory functions with duplicated code:
+  - `createBibleService()` (lines 108-292)
+  - `createBibleServiceFromRepositories()` (lines 297-475)
+  - `searchAll()` method duplicated exactly (60+ lines each)
+  - **Fix**: Extract shared implementation, have factories compose it
+
+- [ ] **Duplicate search pattern in repositories** — FTS5 search with identical escaping logic in:
+  - `storage/repositories/character-repository.ts:242-244`
+  - `storage/repositories/location-repository.ts:237-240`
+  - `storage/repositories/content-repository.ts:352-355`
+  - **Fix**: Extract to base repository method
+
+- [ ] **Duplicate add-relation pattern** — Filter + update pattern repeated across entity repositories
+  - **Fix**: Extract to base repository or mixin
+
+### Error Handling Issues (serial/core)
+
+- [ ] **Empty catch blocks with silent failures** — Errors swallowed without logging:
+  - `generation/pipeline.ts:275-283` — `parseSelfReviewResponse()` returns default on any error
+  - `generation/draft.ts:460-461` — `runSelfReview()` returns default on any error
+  - **Fix**: Add error logging before returning defaults
+
+- [ ] **Unhandled Promise.all rejection** — `analysis/service.ts:281` runs 4 analysis promises; if any fails, entire analysis fails with no partial results
+  - **Fix**: Use `Promise.allSettled()` and return partial results
+
+- [ ] **Token tracking not implemented** — Hardcoded to 0 in multiple places:
+  - `generation/draft.ts:386`
+  - `generation/pipeline.ts:401, 412, 423, 434, 444`
+  - **Fix**: Extract token counts from LLM response object
+
+### Validation Issues (serial/core)
+
+- [ ] **Missing boundary validation in outline parsing** — `generation/outline.ts:204-228`:
+  - No maximum description length check
+  - No maximum number of beats check
+  - No validation that beats are ordered
+  - **Fix**: Add Zod schema or manual validation
+
+- [ ] **Missing validation in draft continuation** — `generation/draft.ts:572-663`:
+  - No validation partial draft ends at logical break
+  - No check for content duplication
+  - No verification beats haven't been completed
+  - **Fix**: Add pre-generation validation
+
+### Inconsistency Issues (serial/core)
+
+- [ ] **Inconsistent entity type field naming** — Some use `type`, others use `entityType`:
+  - `storage/repositories/character-repository.ts:43` — uses `type: 'character'`
+  - `storage/repositories/location-repository.ts:43` — uses `entityType: 'location'`
+  - `storage/repositories/faction-repository.ts:22` — uses `entityType: 'faction'`
+  - **Fix**: Standardize on one field name
+
+- [ ] **Inconsistent null/undefined handling in repository updates** — Complex nested ternaries:
+  - `storage/repositories/plot-thread-repository.ts:150-157`
+  - `storage/repositories/content-repository.ts:263-270`
+  - **Fix**: Create utility function for optional field updates
+
+- [ ] **Unused `db` parameter inconsistency** — Some repositories use `_db` prefix, others don't:
+  - `storage/repositories/character-repository.ts:108` — `db` unused
+  - `storage/repositories/faction-repository.ts:52` — `_db` prefix
+  - **Fix**: Standardize naming or remove unused params
+
+- [ ] **Dual row conversion functions** — `rowToX()` and `rawRowToX()` in repositories:
+  - `storage/repositories/character-repository.ts:40-57, 62-79`
+  - `storage/repositories/location-repository.ts:62-79`
+  - `storage/repositories/content-repository.ts:64-82`
+  - **Fix**: Unify Drizzle and raw SQL result handling
+
+### Schema Issues (serial/types)
+
+- [ ] **Entity type discriminator inconsistency** — Mixed field names:
+  - `character.ts:92`, `world-rule.ts:46` — use `type` field
+  - `location.ts:56`, `faction.ts:68`, `plot-thread.ts:72`, `timeline.ts:59,119` — use `entityType` field
+  - **Fix**: Standardize on `entityType` across all entities
+
+- [ ] **Spine lifecycle field naming inconsistency**:
+  - `character.ts`, `location.ts`, `faction.ts`, `world-rule.ts` — use `introducedAt`/`retiredAt`
+  - `plot-thread.ts`, `timeline.ts` — use `spineIntroducedAt`/`spineRetiredAt`
+  - **Fix**: Standardize naming or document distinction
+
+- [ ] **Duplicate enum definitions in analysis.ts** — Same enums defined inline multiple times:
+  - HookType: `structure.ts:23`, `analysis.ts:160-168`, `analysis.ts:644-653`
+  - PlotThreadType: `plot-thread.ts:43-52`, `analysis.ts:534-543`
+  - CharacterArcType: `character.ts:42-50`, `analysis.ts:371-379`
+  - RelationshipType: `character.ts:20-29`, `analysis.ts:300-309`, `analysis.ts:328-337`
+  - PresenceType: `character.ts:71-78`, `analysis.ts:89-94`, `analysis.ts:267`
+  - **Fix**: Reference existing schemas instead of duplicating
+
+- [ ] **analysis.ts is overloaded** — 841 lines, should be split into:
+  - `content-analysis.ts` — ContentAnalysisSchema, ContinuityIssueSchema
+  - `character-tracking.ts` — CharacterTrackingData* schemas
+  - `plot-thread-tracking.ts` — PlotThreadTrackingData* schemas
+  - `tension-curve.ts` — TensionCurveData* schemas
+  - `hook-management.ts` — HookManagement* schemas
+  - `cycle-enforcement.ts` — CycleEnforcement* schemas
+
+- [ ] **Missing ContentLocationSchema** — Same inline object pattern repeated:
+  - `mystery.ts:71-75`
+  - `plot-thread.ts:102-107`
+  - `plot-thread.ts:109-114`
+  - **Fix**: Extract to reusable schema
+
+- [ ] **Missing schema validations**:
+  - Empty arrays without `.min(1)` where content required
+  - String fields without `.min()` length (rule text, excerpts, names)
+  - Numeric fields without bounds (temperature, tension targets)
+  - No temporal ordering validation (introducedAt before resolvedAt)
+
+- [ ] **Inconsistent status enums** — Each entity has completely different statuses with no common pattern:
+  - `character.ts:112` — active, deceased, absent, unknown
+  - `location.ts:79` — accessible, destroyed, hidden, restricted, unknown
+  - `faction.ts:93` — active, disbanded, underground, emerging, unknown
+  - `plot-thread.ts:84` — planned, active, dormant, resolved, abandoned
+
+### MCP Tool Issues (serial/mcp)
+
+- [ ] **Duplicate "list empty" response pattern** — 11+ instances of identical empty state handling:
+  - `bible.ts:115-123, 242-250, 323-331, 403-411, 485-493`
+  - `project.ts:24-32`
+  - `serial.ts:232-240`
+  - `review.ts:31-41`
+  - `analytics.ts:30-38, 85-93`
+  - `extraction.ts:94-102`
+  - **Fix**: Extract to `formatEmptyList()` utility
+
+- [ ] **Duplicate projectId resolution pattern** — 30+ instances of `projectId || requireProjectId(session)`:
+  - `bible.ts` (14+ times)
+  - `structure.ts` (10+ times)
+  - `review.ts` (10+ times)
+  - **Fix**: Create middleware or wrapper function
+
+- [ ] **requireProjectId throws generic Error, not McpToolError** — `context.ts:38-45, 50-57`
+  - Bypasses `handleToolCall` error mapping
+  - **Fix**: Throw McpToolError or handle in wrapper
+
+- [ ] **Inconsistent error messages for missing session context**:
+  - `content.ts:34-42` — Long message with tool suggestions
+  - `content.ts:133-141` — Shortened message (inconsistent)
+  - **Fix**: Standardize error message format
+
+- [ ] **Missing parameter validation in MCP tools**:
+  - `structure.ts:351` — `newOrder` no min/max
+  - `generation.ts:28-29` — `temperature` should be 0-2, `maxTokens` unbounded
+  - `structure.ts:216` — `tensionTarget` should be 0-100
+  - `bible.ts:145, 272`, `structure.ts:212`, `project.ts:57` — name/title fields no `.min(1)`
+  - `review.ts:185` — `contentIds` array no `.min(1)`
+  - `content.ts:221-223` — `outputDir` no path validation/security
+  - **Fix**: Add Zod refinements for all constraints
+
+- [ ] **Session mutation inconsistency** — Some tools auto-select, others don't:
+  - `project.ts:69` — Auto-loads after creation
+  - `structure.ts:229` — Auto-selects after creation
+  - `structure.ts:331` — Auto-selects after get (side effect)
+  - **Fix**: Document or standardize behavior
+
+### Code Quality Issues
+
+- [ ] Console logging in production code — `console.error` in `extraction/service.ts:131`, `console.warn` in `analysis/service.ts:41,48`. Consider proper logging abstraction or removal.
+- [ ] Empty model string in extraction service — `extraction/service.ts:189` passes `model: ''` with comment. Use `client.getConfig().defaultModel` explicitly.
 
 ## Future Considerations
 
