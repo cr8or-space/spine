@@ -166,9 +166,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `checkpoints/manager.ts` — Checkpoint CRUD (50 unit tests)
 - [x] `checkpoints/snapshots.ts` — Snapshot creation (35 unit tests)
 - [x] `checkpoints/immutability.ts` — Release locking (38 unit tests)
-- [ ] `validation/compile.ts` — Compilation runner
-- [ ] `validation/test.ts` — Test runner
-- [ ] `validation/output.ts` — Fixture comparison
+- [x] `validation/compile.ts` — Compilation runner (31 unit tests)
+- [x] `validation/test.ts` — Test runner (38 unit tests)
+- [x] `validation/output.ts` — Fixture comparison (58 unit tests)
 - [ ] `weave/renderer.ts` — Content rendering
 - [ ] `weave/syntax.ts` — Syntax highlighting
 - [ ] `weave/diffs.ts` — Diff marking
