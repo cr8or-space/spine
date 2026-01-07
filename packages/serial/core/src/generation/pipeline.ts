@@ -24,6 +24,7 @@ import {
 import { buildStageMessages } from './prompts';
 import { formatStructureForPipeline } from './formatting';
 import { countWords as countWordsUtil } from '../utils/text';
+import { parsePipelineOutline, parsePipelineBeats } from './parsing';
 
 /**
  * Create a generation pipeline
@@ -141,78 +142,20 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
 
   /**
    * Parse outline response into beats
+   *
+   * Uses shared parsing utility with no minimum description length.
    */
   function parseOutlineResponse(text: string): Beat[] {
-    const beats: Beat[] = [];
-    const lines = text.split('\n');
-    let order = 0;
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      // Match numbered items or bullet points
-      const match = trimmed.match(/^(?:\d+[.)]\s*|-\s*|\*\s*)(.+)$/);
-      if (match) {
-        beats.push({
-          id: nanoid(),
-          description: match[1].trim(),
-          completed: false,
-          order: order++,
-        });
-      }
-    }
-
-    return beats;
+    return parsePipelineOutline(text);
   }
 
   /**
    * Parse beats response into detailed beats
+   *
+   * Uses shared parsing utility with word count extraction only.
    */
   function parseBeatsResponse(text: string): Beat[] {
-    const beats: Beat[] = [];
-    const lines = text.split('\n');
-    let order = 0;
-    let currentBeat: Partial<Beat> | null = null;
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-
-      // Match numbered items
-      const numberMatch = trimmed.match(/^(\d+)[.)]\s*(.+)$/);
-      if (numberMatch) {
-        // Save previous beat
-        if (currentBeat && currentBeat.description) {
-          beats.push({
-            id: nanoid(),
-            description: currentBeat.description,
-            completed: false,
-            targetWordCount: currentBeat.targetWordCount,
-            order: order++,
-          });
-        }
-
-        // Start new beat
-        const description = numberMatch[2];
-        const wordCountMatch = description.match(/\(~?(\d+)\s*words?\)/i);
-
-        currentBeat = {
-          description: description.replace(/\(~?\d+\s*words?\)/i, '').trim(),
-          targetWordCount: wordCountMatch ? parseInt(wordCountMatch[1], 10) : undefined,
-        };
-      }
-    }
-
-    // Don't forget the last beat
-    if (currentBeat && currentBeat.description) {
-      beats.push({
-        id: nanoid(),
-        description: currentBeat.description,
-        completed: false,
-        targetWordCount: currentBeat.targetWordCount,
-        order: order++,
-      });
-    }
-
-    return beats;
+    return parsePipelineBeats(text);
   }
 
   /**

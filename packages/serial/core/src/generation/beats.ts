@@ -11,6 +11,7 @@ import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
 import { buildStageMessages } from './prompts';
 import { formatContextForBeats, formatStructureForBeats } from './formatting';
+import { parseDetailedBeats } from './parsing';
 
 /**
  * Beat expansion configuration
@@ -150,113 +151,11 @@ function formatOutlineBeats(beats: Beat[]): string {
 
 /**
  * Parse beats response into expanded beats
+ *
+ * Uses shared parsing utility with full metadata extraction.
  */
 function parseBeatsResponse(text: string, targetWordCount: number = 2000): ExpandedBeat[] {
-  const beats: ExpandedBeat[] = [];
-  const lines = text.split('\n');
-  let order = 0;
-  let currentBeat: Partial<ExpandedBeat> | null = null;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    // Match numbered items: "1. Description (~300 words)"
-    const numberMatch = trimmed.match(/^(\d+)[.)]\s*(.+)$/);
-    if (numberMatch) {
-      // Save previous beat
-      if (currentBeat && currentBeat.description) {
-        beats.push(finalizeBeat(currentBeat, order++));
-      }
-
-      // Start new beat
-      const description = numberMatch[2];
-
-      // Extract word count if present
-      const wordCountMatch = description.match(/\(~?(\d+)\s*words?\)/i);
-      const targetWords = wordCountMatch ? parseInt(wordCountMatch[1], 10) : undefined;
-
-      // Extract purpose if present
-      const purposeMatch = description.match(/\[(setup|development|climax|resolution|transition)\]/i);
-      const purpose = purposeMatch
-        ? (purposeMatch[1].toLowerCase() as ExpandedBeat['purpose'])
-        : undefined;
-
-      // Extract tension level if present
-      const tensionMatch = description.match(/tension[:\s]+(\d+)/i);
-      const tensionLevel = tensionMatch ? parseInt(tensionMatch[1], 10) : undefined;
-
-      // Clean description
-      const cleanDescription = description
-        .replace(/\(~?\d+\s*words?\)/i, '')
-        .replace(/\[(setup|development|climax|resolution|transition)\]/i, '')
-        .replace(/tension[:\s]+\d+/i, '')
-        .trim();
-
-      currentBeat = {
-        description: cleanDescription,
-        targetWordCount: targetWords,
-        purpose,
-        tensionLevel,
-      };
-    }
-    // Check for sub-properties of the current beat
-    else if (currentBeat && trimmed.startsWith('-')) {
-      const propMatch = trimmed.match(/^-\s*(characters?|location|tone|pov|tension)[:\s]+(.+)$/i);
-      if (propMatch) {
-        const propName = propMatch[1].toLowerCase();
-        const propValue = propMatch[2].trim();
-
-        if (propName === 'character' || propName === 'characters') {
-          currentBeat.charactersInvolved = propValue.split(',').map((c) => c.trim());
-        } else if (propName === 'location') {
-          currentBeat.location = propValue;
-        } else if (propName === 'tone') {
-          currentBeat.emotionalTone = propValue;
-        } else if (propName === 'pov') {
-          currentBeat.povCharacter = propValue;
-        } else if (propName === 'tension') {
-          const tensionNum = parseInt(propValue, 10);
-          if (!isNaN(tensionNum)) {
-            currentBeat.tensionLevel = tensionNum;
-          }
-        }
-      }
-    }
-  }
-
-  // Don't forget the last beat
-  if (currentBeat && currentBeat.description) {
-    beats.push(finalizeBeat(currentBeat, order++));
-  }
-
-  // If no word counts were extracted, distribute evenly
-  if (beats.length > 0 && beats.every((b) => !b.targetWordCount)) {
-    const perBeat = Math.floor(targetWordCount / beats.length);
-    for (const beat of beats) {
-      beat.targetWordCount = perBeat;
-    }
-  }
-
-  return beats;
-}
-
-/**
- * Finalize a beat with defaults
- */
-function finalizeBeat(partial: Partial<ExpandedBeat>, order: number): ExpandedBeat {
-  return {
-    id: nanoid(),
-    description: partial.description || '',
-    completed: false,
-    order,
-    targetWordCount: partial.targetWordCount,
-    purpose: partial.purpose,
-    povCharacter: partial.povCharacter,
-    emotionalTone: partial.emotionalTone,
-    charactersInvolved: partial.charactersInvolved,
-    location: partial.location,
-    tensionLevel: partial.tensionLevel,
-  };
+  return parseDetailedBeats(text, targetWordCount);
 }
 
 /**

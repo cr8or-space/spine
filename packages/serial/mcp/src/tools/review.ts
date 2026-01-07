@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 
 export function registerReviewTools(
@@ -25,7 +25,7 @@ export function registerReviewTools(
     },
     async ({ projectId, status }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const queue = await client.review.queue(pid, status);
 
         if (queue.length === 0) {
@@ -68,7 +68,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const content = await client.review.getItem(pid, contentId);
 
         const lines: string[] = [
@@ -105,7 +105,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.review.transitionStatus(pid, contentId, 'approved');
 
         return {
@@ -132,7 +132,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.review.transitionStatus(pid, contentId, 'published');
 
         return {
@@ -160,7 +160,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId, reason }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.review.transitionStatus(pid, contentId, 'draft', reason);
 
         return {
@@ -187,7 +187,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentIds }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.review.bulkApprove(pid, contentIds);
 
         const lines: string[] = [];
@@ -220,7 +220,7 @@ export function registerReviewTools(
     },
     async ({ projectId, structureId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const lockPoint = await client.review.createLockPoint(pid, structureId);
 
         return {
@@ -245,7 +245,7 @@ export function registerReviewTools(
     },
     async ({ projectId, lockPointId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         await client.review.removeLockPoint(pid, lockPointId);
 
         return {
@@ -269,7 +269,7 @@ export function registerReviewTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const locks = await client.review.getLockPoints(pid);
 
         if (locks.length === 0) {
@@ -312,7 +312,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId, paragraphIndex, text, author }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         await client.review.addComment(pid, contentId, {
           paragraphIndex,
           text,
@@ -341,7 +341,7 @@ export function registerReviewTools(
     },
     async ({ projectId, contentId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const preview = await client.review.previewCascade(pid, contentId);
 
         const lines: string[] = [
@@ -392,7 +392,7 @@ export function registerReviewTools(
           };
         }
 
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.review.executeCascade(pid, contentId);
 
         return {

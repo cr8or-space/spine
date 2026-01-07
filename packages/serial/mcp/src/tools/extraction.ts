@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
 import { handleToolCall } from '../utils/errors';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 
 export function registerExtractionTools(
   server: McpServer,
@@ -26,7 +26,7 @@ export function registerExtractionTools(
     },
     async ({ projectId, entityTypes, reanalyze }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.extraction.run(pid, {
           entityTypes,
           reanalyze: reanalyze ?? false,
@@ -88,7 +88,7 @@ export function registerExtractionTools(
     },
     async ({ projectId, status, entityType }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const suggestions = await client.extraction.suggestions(pid, status, entityType);
 
         if (suggestions.length === 0) {
@@ -277,7 +277,7 @@ export function registerExtractionTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const count = await client.extraction.pendingCount(pid);
 
         if (count === 0) {
@@ -308,7 +308,7 @@ export function registerExtractionTools(
     },
     async ({ projectId, days }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const deleted = await client.extraction.cleanup(pid, days);
 
         return {

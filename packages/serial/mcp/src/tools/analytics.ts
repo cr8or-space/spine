@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 
 export function registerAnalyticsTools(
@@ -23,7 +23,7 @@ export function registerAnalyticsTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const data = await client.analytics.tensionCurve(pid, scope);
 
@@ -78,7 +78,7 @@ export function registerAnalyticsTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const data = await client.analytics.characterPresence(pid, scope);
 
@@ -129,7 +129,7 @@ export function registerAnalyticsTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const data = await client.analytics.plotThreads(pid, scope);
 
@@ -189,7 +189,7 @@ export function registerAnalyticsTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const metrics = await client.analytics.quality(pid, scope);
 

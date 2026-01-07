@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 
 export function registerGenerationTools(
@@ -31,7 +31,7 @@ export function registerGenerationTools(
     },
     async ({ projectId, structureId, stage, temperature, maxTokens }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {

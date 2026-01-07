@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId, selectStructure } from '../context';
+import { resolveProjectId, selectStructure } from '../context';
 import { handleToolCall } from '../utils/errors';
 import { formatStructureTree } from '../utils/formatting';
 import { emptyListResponse, textResponse } from '../utils/response';
@@ -23,7 +23,7 @@ export function registerStructureTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
 
         // Get all structures to build complete tree including all root-level books
         const allStructures = await client.structure.getAll(pid);
@@ -76,7 +76,7 @@ export function registerStructureTools(
     },
     async ({ projectId, type }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         let structures = await client.structure.getAll(pid);
 
         if (type) {
@@ -116,7 +116,7 @@ export function registerStructureTools(
     },
     async ({ projectId, id }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const structure = await client.structure.get(pid, id);
 
         const lines: string[] = [
@@ -198,7 +198,7 @@ export function registerStructureTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const structure = await client.structure.create(pid, data);
 
         // Auto-select the new structure
@@ -233,7 +233,7 @@ export function registerStructureTools(
     },
     async ({ projectId, id, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const structure = await client.structure.update(pid, id, data);
 
         return {
@@ -270,7 +270,7 @@ export function registerStructureTools(
           };
         }
 
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
 
         // Clear selection if deleting selected structure
         if (session.currentStructureId === id) {
@@ -301,7 +301,7 @@ export function registerStructureTools(
     },
     async ({ projectId, id }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const structure = await client.structure.get(pid, id);
 
         selectStructure(session, structure.id);
@@ -330,7 +330,7 @@ export function registerStructureTools(
     },
     async ({ projectId, id, newOrder, newParentId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const structure = await client.structure.reorder(pid, id, newOrder, newParentId);
 
         return {
@@ -360,7 +360,7 @@ export function registerStructureTools(
     },
     async ({ projectId, structureId, description, targetWordCount }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -399,7 +399,7 @@ export function registerStructureTools(
     },
     async ({ projectId, structureId, beatId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         await client.structure.removeBeat(pid, structureId, beatId);
 
         return {
@@ -426,7 +426,7 @@ export function registerStructureTools(
     },
     async ({ projectId, structureId, type, description }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -467,7 +467,7 @@ export function registerStructureTools(
     },
     async ({ projectId, structureId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {

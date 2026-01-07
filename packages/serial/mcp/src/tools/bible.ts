@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 import {
   formatCharacter,
@@ -28,7 +28,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const bible = await client.bible.get(pid);
 
         const sections: string[] = ['# Story Bible', ''];
@@ -110,7 +110,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const characters = await client.bible.character.list(pid);
 
         return listResponse(characters, 'characters', formatCharacter, {
@@ -139,7 +139,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const character = await client.bible.character.create(pid, data);
 
         return textResponse(
@@ -170,7 +170,7 @@ export function registerBibleTools(
     },
     async ({ projectId, id, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const character = await client.bible.character.update(pid, id, data);
 
         return textResponse(`Updated character "${character.name}"\n\n${formatCharacter(character)}`);
@@ -188,7 +188,7 @@ export function registerBibleTools(
     },
     async ({ projectId, id }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         await client.bible.character.delete(pid, id);
 
         return textResponse(`Deleted character ${id}`);
@@ -205,7 +205,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const locations = await client.bible.location.list(pid);
 
         return listResponse(locations, 'locations', formatLocation, {
@@ -244,7 +244,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const location = await client.bible.location.create(pid, data);
 
         return textResponse(
@@ -263,7 +263,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const factions = await client.bible.faction.list(pid);
 
         return listResponse(factions, 'factions', formatFaction, {
@@ -301,7 +301,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const faction = await client.bible.faction.create(pid, data);
 
         return textResponse(
@@ -320,7 +320,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const threads = await client.bible.plotThread.list(pid);
 
         return listResponse(threads, 'plot threads', formatPlotThread, {
@@ -360,7 +360,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const thread = await client.bible.plotThread.create(pid, data);
 
         return textResponse(
@@ -379,7 +379,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const rules = await client.bible.worldRule.list(pid);
 
         const formatRule = (r: (typeof rules)[0]) =>
@@ -408,7 +408,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const rule = await client.bible.worldRule.create(pid, data);
 
         return textResponse(`Created world rule "${rule.name}" (${rule.id})`);
@@ -425,7 +425,7 @@ export function registerBibleTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const events = await client.bible.timelineEvent.list(pid);
 
         const formatEvent = (e: (typeof events)[0]) =>
@@ -464,7 +464,7 @@ export function registerBibleTools(
     },
     async ({ projectId, ...data }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const event = await client.bible.timelineEvent.create(pid, data);
 
         return textResponse(`Created timeline event "${event.name}" on ${event.date} (${event.id})`);

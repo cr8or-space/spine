@@ -92,3 +92,16 @@ export {
   formatStructureForDraft,
   formatStructureForPipeline,
 } from './formatting';
+
+// Parsing utilities
+export type { OutlineParsingOptions, BeatsParsingOptions } from './parsing';
+export {
+  parseOutline,
+  parseBeats,
+  parseSimpleOutline,
+  parseDetailedBeats,
+  parsePipelineOutline,
+  parsePipelineBeats,
+  DEFAULT_OUTLINE_PARSING_OPTIONS,
+  DEFAULT_BEATS_PARSING_OPTIONS,
+} from './parsing';

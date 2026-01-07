@@ -350,12 +350,12 @@ Carried forward from existing implementation:
   - `storage/repositories/content-repository.ts:163-165`
   - **Fixed**: Extracted to `utils/text.ts` with additional text utilities
 
-- [ ] **Duplicate beat parsing logic** — 4 separate implementations with inconsistent logic:
+- [x] **Duplicate beat parsing logic** — 4 separate implementations with inconsistent logic:
   - `generation/outline.ts:204-228` — `parseOutlineResponse()` creates basic Beat
   - `generation/beats.ts:212-299` — `parseBeatsResponse()` creates ExpandedBeat
   - `generation/pipeline.ts:174-194` — duplicates outline parsing
   - `generation/pipeline.ts:199-245` — duplicates beats parsing with variations
-  - **Fix**: Consolidate into single parsing module
+  - **Fixed**: Extracted to `generation/parsing.ts` with configurable options and pre-configured helpers (`parseSimpleOutline`, `parseDetailedBeats`, `parsePipelineOutline`, `parsePipelineBeats`)
 
 - [x] **Duplicate bible service implementations** — `bible/bible-service.ts` has two factory functions with duplicated code:
   - `createBibleService()` (lines 108-292)
@@ -482,11 +482,11 @@ Carried forward from existing implementation:
   - `extraction.ts:94-102`
   - **Fixed**: Created `utils/response.ts` with `textResponse()`, `emptyListResponse()`, and `listResponse()` helpers
 
-- [ ] **Duplicate projectId resolution pattern** — 30+ instances of `projectId || requireProjectId(session)`:
+- [x] **Duplicate projectId resolution pattern** — 30+ instances of `projectId || requireProjectId(session)`:
   - `bible.ts` (14+ times)
   - `structure.ts` (10+ times)
   - `review.ts` (10+ times)
-  - **Fix**: Create middleware or wrapper function
+  - **Fixed**: Created `resolveProjectId()` and `resolveStructureId()` wrapper functions in `context.ts`
 
 - [ ] **requireProjectId throws generic Error, not McpToolError** — `context.ts:38-45, 50-57`
   - Bypasses `handleToolCall` error mapping

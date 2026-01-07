@@ -5,12 +5,12 @@
  * This is the first stage in the generation pipeline.
  */
 
-import { nanoid } from 'nanoid';
 import type { Beat, Structure } from '@repo/serial-types';
 import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
 import { buildStageMessages } from './prompts';
 import { formatContextForOutline, formatStructureForOutline } from './formatting';
+import { parseSimpleOutline } from './parsing';
 
 /**
  * Outline generation configuration
@@ -123,31 +123,11 @@ export interface OutlineValidation {
 
 /**
  * Parse outline response into beats
+ *
+ * Uses shared parsing utility with minDescriptionLength of 3.
  */
 function parseOutlineResponse(text: string): Beat[] {
-  const beats: Beat[] = [];
-  const lines = text.split('\n');
-  let order = 0;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Match numbered items or bullet points
-    const match = trimmed.match(/^(?:\d+[.)]\s*|-\s*|\*\s*)(.+)$/);
-    if (match) {
-      const description = match[1].trim();
-      // Skip empty or very short descriptions
-      if (description.length > 3) {
-        beats.push({
-          id: nanoid(),
-          description,
-          completed: false,
-          order: order++,
-        });
-      }
-    }
-  }
-
-  return beats;
+  return parseSimpleOutline(text);
 }
 
 /**

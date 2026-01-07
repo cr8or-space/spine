@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 
 export function registerSerialTools(
@@ -21,7 +21,7 @@ export function registerSerialTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const status = await client.serial.bufferStatus(pid);
 
         const healthIcon =
@@ -74,7 +74,7 @@ export function registerSerialTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const result = await client.serial.releaseSchedule(pid);
 
         const lines: string[] = [
@@ -124,7 +124,7 @@ export function registerSerialTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const patterns = await client.serial.hookPatterns(pid, scope);
 
@@ -178,7 +178,7 @@ export function registerSerialTools(
     },
     async ({ projectId, bookId, arcId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const scope = bookId || arcId ? { bookId, arcId } : undefined;
         const cycle = await client.serial.cycleStatus(pid, scope);
 
@@ -226,7 +226,7 @@ export function registerSerialTools(
     },
     async ({ projectId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const mysteries = await client.serial.mysteryBoard(pid);
 
         if (mysteries.size === 0) {

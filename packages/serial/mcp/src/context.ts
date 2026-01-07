@@ -45,6 +45,48 @@ export function requireProjectId(context: SessionContext): string {
 }
 
 /**
+ * Resolve project ID from parameter or session context
+ *
+ * This is a utility to reduce duplication in MCP tools. Instead of:
+ *   const pid = projectId || requireProjectId(session);
+ *
+ * Use:
+ *   const pid = resolveProjectId(projectId, session);
+ *
+ * @param projectId - Optional explicit project ID
+ * @param context - Session context for fallback
+ * @returns Resolved project ID
+ * @throws If no project ID provided and none in session
+ */
+export function resolveProjectId(
+  projectId: string | undefined,
+  context: SessionContext
+): string {
+  if (projectId) {
+    return projectId;
+  }
+  return requireProjectId(context);
+}
+
+/**
+ * Resolve structure ID from parameter or session context
+ *
+ * @param structureId - Optional explicit structure ID
+ * @param context - Session context for fallback
+ * @returns Resolved structure ID
+ * @throws If no structure ID provided and none in session
+ */
+export function resolveStructureId(
+  structureId: string | undefined,
+  context: SessionContext
+): string {
+  if (structureId) {
+    return structureId;
+  }
+  return requireStructureId(context);
+}
+
+/**
  * Get structure ID, throwing if not selected
  */
 export function requireStructureId(context: SessionContext): string {

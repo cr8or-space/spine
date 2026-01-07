@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
 import type { Structure } from '@repo/serial-types';
-import { requireProjectId } from '../context';
+import { resolveProjectId } from '../context';
 import { handleToolCall } from '../utils/errors';
 
 export function registerContentTools(
@@ -28,7 +28,7 @@ export function registerContentTools(
     },
     async ({ projectId, structureId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -86,7 +86,7 @@ export function registerContentTools(
     },
     async ({ projectId, structureId, text }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -127,7 +127,7 @@ export function registerContentTools(
     },
     async ({ projectId, structureId }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -185,7 +185,7 @@ export function registerContentTools(
     },
     async ({ projectId, structureId, versionNumber }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
         const sid = structureId || session.currentStructureId;
 
         if (!sid) {
@@ -235,7 +235,7 @@ export function registerContentTools(
     },
     async ({ outputDir, projectId, structureType, includeMetadata }) => {
       return handleToolCall(async () => {
-        const pid = projectId || requireProjectId(session);
+        const pid = resolveProjectId(projectId, session);
 
         // Ensure output directory exists
         if (!existsSync(outputDir)) {
