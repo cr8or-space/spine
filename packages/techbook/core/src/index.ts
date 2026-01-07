@@ -15,3 +15,6 @@ export * from './tangle';
 
 // Re-export checkpoints module
 export * from './checkpoints';
+
+// Re-export validation module
+export * from './validation';
