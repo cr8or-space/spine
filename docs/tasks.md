@@ -358,28 +358,7 @@ Carried forward from existing implementation:
   - No verification beats haven't been completed
   - **Fix**: Add pre-generation validation
 
-### Inconsistency Issues (serial/core)
-
-- [x] **Inconsistent entity type field naming** — Standardized on `entityType` across all entity types
-  - Updated `character.ts` and `world-rule.ts` to use `entityType` field
-  - Updated repositories and tests to use the new field name
-
-- [x] **Inconsistent null/undefined handling in repository updates** — Added utility functions:
-  - Created `updateOptionalJson()`, `updateOptionalValue()`, `updateRequiredJson()` in `repository.ts`
-  - Refactored `plot-thread-repository.ts` and `content-repository.ts` to use the helpers
-
-- [x] **Unused `db` parameter inconsistency** — Already consistent (repos that use FTS5 have `db`, others have `_db`)
-
-- [x] **Dual row conversion functions** — Required pattern for FTS5 support:
-  - `rowToX()` handles Drizzle ORM results (camelCase)
-  - `rawRowToX()` handles raw SQL results from FTS5 queries (snake_case)
-  - This is the correct design - Drizzle doesn't support virtual tables
-
 ### Schema Issues (serial/types)
-
-- [x] **Entity type discriminator inconsistency** — Standardized on `entityType` across all entities
-  - Updated `character.ts:92` and `world-rule.ts:46` to use `entityType`
-  - All entity types now use `entityType` field consistently
 
 - [ ] **Spine lifecycle field naming inconsistency**:
   - `character.ts`, `location.ts`, `faction.ts`, `world-rule.ts` — use `introducedAt`/`retiredAt`
@@ -421,21 +400,6 @@ Carried forward from existing implementation:
   - `plot-thread.ts:84` — planned, active, dormant, resolved, abandoned
 
 ### MCP Tool Issues (serial/mcp)
-
-- [x] **Duplicate "list empty" response pattern** — 11+ instances of identical empty state handling:
-  - `bible.ts:115-123, 242-250, 323-331, 403-411, 485-493`
-  - `project.ts:24-32`
-  - `serial.ts:232-240`
-  - `review.ts:31-41`
-  - `analytics.ts:30-38, 85-93`
-  - `extraction.ts:94-102`
-  - **Fixed**: Created `utils/response.ts` with `textResponse()`, `emptyListResponse()`, and `listResponse()` helpers
-
-- [x] **Duplicate projectId resolution pattern** — 30+ instances of `projectId || requireProjectId(session)`:
-  - `bible.ts` (14+ times)
-  - `structure.ts` (10+ times)
-  - `review.ts` (10+ times)
-  - **Fixed**: Created `resolveProjectId()` and `resolveStructureId()` wrapper functions in `context.ts`
 
 - [ ] **requireProjectId throws generic Error, not McpToolError** — `context.ts:38-45, 50-57`
   - Bypasses `handleToolCall` error mapping
