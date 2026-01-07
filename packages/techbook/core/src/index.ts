@@ -18,3 +18,6 @@ export * from './checkpoints';
 
 // Re-export validation module
 export * from './validation';
+
+// Re-export weave module
+export * from './weave';
