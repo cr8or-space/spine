@@ -107,6 +107,44 @@ export function createBaseRepository<TRow extends { id: string }>(
 }
 
 /**
+ * Get the updated JSON value for an optional JSON field.
+ * If update is provided (not undefined), use it (null for explicit clear, JSON.stringify otherwise).
+ * If update is undefined, use the existing value (stringified if truthy, null otherwise).
+ */
+export function updateOptionalJson<T>(
+  update: T | null | undefined,
+  existing: T | null | undefined
+): string | null {
+  if (update !== undefined) {
+    return update ? JSON.stringify(update) : null;
+  }
+  return existing ? JSON.stringify(existing) : null;
+}
+
+/**
+ * Get the updated value for an optional nullable field.
+ * If update is provided (not undefined), use it (null for explicit clear).
+ * If update is undefined, use the existing value.
+ */
+export function updateOptionalValue<T>(
+  update: T | null | undefined,
+  existing: T | null | undefined
+): T | null {
+  if (update !== undefined) {
+    return update ?? null;
+  }
+  return existing ?? null;
+}
+
+/**
+ * Get the updated JSON value for a required JSON array/object field.
+ * If update is provided (truthy), use it. Otherwise use existing.
+ */
+export function updateRequiredJson<T>(update: T | undefined, existing: T): string {
+  return JSON.stringify(update ?? existing);
+}
+
+/**
  * Create a project-scoped base repository
  */
 export function createProjectScopedRepository<TRow extends { id: string; project_id: string }>(

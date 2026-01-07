@@ -89,7 +89,7 @@ export const CharacterSchema = z.object({
   // BaseEntity fields
   id: IdSchema,
   /** Entity type discriminator for BaseEntity compatibility */
-  type: z.literal('character').default('character'),
+  entityType: z.literal('character').default('character'),
   /** Position in the spine where this character was introduced */
   introducedAt: SpinePositionSchema.optional(),
   /** Position in the spine where this character was retired (e.g., character death) */

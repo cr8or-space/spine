@@ -54,7 +54,7 @@ describe('CharacterService', () => {
       expect(character.id).toBeDefined();
       expect(character.name).toBe('Hero');
       expect(character.role).toBe('protagonist');
-      expect(character.type).toBe('character');
+      expect(character.entityType).toBe('character');
     });
 
     it('should retrieve a character by ID', () => {

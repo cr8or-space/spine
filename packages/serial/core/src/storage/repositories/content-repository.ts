@@ -13,7 +13,15 @@ import type { Content, ContentAnalysis, ContentStatus, ContentVersion, Generatio
 import type { DrizzleDB } from '../database';
 import { contents, contentVersions } from '../drizzle-schema';
 import { appendToArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import {
+  generateId,
+  nowTimestamp,
+  parseJson,
+  updateOptionalJson,
+  updateOptionalValue,
+  updateRequiredJson,
+  type ProjectScopedRepository,
+} from '../repository';
 import { countWords, formatFts5PrefixQuery } from '../../utils/text';
 
 /**
@@ -258,23 +266,14 @@ export function createContentRepository(db: Database.Database, drizzleDb: Drizzl
         structureId: data.structureId ?? existing.structureId,
         text: data.text ?? existing.text,
         status: data.status ?? existing.status,
-        analysisJson:
-          data.analysis !== undefined
-            ? data.analysis
-              ? JSON.stringify(data.analysis)
-              : null
-            : existing.analysis
-              ? JSON.stringify(existing.analysis)
-              : null,
-        reviewsJson: data.reviews ? JSON.stringify(data.reviews) : JSON.stringify(existing.reviews),
-        generationHistoryJson: data.generationHistory
-          ? JSON.stringify(data.generationHistory)
-          : JSON.stringify(existing.generationHistory),
+        analysisJson: updateOptionalJson(data.analysis, existing.analysis),
+        reviewsJson: updateRequiredJson(data.reviews, existing.reviews),
+        generationHistoryJson: updateRequiredJson(data.generationHistory, existing.generationHistory),
         locked: data.locked !== undefined ? data.locked : existing.locked,
-        lockReason: data.lockReason !== undefined ? (data.lockReason ?? null) : (existing.lockReason ?? null),
-        chapterNumber: data.chapterNumber !== undefined ? (data.chapterNumber ?? null) : (existing.chapterNumber ?? null),
+        lockReason: updateOptionalValue(data.lockReason, existing.lockReason),
+        chapterNumber: updateOptionalValue(data.chapterNumber, existing.chapterNumber),
         updatedAt: now,
-        publishedAt: data.publishedAt !== undefined ? (data.publishedAt ?? null) : (existing.publishedAt ?? null),
+        publishedAt: updateOptionalValue(data.publishedAt, existing.publishedAt),
       };
 
       drizzleDb

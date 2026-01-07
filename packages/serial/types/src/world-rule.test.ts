@@ -56,7 +56,7 @@ describe('WorldRuleCategorySchema', () => {
 describe('WorldRuleSchema', () => {
   const validRule = {
     id: '550e8400-e29b-41d4-a716-446655440001',
-    type: 'world-rule' as const,
+    entityType: 'world-rule' as const,
     name: 'Conservation of Energy',
     description: 'All magic requires energy proportional to the effect',
     category: 'magic' as const,
@@ -82,7 +82,7 @@ describe('WorldRuleSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('applies default type', () => {
+  it('applies default entityType', () => {
     const ruleWithoutType = {
       id: validRule.id,
       name: validRule.name,
@@ -99,7 +99,7 @@ describe('WorldRuleSchema', () => {
     const result = WorldRuleSchema.safeParse(ruleWithoutType);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.type).toBe('world-rule');
+      expect(result.data.entityType).toBe('world-rule');
     }
   });
 

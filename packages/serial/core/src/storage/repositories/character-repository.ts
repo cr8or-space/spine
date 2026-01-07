@@ -42,7 +42,7 @@ interface CharacterRow {
 function rowToCharacter(row: typeof characters.$inferSelect): Character {
   return {
     id: row.id,
-    type: 'character',
+    entityType: 'character',
     name: row.name,
     aliases: parseJson<string[]>(row.aliasesJson, []),
     description: row.description,
@@ -64,7 +64,7 @@ function rowToCharacter(row: typeof characters.$inferSelect): Character {
 function rawRowToCharacter(row: CharacterRow): Character {
   return {
     id: row.id,
-    type: 'character',
+    entityType: 'character',
     name: row.name,
     aliases: parseJson<string[]>(row.aliases_json, []),
     description: row.description,
@@ -82,9 +82,9 @@ function rawRowToCharacter(row: CharacterRow): Character {
 
 /**
  * Data required to create a character (without auto-generated fields)
- * Also omits 'type' since it has a default value in the schema
+ * Also omits 'entityType' since it has a default value in the schema
  */
-export type CreateCharacterData = Omit<Character, 'id' | 'type' | 'createdAt' | 'updatedAt'>;
+export type CreateCharacterData = Omit<Character, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 
 /**
  * Data for updating a character
@@ -156,7 +156,7 @@ export function createCharacterRepository(db: Database.Database, drizzleDb: Driz
 
       return {
         id,
-        type: 'character',
+        entityType: 'character',
         name: data.name,
         aliases: data.aliases,
         description: data.description,

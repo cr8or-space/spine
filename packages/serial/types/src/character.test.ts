@@ -140,7 +140,7 @@ describe('AppearanceRefSchema', () => {
 describe('CharacterSchema', () => {
   const validCharacter = {
     id: '550e8400-e29b-41d4-a716-446655440003',
-    type: 'character' as const,
+    entityType: 'character' as const,
     name: 'Elena Blackwood',
     aliases: ['The Shadow Dancer', 'Lady E'],
     description: 'A former thief turned reluctant hero',
@@ -161,7 +161,7 @@ describe('CharacterSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('applies default type if not provided', () => {
+  it('applies default entityType if not provided', () => {
     const charWithoutType = {
       id: validCharacter.id,
       name: validCharacter.name,
@@ -179,7 +179,7 @@ describe('CharacterSchema', () => {
     const result = CharacterSchema.safeParse(charWithoutType);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.type).toBe('character');
+      expect(result.data.entityType).toBe('character');
     }
   });
 

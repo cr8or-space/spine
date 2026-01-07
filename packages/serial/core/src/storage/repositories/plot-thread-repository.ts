@@ -12,7 +12,15 @@ import type { NarrativePromise, PlotThread, ThreadTouch } from '@repo/serial-typ
 import type { DrizzleDB } from '../database';
 import { plotThreads } from '../drizzle-schema';
 import { appendToArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import {
+  generateId,
+  nowTimestamp,
+  parseJson,
+  updateOptionalJson,
+  updateOptionalValue,
+  updateRequiredJson,
+  type ProjectScopedRepository,
+} from '../repository';
 
 interface ContentRef {
   contentId: string;
@@ -138,32 +146,14 @@ export function createPlotThreadRepository(_db: Database.Database, drizzleDb: Dr
         status: data.status ?? existing.status,
         scope: data.scope ?? existing.scope,
         priority: data.priority ?? existing.priority,
-        involvedCharactersJson: data.involvedCharacters
-          ? JSON.stringify(data.involvedCharacters)
-          : JSON.stringify(existing.involvedCharacters),
-        relatedLocationsJson: data.relatedLocations
-          ? JSON.stringify(data.relatedLocations)
-          : JSON.stringify(existing.relatedLocations),
-        promisesJson: data.promises ? JSON.stringify(data.promises) : JSON.stringify(existing.promises),
-        touchesJson: data.touches ? JSON.stringify(data.touches) : JSON.stringify(existing.touches),
-        parentThreadId: data.parentThreadId !== undefined ? (data.parentThreadId ?? null) : (existing.parentThreadId ?? null),
-        childThreadsJson: data.childThreads ? JSON.stringify(data.childThreads) : JSON.stringify(existing.childThreads),
-        introducedAtJson:
-          data.introducedAt !== undefined
-            ? data.introducedAt
-              ? JSON.stringify(data.introducedAt)
-              : null
-            : existing.introducedAt
-              ? JSON.stringify(existing.introducedAt)
-              : null,
-        resolvedAtJson:
-          data.resolvedAt !== undefined
-            ? data.resolvedAt
-              ? JSON.stringify(data.resolvedAt)
-              : null
-            : existing.resolvedAt
-              ? JSON.stringify(existing.resolvedAt)
-              : null,
+        involvedCharactersJson: updateRequiredJson(data.involvedCharacters, existing.involvedCharacters),
+        relatedLocationsJson: updateRequiredJson(data.relatedLocations, existing.relatedLocations),
+        promisesJson: updateRequiredJson(data.promises, existing.promises),
+        touchesJson: updateRequiredJson(data.touches, existing.touches),
+        parentThreadId: updateOptionalValue(data.parentThreadId, existing.parentThreadId),
+        childThreadsJson: updateRequiredJson(data.childThreads, existing.childThreads),
+        introducedAtJson: updateOptionalJson(data.introducedAt, existing.introducedAt),
+        resolvedAtJson: updateOptionalJson(data.resolvedAt, existing.resolvedAt),
         updatedAt: now,
       };
 

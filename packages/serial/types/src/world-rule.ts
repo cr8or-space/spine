@@ -43,7 +43,7 @@ export const WorldRuleSchema = z.object({
   // BaseEntity fields
   id: IdSchema,
   /** Entity type discriminator for BaseEntity compatibility */
-  type: z.literal('world-rule').default('world-rule'),
+  entityType: z.literal('world-rule').default('world-rule'),
   /** Position in the spine where this rule was introduced */
   introducedAt: SpinePositionSchema.optional(),
   /** Position in the spine where this rule was retired (e.g., invalidated) */

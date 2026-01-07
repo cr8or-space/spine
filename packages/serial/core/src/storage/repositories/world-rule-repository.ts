@@ -20,7 +20,7 @@ import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } fro
 function rowToWorldRule(row: typeof worldRules.$inferSelect): WorldRule {
   return {
     id: row.id,
-    type: 'world-rule',
+    entityType: 'world-rule',
     name: row.name,
     description: row.description,
     category: row.category,
@@ -37,7 +37,7 @@ function rowToWorldRule(row: typeof worldRules.$inferSelect): WorldRule {
   };
 }
 
-export type CreateWorldRuleData = Omit<WorldRule, 'id' | 'type' | 'createdAt' | 'updatedAt'>;
+export type CreateWorldRuleData = Omit<WorldRule, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdateWorldRuleData = Partial<Omit<WorldRule, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface WorldRuleRepository extends ProjectScopedRepository<WorldRule, CreateWorldRuleData> {
@@ -92,7 +92,7 @@ export function createWorldRuleRepository(_db: Database.Database, drizzleDb: Dri
 
       return {
         id,
-        type: 'world-rule',
+        entityType: 'world-rule',
         name: data.name,
         description: data.description,
         category: data.category,

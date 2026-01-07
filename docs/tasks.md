@@ -360,34 +360,26 @@ Carried forward from existing implementation:
 
 ### Inconsistency Issues (serial/core)
 
-- [ ] **Inconsistent entity type field naming** — Some use `type`, others use `entityType`:
-  - `storage/repositories/character-repository.ts:43` — uses `type: 'character'`
-  - `storage/repositories/location-repository.ts:43` — uses `entityType: 'location'`
-  - `storage/repositories/faction-repository.ts:22` — uses `entityType: 'faction'`
-  - **Fix**: Standardize on one field name
+- [x] **Inconsistent entity type field naming** — Standardized on `entityType` across all entity types
+  - Updated `character.ts` and `world-rule.ts` to use `entityType` field
+  - Updated repositories and tests to use the new field name
 
-- [ ] **Inconsistent null/undefined handling in repository updates** — Complex nested ternaries:
-  - `storage/repositories/plot-thread-repository.ts:150-157`
-  - `storage/repositories/content-repository.ts:263-270`
-  - **Fix**: Create utility function for optional field updates
+- [x] **Inconsistent null/undefined handling in repository updates** — Added utility functions:
+  - Created `updateOptionalJson()`, `updateOptionalValue()`, `updateRequiredJson()` in `repository.ts`
+  - Refactored `plot-thread-repository.ts` and `content-repository.ts` to use the helpers
 
-- [ ] **Unused `db` parameter inconsistency** — Some repositories use `_db` prefix, others don't:
-  - `storage/repositories/character-repository.ts:108` — `db` unused
-  - `storage/repositories/faction-repository.ts:52` — `_db` prefix
-  - **Fix**: Standardize naming or remove unused params
+- [x] **Unused `db` parameter inconsistency** — Already consistent (repos that use FTS5 have `db`, others have `_db`)
 
-- [ ] **Dual row conversion functions** — `rowToX()` and `rawRowToX()` in repositories:
-  - `storage/repositories/character-repository.ts:40-57, 62-79`
-  - `storage/repositories/location-repository.ts:62-79`
-  - `storage/repositories/content-repository.ts:64-82`
-  - **Fix**: Unify Drizzle and raw SQL result handling
+- [x] **Dual row conversion functions** — Required pattern for FTS5 support:
+  - `rowToX()` handles Drizzle ORM results (camelCase)
+  - `rawRowToX()` handles raw SQL results from FTS5 queries (snake_case)
+  - This is the correct design - Drizzle doesn't support virtual tables
 
 ### Schema Issues (serial/types)
 
-- [ ] **Entity type discriminator inconsistency** — Mixed field names:
-  - `character.ts:92`, `world-rule.ts:46` — use `type` field
-  - `location.ts:56`, `faction.ts:68`, `plot-thread.ts:72`, `timeline.ts:59,119` — use `entityType` field
-  - **Fix**: Standardize on `entityType` across all entities
+- [x] **Entity type discriminator inconsistency** — Standardized on `entityType` across all entities
+  - Updated `character.ts:92` and `world-rule.ts:46` to use `entityType`
+  - All entity types now use `entityType` field consistently
 
 - [ ] **Spine lifecycle field naming inconsistency**:
   - `character.ts`, `location.ts`, `faction.ts`, `world-rule.ts` — use `introducedAt`/`retiredAt`

@@ -9,7 +9,7 @@ describe('BibleSchema', () => {
       characters: [
         {
           id: '550e8400-e29b-41d4-a716-446655440001',
-          type: 'character' as const,
+          entityType: 'character' as const,
           name: 'Hero',
           aliases: [],
           description: 'The protagonist',
@@ -74,7 +74,7 @@ describe('BibleSchema', () => {
       characters: [
         {
           id: '550e8400-e29b-41d4-a716-446655440001',
-          type: 'character' as const,
+          entityType: 'character' as const,
           name: 'Hero',
           aliases: ['The Chosen One'],
           description: 'A brave warrior',
@@ -114,7 +114,7 @@ describe('BibleSchema', () => {
       worldRules: [
         {
           id: '550e8400-e29b-41d4-a716-446655440004',
-          type: 'world-rule' as const,
+          entityType: 'world-rule' as const,
           name: 'Magic Cost',
           description: 'All magic requires energy',
           category: 'magic' as const,
