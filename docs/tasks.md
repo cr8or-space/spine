@@ -154,9 +154,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] Zod schemas for all types (89 unit tests)
 
 ### 3.2 TechBook Core
-- [ ] `concepts/registry.ts` — Concept CRUD
-- [ ] `concepts/dependencies.ts` — Dependency graph
-- [ ] `concepts/symbols.ts` — Symbol-to-concept linking
+- [x] `concepts/registry.ts` — Concept CRUD (93 unit tests)
+- [x] `concepts/dependencies.ts` — Dependency graph
+- [x] `concepts/symbols.ts` — Symbol-to-concept linking
 - [ ] `snippets/repository.ts` — Snippet storage
 - [ ] `snippets/parts.ts` — Named part management
 - [ ] `snippets/operations.ts` — Operation application
