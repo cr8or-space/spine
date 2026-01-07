@@ -8,13 +8,25 @@
 import type Database from 'libsql';
 import { and, eq, isNull } from 'drizzle-orm';
 
-import type { Location, LocationFeature, LocationRelation } from '@repo/serial-types';
+import {
+  type Location,
+  type LocationFeature,
+  LocationFeatureSchema,
+  type LocationRelation,
+  LocationRelationSchema,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { locations } from '../drizzle-schema';
 import { addIfNotPresent, appendToArray, upsertInArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { generateId, nowTimestamp, parseJsonWithSchema, type ProjectScopedRepository } from '../repository';
 import { formatFts5PrefixQuery } from '../../utils/text';
+
+// Schemas for JSON array fields
+const StringArraySchema = z.array(z.string());
+const LocationRelationsArraySchema = z.array(LocationRelationSchema);
+const LocationFeaturesArraySchema = z.array(LocationFeatureSchema);
 
 /**
  * Database row representation of a location (for raw SQL FTS5 queries)
@@ -44,14 +56,14 @@ function rowToLocation(row: typeof locations.$inferSelect): Location {
     id: row.id,
     entityType: 'location',
     name: row.name,
-    aliases: parseJson<string[]>(row.aliasesJson, []),
+    aliases: parseJsonWithSchema(row.aliasesJson, StringArraySchema, [], 'location.aliases'),
     description: row.description,
     type: row.type,
     parentId: row.parentId ?? undefined,
-    relations: parseJson<LocationRelation[]>(row.relationsJson, []),
-    features: parseJson<LocationFeature[]>(row.featuresJson, []),
+    relations: parseJsonWithSchema(row.relationsJson, LocationRelationsArraySchema, [], 'location.relations'),
+    features: parseJsonWithSchema(row.featuresJson, LocationFeaturesArraySchema, [], 'location.features'),
     atmosphere: row.atmosphere ?? undefined,
-    associatedCharacters: parseJson<string[]>(row.associatedCharactersJson, []),
+    associatedCharacters: parseJsonWithSchema(row.associatedCharactersJson, StringArraySchema, [], 'location.associatedCharacters'),
     status: row.status,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -66,14 +78,14 @@ function rawRowToLocation(row: LocationRow): Location {
     id: row.id,
     entityType: 'location',
     name: row.name,
-    aliases: parseJson<string[]>(row.aliases_json, []),
+    aliases: parseJsonWithSchema(row.aliases_json, StringArraySchema, [], 'location.aliases'),
     description: row.description,
     type: row.type,
     parentId: row.parent_id ?? undefined,
-    relations: parseJson<LocationRelation[]>(row.relations_json, []),
-    features: parseJson<LocationFeature[]>(row.features_json, []),
+    relations: parseJsonWithSchema(row.relations_json, LocationRelationsArraySchema, [], 'location.relations'),
+    features: parseJsonWithSchema(row.features_json, LocationFeaturesArraySchema, [], 'location.features'),
     atmosphere: row.atmosphere ?? undefined,
-    associatedCharacters: parseJson<string[]>(row.associated_characters_json, []),
+    associatedCharacters: parseJsonWithSchema(row.associated_characters_json, StringArraySchema, [], 'location.associatedCharacters'),
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

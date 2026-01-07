@@ -8,7 +8,21 @@
 import type Database from 'libsql';
 import { and, asc, desc, eq, isNotNull } from 'drizzle-orm';
 
-import type { Content, ContentAnalysis, ContentStatus, ContentVersion, GenerationRecord, Review, VersionMetadata, VersionSource } from '@repo/serial-types';
+import {
+  type Content,
+  type ContentAnalysis,
+  ContentAnalysisSchema,
+  type ContentStatus,
+  type ContentVersion,
+  type GenerationRecord,
+  GenerationRecordSchema,
+  type Review,
+  ReviewSchema,
+  type VersionMetadata,
+  VersionMetadataSchema,
+  type VersionSource,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { contents, contentVersions } from '../drizzle-schema';
@@ -16,13 +30,19 @@ import { appendToArray } from '../relation-helpers';
 import {
   generateId,
   nowTimestamp,
-  parseJson,
+  parseJsonWithSchema,
   updateOptionalJson,
   updateOptionalValue,
   updateRequiredJson,
   type ProjectScopedRepository,
 } from '../repository';
 import { countWords, formatFts5PrefixQuery } from '../../utils/text';
+
+// Schemas for JSON array fields
+const ReviewsArraySchema = z.array(ReviewSchema);
+const GenerationHistoryArraySchema = z.array(GenerationRecordSchema);
+const OptionalContentAnalysisSchema = ContentAnalysisSchema.optional();
+const OptionalVersionMetadataSchema = VersionMetadataSchema.optional();
 
 /**
  * Database row representation of content (for raw SQL FTS5 queries)
@@ -56,9 +76,9 @@ function rowToContent(row: typeof contents.$inferSelect, versions: ContentVersio
     versions,
     text: row.text,
     status: row.status,
-    analysis: row.analysisJson ? (JSON.parse(row.analysisJson) as ContentAnalysis) : undefined,
-    reviews: parseJson<Review[]>(row.reviewsJson, []),
-    generationHistory: parseJson<GenerationRecord[]>(row.generationHistoryJson, []),
+    analysis: parseJsonWithSchema(row.analysisJson, OptionalContentAnalysisSchema, undefined, 'content.analysis'),
+    reviews: parseJsonWithSchema(row.reviewsJson, ReviewsArraySchema, [], 'content.reviews'),
+    generationHistory: parseJsonWithSchema(row.generationHistoryJson, GenerationHistoryArraySchema, [], 'content.generationHistory'),
     locked: row.locked,
     lockReason: row.lockReason ?? undefined,
     chapterNumber: row.chapterNumber ?? undefined,
@@ -79,9 +99,9 @@ function rawRowToContent(row: ContentRow, versions: ContentVersion[]): Content {
     versions,
     text: row.text,
     status: row.status,
-    analysis: row.analysis_json ? (JSON.parse(row.analysis_json) as ContentAnalysis) : undefined,
-    reviews: parseJson<Review[]>(row.reviews_json, []),
-    generationHistory: parseJson<GenerationRecord[]>(row.generation_history_json, []),
+    analysis: parseJsonWithSchema(row.analysis_json, OptionalContentAnalysisSchema, undefined, 'content.analysis'),
+    reviews: parseJsonWithSchema(row.reviews_json, ReviewsArraySchema, [], 'content.reviews'),
+    generationHistory: parseJsonWithSchema(row.generation_history_json, GenerationHistoryArraySchema, [], 'content.generationHistory'),
     locked: row.locked === 1,
     lockReason: row.lock_reason ?? undefined,
     chapterNumber: row.chapter_number ?? undefined,
@@ -101,7 +121,7 @@ function versionRowToVersion(row: typeof contentVersions.$inferSelect): ContentV
     wordCount: row.wordCount,
     source: row.source,
     previousVersion: row.previousVersion ?? undefined,
-    metadata: row.metadataJson ? (JSON.parse(row.metadataJson) as VersionMetadata) : undefined,
+    metadata: parseJsonWithSchema(row.metadataJson, OptionalVersionMetadataSchema, undefined, 'content.version.metadata'),
     createdAt: row.createdAt,
   };
 }

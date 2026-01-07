@@ -7,12 +7,25 @@
 import type Database from 'libsql';
 import { and, asc, eq, isNull } from 'drizzle-orm';
 
-import type { Beat, ChapterType, Hook, Structure, StructureType } from '@repo/serial-types';
+import {
+  type Beat,
+  BeatSchema,
+  type ChapterType,
+  type Hook,
+  HookSchema,
+  type Structure,
+  type StructureType,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { structures } from '../drizzle-schema';
 import { appendToArray, removeFromArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { generateId, nowTimestamp, parseJsonWithSchema, type ProjectScopedRepository } from '../repository';
+
+// Schema for JSON array field
+const BeatsArraySchema = z.array(BeatSchema);
+const OptionalHookSchema = HookSchema.optional();
 
 /**
  * Convert Drizzle row to Structure entity (without children - those are loaded separately)
@@ -23,10 +36,10 @@ function rowToStructure(row: typeof structures.$inferSelect): Structure {
     type: row.type,
     title: row.title,
     summary: row.summary,
-    beats: parseJson<Beat[]>(row.beatsJson, []),
+    beats: parseJsonWithSchema(row.beatsJson, BeatsArraySchema, [], 'structure.beats'),
     tensionTarget: row.tensionTarget ?? undefined,
     chapterType: row.chapterType ?? undefined,
-    hook: row.hookJson ? (JSON.parse(row.hookJson) as Hook) : undefined,
+    hook: parseJsonWithSchema(row.hookJson, OptionalHookSchema, undefined, 'structure.hook'),
     order: row.sortOrder,
     children: [], // Loaded separately
     parentId: row.parentId ?? undefined,

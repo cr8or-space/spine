@@ -7,12 +7,24 @@
 import type Database from 'libsql';
 import { and, eq } from 'drizzle-orm';
 
-import type { CausalLink, TimelineEvent, TimelinePosition, TimelineSpan } from '@repo/serial-types';
+import {
+  type CausalLink,
+  CausalLinkSchema,
+  type TimelineEvent,
+  TimelinePositionSchema,
+  type TimelineSpan,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { timelineEvents, timelineSpans } from '../drizzle-schema';
 import { addIfNotPresent, removePrimitive, upsertInArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { generateId, nowTimestamp, parseJsonWithSchema, type ProjectScopedRepository } from '../repository';
+
+// Schemas for JSON array fields
+const StringArraySchema = z.array(z.string());
+const CausalLinksArraySchema = z.array(CausalLinkSchema);
+const OptionalTimelinePositionSchema = TimelinePositionSchema.optional();
 
 // ============================================================================
 // Timeline Events
@@ -27,17 +39,17 @@ function rowToTimelineEvent(row: typeof timelineEvents.$inferSelect): TimelineEv
     entityType: 'timeline-event',
     name: row.name,
     description: row.description,
-    position: parseJson<TimelinePosition>(row.positionJson, { approximate: false }),
+    position: parseJsonWithSchema(row.positionJson, TimelinePositionSchema, { approximate: false }, 'timelineEvent.position'),
     duration: row.duration ?? undefined,
     type: row.type,
     significance: row.significance,
-    involvedCharacters: parseJson<string[]>(row.involvedCharactersJson, []),
-    locations: parseJson<string[]>(row.locationsJson, []),
-    relatedThreads: parseJson<string[]>(row.relatedThreadsJson, []),
-    causes: parseJson<CausalLink[]>(row.causesJson, []),
-    effects: parseJson<string[]>(row.effectsJson, []),
+    involvedCharacters: parseJsonWithSchema(row.involvedCharactersJson, StringArraySchema, [], 'timelineEvent.involvedCharacters'),
+    locations: parseJsonWithSchema(row.locationsJson, StringArraySchema, [], 'timelineEvent.locations'),
+    relatedThreads: parseJsonWithSchema(row.relatedThreadsJson, StringArraySchema, [], 'timelineEvent.relatedThreads'),
+    causes: parseJsonWithSchema(row.causesJson, CausalLinksArraySchema, [], 'timelineEvent.causes'),
+    effects: parseJsonWithSchema(row.effectsJson, StringArraySchema, [], 'timelineEvent.effects'),
     revealed: row.revealed,
-    contentRefs: parseJson<string[]>(row.contentRefsJson, []),
+    contentRefs: parseJsonWithSchema(row.contentRefsJson, StringArraySchema, [], 'timelineEvent.contentRefs'),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -251,9 +263,9 @@ function rowToTimelineSpan(row: typeof timelineSpans.$inferSelect): TimelineSpan
     entityType: 'timeline-span',
     name: row.name,
     description: row.description,
-    start: parseJson<TimelinePosition>(row.startJson, { approximate: false }),
-    end: row.endJson ? (JSON.parse(row.endJson) as TimelinePosition) : undefined,
-    events: parseJson<string[]>(row.eventsJson, []),
+    start: parseJsonWithSchema(row.startJson, TimelinePositionSchema, { approximate: false }, 'timelineSpan.start'),
+    end: parseJsonWithSchema(row.endJson, OptionalTimelinePositionSchema, undefined, 'timelineSpan.end'),
+    events: parseJsonWithSchema(row.eventsJson, StringArraySchema, [], 'timelineSpan.events'),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

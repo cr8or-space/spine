@@ -7,7 +7,15 @@
 import type Database from 'libsql';
 import { and, eq, inArray } from 'drizzle-orm';
 
-import type { NarrativePromise, PlotThread, ThreadTouch } from '@repo/serial-types';
+import {
+  ContentLocationSchema,
+  type NarrativePromise,
+  NarrativePromiseSchema,
+  type PlotThread,
+  type ThreadTouch,
+  ThreadTouchSchema,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { plotThreads } from '../drizzle-schema';
@@ -15,12 +23,18 @@ import { appendToArray } from '../relation-helpers';
 import {
   generateId,
   nowTimestamp,
-  parseJson,
+  parseJsonWithSchema,
   updateOptionalJson,
   updateOptionalValue,
   updateRequiredJson,
   type ProjectScopedRepository,
 } from '../repository';
+
+// Schemas for JSON array fields
+const StringArraySchema = z.array(z.string());
+const NarrativePromisesArraySchema = z.array(NarrativePromiseSchema);
+const ThreadTouchesArraySchema = z.array(ThreadTouchSchema);
+const OptionalContentLocationSchema = ContentLocationSchema.optional();
 
 interface ContentRef {
   contentId: string;
@@ -40,14 +54,14 @@ function rowToPlotThread(row: typeof plotThreads.$inferSelect): PlotThread {
     status: row.status,
     scope: row.scope,
     priority: row.priority,
-    involvedCharacters: parseJson<string[]>(row.involvedCharactersJson, []),
-    relatedLocations: parseJson<string[]>(row.relatedLocationsJson, []),
-    promises: parseJson<NarrativePromise[]>(row.promisesJson, []),
-    touches: parseJson<ThreadTouch[]>(row.touchesJson, []),
+    involvedCharacters: parseJsonWithSchema(row.involvedCharactersJson, StringArraySchema, [], 'plotThread.involvedCharacters'),
+    relatedLocations: parseJsonWithSchema(row.relatedLocationsJson, StringArraySchema, [], 'plotThread.relatedLocations'),
+    promises: parseJsonWithSchema(row.promisesJson, NarrativePromisesArraySchema, [], 'plotThread.promises'),
+    touches: parseJsonWithSchema(row.touchesJson, ThreadTouchesArraySchema, [], 'plotThread.touches'),
     parentThreadId: row.parentThreadId ?? undefined,
-    childThreads: parseJson<string[]>(row.childThreadsJson, []),
-    introducedAt: row.introducedAtJson ? (JSON.parse(row.introducedAtJson) as ContentRef) : undefined,
-    resolvedAt: row.resolvedAtJson ? (JSON.parse(row.resolvedAtJson) as ContentRef) : undefined,
+    childThreads: parseJsonWithSchema(row.childThreadsJson, StringArraySchema, [], 'plotThread.childThreads'),
+    introducedAt: parseJsonWithSchema(row.introducedAtJson, OptionalContentLocationSchema, undefined, 'plotThread.introducedAt'),
+    resolvedAt: parseJsonWithSchema(row.resolvedAtJson, OptionalContentLocationSchema, undefined, 'plotThread.resolvedAt'),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

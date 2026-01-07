@@ -6,12 +6,18 @@
 
 import { nanoid } from 'nanoid';
 import type Database from 'libsql';
+import { z } from 'zod';
 
 import type {
   OperationJournalEntry,
   OperationStatus,
   OperationType,
 } from './types';
+import { parseJsonWithSchema } from '../storage/repository';
+
+// Schema for generic JSON record fields
+const RecordSchema = z.record(z.unknown());
+const OptionalRecordSchema = z.record(z.unknown()).optional();
 
 export interface OperationJournalRepository {
   /** Create a new operation entry */
@@ -64,8 +70,8 @@ export function createOperationJournalRepository(db: Database.Database): Operati
       projectId: row.project_id as string,
       operationType: row.operation_type as OperationType,
       status: row.status as OperationStatus,
-      state: JSON.parse(row.state_json as string),
-      context: row.context_json ? JSON.parse(row.context_json as string) : undefined,
+      state: parseJsonWithSchema(row.state_json as string | null, RecordSchema, {}, 'operationJournal.state'),
+      context: parseJsonWithSchema(row.context_json as string | null, OptionalRecordSchema, undefined, 'operationJournal.context'),
       errorMessage: row.error_message as string | undefined,
       retryCount: row.retry_count as number,
       maxRetries: row.max_retries as number,

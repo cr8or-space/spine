@@ -4,16 +4,24 @@
 
 import type Database from 'libsql';
 import { nanoid } from 'nanoid';
-import type {
-  EntitySuggestion,
-  SuggestionSummary,
-  SuggestionStatus,
-  ExtractableEntityType,
-  SuggestionType,
-  ConfidenceLevel,
-  ExtractionEvidence,
-  FieldUpdate,
+import {
+  type EntitySuggestion,
+  type SuggestionSummary,
+  type SuggestionStatus,
+  type ExtractableEntityType,
+  type SuggestionType,
+  type ConfidenceLevel,
+  ExtractionEvidenceSchema,
+  FieldUpdateSchema,
 } from '@repo/serial-types';
+import { z } from 'zod';
+
+import { parseJsonWithSchema } from '../storage/repository';
+
+// Schemas for JSON fields
+const ExtractionEvidenceArraySchema = z.array(ExtractionEvidenceSchema);
+const FieldUpdateArraySchema = z.array(FieldUpdateSchema).optional();
+const SuggestedDataSchema = z.record(z.unknown());
 
 export interface SuggestionRepository {
   /** Create a new suggestion */
@@ -80,11 +88,9 @@ function rowToSuggestion(row: SuggestionRow): EntitySuggestion {
     entityType: row.entity_type,
     existingEntityId: row.existing_entity_id || undefined,
     name: row.name,
-    suggestedData: JSON.parse(row.suggested_data_json) as Record<string, unknown>,
-    fieldUpdates: row.field_updates_json
-      ? (JSON.parse(row.field_updates_json) as FieldUpdate[])
-      : undefined,
-    evidence: JSON.parse(row.evidence_json) as ExtractionEvidence[],
+    suggestedData: parseJsonWithSchema(row.suggested_data_json, SuggestedDataSchema, {}, 'suggestion.suggestedData'),
+    fieldUpdates: parseJsonWithSchema(row.field_updates_json, FieldUpdateArraySchema, undefined, 'suggestion.fieldUpdates'),
+    evidence: parseJsonWithSchema(row.evidence_json, ExtractionEvidenceArraySchema, [], 'suggestion.evidence'),
     confidence: row.confidence,
     reasoning: row.reasoning,
     status: row.status,
@@ -95,7 +101,7 @@ function rowToSuggestion(row: SuggestionRow): EntitySuggestion {
 }
 
 function rowToSummary(row: SuggestionRow): SuggestionSummary {
-  const evidence = JSON.parse(row.evidence_json) as ExtractionEvidence[];
+  const evidence = parseJsonWithSchema(row.evidence_json, ExtractionEvidenceArraySchema, [], 'suggestionSummary.evidence');
   return {
     id: row.id,
     suggestionType: row.suggestion_type,

@@ -7,7 +7,43 @@
 
 import type Database from 'libsql';
 import { nanoid } from 'nanoid';
-import type { AggregatedAnalysis, ContentAnalysis, ContinuityIssue } from '@repo/serial-types';
+import {
+  type AggregatedAnalysis,
+  type ContentAnalysis,
+  type ContinuityIssue,
+  ContinuityIssueSchema,
+  ExplainedScoreSchema,
+  PresenceTypeSchema,
+  ThreadTouchTypeSchema,
+} from '@repo/serial-types';
+import { z } from 'zod';
+
+import { parseJsonWithSchema } from '../storage/repository';
+
+// Schemas for JSON array/record fields
+const StringArraySchema = z.array(z.string());
+const ContinuityIssuesArraySchema = z.array(ContinuityIssueSchema);
+const CharacterVoiceScoresSchema = z.record(z.string(), ExplainedScoreSchema);
+const CharacterAppearancesSchema = z.array(
+  z.object({
+    characterId: z.string(),
+    type: PresenceTypeSchema,
+    dialogueLines: z.number().int().min(0).optional(),
+  })
+);
+const ThreadTouchesSchema = z.array(
+  z.object({
+    threadId: z.string(),
+    type: ThreadTouchTypeSchema,
+  })
+);
+const ScoreFactorsSchema = z.array(
+  z.object({
+    name: z.string(),
+    impact: z.number(),
+    detail: z.string().optional(),
+  })
+).optional();
 
 /**
  * Database row for content analysis
@@ -91,27 +127,27 @@ function rowToAnalysis(row: ContentAnalysisRow): ContentAnalysis {
     tensionScore: {
       score: row.tension_score,
       explanation: row.tension_explanation,
-      factors: row.tension_factors_json ? JSON.parse(row.tension_factors_json) : undefined,
+      factors: parseJsonWithSchema(row.tension_factors_json, ScoreFactorsSchema, undefined, 'analysis.tensionScore.factors'),
     },
     hookStrength: row.hook_strength !== null
       ? {
           score: row.hook_strength,
           explanation: row.hook_explanation || '',
-          factors: row.hook_factors_json ? JSON.parse(row.hook_factors_json) : undefined,
+          factors: parseJsonWithSchema(row.hook_factors_json, ScoreFactorsSchema, undefined, 'analysis.hookStrength.factors'),
         }
       : undefined,
     paceScore: {
       score: row.pace_score,
       explanation: row.pace_explanation,
-      factors: row.pace_factors_json ? JSON.parse(row.pace_factors_json) : undefined,
+      factors: parseJsonWithSchema(row.pace_factors_json, ScoreFactorsSchema, undefined, 'analysis.paceScore.factors'),
     },
-    characterVoiceScores: JSON.parse(row.character_voice_scores_json),
-    continuityIssues: JSON.parse(row.continuity_issues_json),
+    characterVoiceScores: parseJsonWithSchema(row.character_voice_scores_json, CharacterVoiceScoresSchema, {}, 'analysis.characterVoiceScores'),
+    continuityIssues: parseJsonWithSchema(row.continuity_issues_json, ContinuityIssuesArraySchema, [], 'analysis.continuityIssues'),
     wordCount: row.word_count,
     readingTime: row.reading_time,
-    characterAppearances: JSON.parse(row.character_appearances_json),
-    locationAppearances: JSON.parse(row.location_appearances_json),
-    threadTouches: JSON.parse(row.thread_touches_json),
+    characterAppearances: parseJsonWithSchema(row.character_appearances_json, CharacterAppearancesSchema, [], 'analysis.characterAppearances'),
+    locationAppearances: parseJsonWithSchema(row.location_appearances_json, StringArraySchema, [], 'analysis.locationAppearances'),
+    threadTouches: parseJsonWithSchema(row.thread_touches_json, ThreadTouchesSchema, [], 'analysis.threadTouches'),
     analyzedAt: row.analyzed_at,
     modelId: row.model_id || undefined,
   };

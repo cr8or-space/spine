@@ -7,23 +7,31 @@
 import type Database from 'libsql';
 import { eq } from 'drizzle-orm';
 
-import type {
-  ProjectFormat,
-  ProjectMetadata,
-  ProjectSettings,
-  ProjectStats,
-  ProjectSummary,
+import {
+  type ProjectFormat,
+  type ProjectMetadata,
+  ProjectMetadataSchema,
+  type ProjectSettings,
+  ProjectSettingsSchema,
+  type ProjectStats,
+  ProjectStatsSchema,
+  type ProjectSummary,
 } from '@repo/serial-types';
 
 import type { DrizzleDB } from '../database';
 import { projects } from '../drizzle-schema';
-import { generateId, nowTimestamp, parseJson, type Repository } from '../repository';
+import { generateId, nowTimestamp, parseJsonWithSchema, type Repository } from '../repository';
+
+// Optional schemas for nullable JSON fields
+const OptionalProjectStatsSchema = ProjectStatsSchema.optional();
+const OptionalProjectSettingsSchema = ProjectSettingsSchema.optional();
+const OptionalProjectMetadataSchema = ProjectMetadataSchema.optional();
 
 /**
  * Convert Drizzle row to ProjectSummary
  */
 function rowToProjectSummary(row: typeof projects.$inferSelect, stats?: ProjectStats): ProjectSummary {
-  const metadata = parseJson<ProjectMetadata>(row.metadataJson, { genres: [] });
+  const metadata = parseJsonWithSchema(row.metadataJson, ProjectMetadataSchema, { genres: [] }, 'project.metadata');
   return {
     id: row.id,
     title: row.title,
@@ -73,7 +81,7 @@ export function createProjectRepository(_db: Database.Database, drizzleDb: Drizz
     findById(id: string): ProjectSummary | undefined {
       const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      const stats = row.statsJson ? (JSON.parse(row.statsJson) as ProjectStats) : undefined;
+      const stats = parseJsonWithSchema(row.statsJson, OptionalProjectStatsSchema, undefined, 'project.stats');
       return rowToProjectSummary(row, stats);
     },
 
@@ -84,7 +92,7 @@ export function createProjectRepository(_db: Database.Database, drizzleDb: Drizz
     listAll(): ProjectSummary[] {
       const rows = drizzleDb.select().from(projects).all();
       return rows.map((row) => {
-        const stats = row.statsJson ? (JSON.parse(row.statsJson) as ProjectStats) : undefined;
+        const stats = parseJsonWithSchema(row.statsJson, OptionalProjectStatsSchema, undefined, 'project.stats');
         return rowToProjectSummary(row, stats);
       });
     },
@@ -122,7 +130,7 @@ export function createProjectRepository(_db: Database.Database, drizzleDb: Drizz
       if (!existing) return undefined;
 
       const now = nowTimestamp();
-      const existingMetadata = parseJson<ProjectMetadata>(existing.metadataJson, { genres: [] });
+      const existingMetadata = parseJsonWithSchema(existing.metadataJson, ProjectMetadataSchema, { genres: [] }, 'project.metadata');
 
       const updateData = {
         title: data.title ?? existing.title,
@@ -137,7 +145,7 @@ export function createProjectRepository(_db: Database.Database, drizzleDb: Drizz
 
       const updated = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!updated) return undefined;
-      const stats = updated.statsJson ? (JSON.parse(updated.statsJson) as ProjectStats) : undefined;
+      const stats = parseJsonWithSchema(updated.statsJson, OptionalProjectStatsSchema, undefined, 'project.stats');
       return rowToProjectSummary(updated, stats);
     },
 
@@ -149,19 +157,19 @@ export function createProjectRepository(_db: Database.Database, drizzleDb: Drizz
     getSettings(id: string): ProjectSettings | undefined {
       const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      return JSON.parse(row.settingsJson) as ProjectSettings;
+      return parseJsonWithSchema(row.settingsJson, OptionalProjectSettingsSchema, undefined, 'project.settings');
     },
 
     getMetadata(id: string): ProjectMetadata | undefined {
       const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row) return undefined;
-      return JSON.parse(row.metadataJson) as ProjectMetadata;
+      return parseJsonWithSchema(row.metadataJson, OptionalProjectMetadataSchema, undefined, 'project.metadata');
     },
 
     getStats(id: string): ProjectStats | undefined {
       const row = drizzleDb.select().from(projects).where(eq(projects.id, id)).get();
       if (!row || !row.statsJson) return undefined;
-      return JSON.parse(row.statsJson) as ProjectStats;
+      return parseJsonWithSchema(row.statsJson, OptionalProjectStatsSchema, undefined, 'project.stats');
     },
 
     updateSettings(id: string, settings: ProjectSettings): boolean {

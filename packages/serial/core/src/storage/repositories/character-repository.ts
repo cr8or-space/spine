@@ -8,13 +8,31 @@
 import type Database from 'libsql';
 import { and, eq } from 'drizzle-orm';
 
-import type { AppearanceRef, Character, CharacterArc, Relationship, Trait } from '@repo/serial-types';
+import {
+  type AppearanceRef,
+  AppearanceRefSchema,
+  type Character,
+  type CharacterArc,
+  CharacterArcSchema,
+  type Relationship,
+  RelationshipSchema,
+  TraitSchema,
+} from '@repo/serial-types';
+import { z } from 'zod';
 
 import type { DrizzleDB } from '../database';
 import { characters } from '../drizzle-schema';
 import { appendToArray, removeFromArray, upsertInArray } from '../relation-helpers';
-import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { generateId, nowTimestamp, parseJsonWithSchema, type ProjectScopedRepository } from '../repository';
+
 import { formatFts5PrefixQuery } from '../../utils/text';
+
+// Schemas for JSON array fields
+const StringArraySchema = z.array(z.string());
+const TraitsArraySchema = z.array(TraitSchema);
+const RelationshipsArraySchema = z.array(RelationshipSchema);
+const AppearancesArraySchema = z.array(AppearanceRefSchema);
+const OptionalCharacterArcSchema = CharacterArcSchema.optional();
 
 /**
  * Database row representation of a character (for raw SQL FTS5 queries)
@@ -44,13 +62,13 @@ function rowToCharacter(row: typeof characters.$inferSelect): Character {
     id: row.id,
     entityType: 'character',
     name: row.name,
-    aliases: parseJson<string[]>(row.aliasesJson, []),
+    aliases: parseJsonWithSchema(row.aliasesJson, StringArraySchema, [], 'character.aliases'),
     description: row.description,
-    traits: parseJson<Trait[]>(row.traitsJson, []),
-    relationships: parseJson<Relationship[]>(row.relationshipsJson, []),
-    arc: row.arcJson ? (JSON.parse(row.arcJson) as CharacterArc) : undefined,
-    voiceSamples: parseJson<string[]>(row.voiceSamplesJson, []),
-    appearances: parseJson<AppearanceRef[]>(row.appearancesJson, []),
+    traits: parseJsonWithSchema(row.traitsJson, TraitsArraySchema, [], 'character.traits'),
+    relationships: parseJsonWithSchema(row.relationshipsJson, RelationshipsArraySchema, [], 'character.relationships'),
+    arc: parseJsonWithSchema(row.arcJson, OptionalCharacterArcSchema, undefined, 'character.arc'),
+    voiceSamples: parseJsonWithSchema(row.voiceSamplesJson, StringArraySchema, [], 'character.voiceSamples'),
+    appearances: parseJsonWithSchema(row.appearancesJson, AppearancesArraySchema, [], 'character.appearances'),
     role: row.role,
     status: row.status,
     createdAt: row.createdAt,
@@ -66,13 +84,13 @@ function rawRowToCharacter(row: CharacterRow): Character {
     id: row.id,
     entityType: 'character',
     name: row.name,
-    aliases: parseJson<string[]>(row.aliases_json, []),
+    aliases: parseJsonWithSchema(row.aliases_json, StringArraySchema, [], 'character.aliases'),
     description: row.description,
-    traits: parseJson<Trait[]>(row.traits_json, []),
-    relationships: parseJson<Relationship[]>(row.relationships_json, []),
-    arc: row.arc_json ? (JSON.parse(row.arc_json) as CharacterArc) : undefined,
-    voiceSamples: parseJson<string[]>(row.voice_samples_json, []),
-    appearances: parseJson<AppearanceRef[]>(row.appearances_json, []),
+    traits: parseJsonWithSchema(row.traits_json, TraitsArraySchema, [], 'character.traits'),
+    relationships: parseJsonWithSchema(row.relationships_json, RelationshipsArraySchema, [], 'character.relationships'),
+    arc: parseJsonWithSchema(row.arc_json, OptionalCharacterArcSchema, undefined, 'character.arc'),
+    voiceSamples: parseJsonWithSchema(row.voice_samples_json, StringArraySchema, [], 'character.voiceSamples'),
+    appearances: parseJsonWithSchema(row.appearances_json, AppearancesArraySchema, [], 'character.appearances'),
     role: row.role,
     status: row.status,
     createdAt: row.created_at,

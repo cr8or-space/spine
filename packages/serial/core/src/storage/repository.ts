@@ -4,6 +4,7 @@
 
 import type Database from 'libsql';
 import { nanoid } from 'nanoid';
+import { type z } from 'zod';
 
 import type { Result } from '@repo/serial-types';
 
@@ -39,7 +40,45 @@ export function nowTimestamp(): string {
 }
 
 /**
+ * Parse JSON safely with Zod validation.
+ * Returns the validated value or the default on parse/validation failure.
+ *
+ * @param json - The JSON string to parse
+ * @param schema - The Zod schema to validate against
+ * @param defaultValue - The default value to return on failure
+ * @param fieldName - Optional field name for debugging (logged on validation failure)
+ * @returns The validated value or default
+ */
+export function parseJsonWithSchema<S extends z.ZodTypeAny>(
+  json: string | null | undefined,
+  schema: S,
+  defaultValue: z.output<S>,
+  fieldName?: string
+): z.output<S> {
+  if (!json) return defaultValue;
+  try {
+    const parsed = JSON.parse(json);
+    const result = schema.safeParse(parsed);
+    if (result.success) {
+      return result.data;
+    }
+    // Log validation errors in development for debugging
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        `[parseJsonWithSchema] Validation failed${fieldName ? ` for field '${fieldName}'` : ''}:`,
+        result.error.issues
+      );
+    }
+    return defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+/**
  * Parse JSON safely, returning default value on error
+ *
+ * @deprecated Use parseJsonWithSchema for type-safe parsing with Zod validation
  */
 export function parseJson<T>(json: string | null | undefined, defaultValue: T): T {
   if (!json) return defaultValue;

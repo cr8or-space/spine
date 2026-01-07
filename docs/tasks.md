@@ -302,20 +302,20 @@ Carried forward from existing implementation:
 
 ### Type Safety Issues
 
-- [ ] **JSON fields parsed without Zod validation** — Repositories use `JSON.parse(row.someJson) as SomeType` throughout, risking runtime crashes if data is malformed. Affected files:
-  - `storage/repositories/character-repository.ts` (arc field)
-  - `storage/repositories/content-repository.ts` (analysis field)
-  - `storage/repositories/location-repository.ts` (features)
-  - `storage/repositories/plot-thread-repository.ts` (introducedAt, resolvedAt)
-  - `storage/repositories/project-repository.ts` (stats, settings, metadata)
-  - `storage/repositories/structure-repository.ts` (hook field)
-  - `storage/repositories/timeline-repository.ts` (end position)
-  - `extraction/repository.ts` (suggestedData, fieldUpdates, evidence)
-  - `error-handling/operation-journal.ts` (state fields)
-  - `error-handling/backup.ts` (record fields)
-  - `analysis/repository.ts` (analysis data)
-  - `bible/cross-reference-repository.ts` (entity refs)
-  - **Fix**: Use Zod `.safeParse()` on JSON fields and handle parse failures gracefully
+- [x] **JSON fields parsed without Zod validation** — Added `parseJsonWithSchema()` helper that uses Zod `.safeParse()` with graceful fallback to default values. Returns validated data or logs validation errors in development mode. Updated files:
+  - `storage/repository.ts` (added `parseJsonWithSchema<S>()` helper)
+  - `storage/repositories/character-repository.ts`
+  - `storage/repositories/content-repository.ts`
+  - `storage/repositories/location-repository.ts`
+  - `storage/repositories/plot-thread-repository.ts`
+  - `storage/repositories/project-repository.ts`
+  - `storage/repositories/structure-repository.ts`
+  - `storage/repositories/timeline-repository.ts`
+  - `extraction/repository.ts`
+  - `error-handling/operation-journal.ts`
+  - `analysis/repository.ts`
+  - Note: `error-handling/backup.ts` and `bible/cross-reference-repository.ts` do not parse JSON fields
+  - **Side effect**: Zod validation now catches invalid test data that was previously silently accepted. Several test files have pre-existing type errors where test data doesn't match schemas (e.g., `paragraphIndex` instead of `location: { paragraphIndex }` in review tests)
 
 ### Missing Test Coverage
 
