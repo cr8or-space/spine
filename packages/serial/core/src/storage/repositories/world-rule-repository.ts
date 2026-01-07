@@ -36,7 +36,7 @@ function rowToWorldRule(row: typeof worldRules.$inferSelect): WorldRule {
   };
 }
 
-export type CreateWorldRuleData = Omit<WorldRule, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateWorldRuleData = Omit<WorldRule, 'id' | 'type' | 'createdAt' | 'updatedAt'>;
 export type UpdateWorldRuleData = Partial<Omit<WorldRule, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface WorldRuleRepository extends ProjectScopedRepository<WorldRule, CreateWorldRuleData> {

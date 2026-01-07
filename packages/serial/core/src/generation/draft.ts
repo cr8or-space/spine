@@ -12,7 +12,6 @@ import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 import { buildStageMessages } from './prompts';
 import type { ExpandedBeat } from './beats';
 import type { SelfReviewFeedback } from './types';
-import { DEFAULT_GENERATION_OPTIONS } from './types';
 
 /**
  * Draft generation configuration
@@ -167,6 +166,20 @@ function formatBeats(beats: (Beat | ExpandedBeat)[]): string {
     .join('\n');
 }
 
+// Type helper for entities that might be Character, CharacterSummary, etc.
+interface CharacterWithDetails {
+  name: string;
+  role?: string;
+  description?: string;
+  voiceNotes?: string;
+}
+
+interface LocationWithDetails {
+  name: string;
+  description?: string;
+  sensoryDetails?: string;
+}
+
 /**
  * Format context for prompt
  */
@@ -176,11 +189,11 @@ function formatContext(context: AssembledContext, povCharacter?: string): string
   // Format characters, highlighting POV character
   if (context.bible.characters.length > 0) {
     sections.push('### Characters');
-    for (const char of context.bible.characters) {
-      const name = 'name' in char ? char.name : char.name;
-      const role = 'role' in char ? char.role : '';
-      const description = 'description' in char && char.description ? char.description : '';
-      const voiceNotes = 'voiceNotes' in char && char.voiceNotes ? char.voiceNotes : '';
+    for (const char of context.bible.characters as unknown as CharacterWithDetails[]) {
+      const name = char.name;
+      const role = char.role ?? '';
+      const description = char.description ?? '';
+      const voiceNotes = char.voiceNotes ?? '';
 
       if (povCharacter && name.toLowerCase() === povCharacter.toLowerCase()) {
         sections.push(`- **${name} (POV)** (${role}): ${description}`);
@@ -196,10 +209,10 @@ function formatContext(context: AssembledContext, povCharacter?: string): string
   // Format locations
   if (context.bible.locations.length > 0) {
     sections.push('\n### Locations');
-    for (const loc of context.bible.locations) {
-      const name = 'name' in loc ? loc.name : loc.name;
-      const description = 'description' in loc && loc.description ? loc.description : '';
-      const sensory = 'sensoryDetails' in loc && loc.sensoryDetails ? loc.sensoryDetails : '';
+    for (const loc of context.bible.locations as unknown as LocationWithDetails[]) {
+      const name = loc.name;
+      const description = loc.description ?? '';
+      const sensory = loc.sensoryDetails ?? '';
       sections.push(`- **${name}**: ${description}`);
       if (sensory) {
         sections.push(`  Sensory: ${sensory}`);
@@ -379,7 +392,7 @@ export function createDraftService(client: LLMClient): DraftService {
       const durationMs = Date.now() - startTime;
       const wordCount = countWords(responseText);
 
-      let result: DraftResult = {
+      const result: DraftResult = {
         success: true,
         text: responseText,
         wordCount,

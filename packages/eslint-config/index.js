@@ -11,6 +11,13 @@ export const config = ts.config(
         ...globals.browser,
         ...globals.node
       }
+    },
+    rules: {
+      // Allow unused variables that start with underscore (intentionally unused)
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }]
     }
   }
 );

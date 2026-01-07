@@ -44,7 +44,7 @@ function rowToPlotThread(row: typeof plotThreads.$inferSelect): PlotThread {
   };
 }
 
-export type CreatePlotThreadData = Omit<PlotThread, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreatePlotThreadData = Omit<PlotThread, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdatePlotThreadData = Partial<Omit<PlotThread, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface PlotThreadRepository extends ProjectScopedRepository<PlotThread, CreatePlotThreadData> {

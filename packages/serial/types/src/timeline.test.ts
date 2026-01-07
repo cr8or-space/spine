@@ -196,7 +196,7 @@ describe('TimelineEventSchema', () => {
   });
 
   it('allows event without duration', () => {
-    const { duration, ...eventWithoutDuration } = validEvent;
+    const { duration: _duration, ...eventWithoutDuration } = validEvent;
     const result = TimelineEventSchema.safeParse(eventWithoutDuration);
     expect(result.success).toBe(true);
   });
@@ -263,7 +263,7 @@ describe('TimelineSpanSchema', () => {
   });
 
   it('allows span without end (ongoing)', () => {
-    const { end, ...spanWithoutEnd } = validSpan;
+    const { end: _end, ...spanWithoutEnd } = validSpan;
     const result = TimelineSpanSchema.safeParse(spanWithoutEnd);
     expect(result.success).toBe(true);
   });

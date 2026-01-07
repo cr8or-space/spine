@@ -18,7 +18,7 @@ class MockWebSocket {
 
   private sentMessages: string[] = [];
 
-  constructor(_url: string) { // eslint-disable-line @typescript-eslint/no-unused-vars
+  constructor(_url: string) {
     MockWebSocket.instances.push(this);
   }
 

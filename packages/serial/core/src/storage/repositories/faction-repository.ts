@@ -37,7 +37,7 @@ function rowToFaction(row: typeof factions.$inferSelect): Faction {
   };
 }
 
-export type CreateFactionData = Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateFactionData = Omit<Faction, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdateFactionData = Partial<Omit<Faction, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface FactionRepository extends ProjectScopedRepository<Faction, CreateFactionData> {

@@ -168,13 +168,13 @@ describe('ReviewSchema', () => {
   });
 
   it('allows review without verdict (in progress)', () => {
-    const { verdict, ...reviewWithoutVerdict } = validReview;
+    const { verdict: _verdict, ...reviewWithoutVerdict } = validReview;
     const result = ReviewSchema.safeParse(reviewWithoutVerdict);
     expect(result.success).toBe(true);
   });
 
   it('allows review without completedAt (in progress)', () => {
-    const { completedAt, ...reviewInProgress } = validReview;
+    const { completedAt: _completedAt, ...reviewInProgress } = validReview;
     const result = ReviewSchema.safeParse(reviewInProgress);
     expect(result.success).toBe(true);
   });

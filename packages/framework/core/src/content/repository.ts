@@ -229,7 +229,6 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       const now = nowTimestamp();
 
       // Store all data except the base fields in data_json
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, type: _type, spineNode: _spine, status: _status, ...data } = content;
 
       insertStmt.run(
@@ -266,7 +265,6 @@ export function createContentRepository(db: Database.Database): ContentRepositor
       const now = nowTimestamp();
 
       // Store all data except the base fields
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, type: _type, spineNode: _spine, status: _status, ...data } = updatedContent;
 
       updateStmt.run(JSON.stringify(data), now, projectId, id);

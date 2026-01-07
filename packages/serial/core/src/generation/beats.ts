@@ -10,8 +10,6 @@ import type { Beat, Structure } from '@repo/serial-types';
 import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
 import { buildStageMessages } from './prompts';
-import type { GenerationOptions, StageResult } from './types';
-import { DEFAULT_GENERATION_OPTIONS } from './types';
 
 /**
  * Beat expansion configuration
@@ -149,6 +147,12 @@ function formatOutlineBeats(beats: Beat[]): string {
     .join('\n');
 }
 
+// Type helper for entities that might be Character, CharacterSummary, etc.
+interface EntityWithName {
+  name: string;
+  role?: string;
+}
+
 /**
  * Format context for prompt
  */
@@ -158,9 +162,9 @@ function formatContext(context: AssembledContext): string {
   // Format characters
   if (context.bible.characters.length > 0) {
     sections.push('### Characters');
-    for (const char of context.bible.characters) {
-      const name = 'name' in char ? char.name : char.name;
-      const role = 'role' in char ? char.role : '';
+    for (const char of context.bible.characters as unknown as EntityWithName[]) {
+      const name = char.name;
+      const role = char.role ?? '';
       sections.push(`- **${name}** (${role})`);
     }
   }
@@ -168,8 +172,8 @@ function formatContext(context: AssembledContext): string {
   // Format locations
   if (context.bible.locations.length > 0) {
     sections.push('\n### Locations');
-    for (const loc of context.bible.locations) {
-      const name = 'name' in loc ? loc.name : loc.name;
+    for (const loc of context.bible.locations as unknown as EntityWithName[]) {
+      const name = loc.name;
       sections.push(`- **${name}**`);
     }
   }
@@ -244,7 +248,7 @@ function parseBeatsResponse(text: string, targetWordCount: number = 2000): Expan
       const tensionLevel = tensionMatch ? parseInt(tensionMatch[1], 10) : undefined;
 
       // Clean description
-      let cleanDescription = description
+      const cleanDescription = description
         .replace(/\(~?\d+\s*words?\)/i, '')
         .replace(/\[(setup|development|climax|resolution|transition)\]/i, '')
         .replace(/tension[:\s]+\d+/i, '')
