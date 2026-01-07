@@ -13,6 +13,7 @@ import type { Location, LocationFeature, LocationRelation } from '@repo/serial-t
 import type { DrizzleDB } from '../database';
 import { locations } from '../drizzle-schema';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { formatFts5PrefixQuery } from '../../utils/text';
 
 /**
  * Database row representation of a location (for raw SQL FTS5 queries)
@@ -235,8 +236,7 @@ export function createLocationRepository(db: Database.Database, drizzleDb: Drizz
     },
 
     search(projectId: string, query: string): Location[] {
-      const escapedQuery = query.replace(/"/g, '""');
-      const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as LocationRow[];
+      const rows = searchStmt.all(projectId, formatFts5PrefixQuery(query)) as LocationRow[];
       return rows.map(rawRowToLocation);
     },
 

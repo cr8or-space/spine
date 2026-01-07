@@ -253,9 +253,6 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [ ] `docs/techbook/literate-programming.md`
 
 ### 4.5 Testing
-- [ ] Framework unit test suite
-- [ ] Serial domain unit tests
-- [ ] TechBook domain unit tests
 - [ ] CLI integration tests (serial)
 - [ ] CLI integration tests (techbook)
 - [ ] Server integration tests
@@ -334,24 +331,24 @@ Carried forward from existing implementation:
 
 ### Duplicate Code (serial/core)
 
-- [ ] **Duplicate `formatContext()` function** — Nearly identical implementations in 3 files with slight variations:
+- [x] **Duplicate `formatContext()` function** — Nearly identical implementations in 3 files with slight variations:
   - `generation/outline.ts:128-175`
   - `generation/beats.ts:155-186`
   - `generation/draft.ts:173-219` (most detailed, includes voiceNotes/sensoryDetails)
-  - **Fix**: Extract to shared module in `generation/utils.ts`
+  - **Fixed**: Extracted to `generation/formatting.ts` with configurable options and pre-configured helpers
 
-- [ ] **Duplicate `formatStructure()` function** — Nearly identical in 3 files:
+- [x] **Duplicate `formatStructure()` function** — Nearly identical in 3 files:
   - `generation/outline.ts:180-199`
   - `generation/beats.ts:191-207`
   - `generation/draft.ts:224-243`
-  - **Fix**: Extract to shared module
+  - **Fixed**: Extracted to `generation/formatting.ts` with configurable options and pre-configured helpers
 
-- [ ] **Duplicate `countWords()` function** — Identical implementation in 4 files:
+- [x] **Duplicate `countWords()` function** — Identical implementation in 4 files:
   - `generation/draft.ts:248-250`
   - `generation/pipeline.ts:678-680`
   - `analysis/service.ts:66-68`
   - `storage/repositories/content-repository.ts:163-165`
-  - **Fix**: Extract to `@repo/serial-core/utils`
+  - **Fixed**: Extracted to `utils/text.ts` with additional text utilities
 
 - [ ] **Duplicate beat parsing logic** — 4 separate implementations with inconsistent logic:
   - `generation/outline.ts:204-228` — `parseOutlineResponse()` creates basic Beat
@@ -360,17 +357,17 @@ Carried forward from existing implementation:
   - `generation/pipeline.ts:199-245` — duplicates beats parsing with variations
   - **Fix**: Consolidate into single parsing module
 
-- [ ] **Duplicate bible service implementations** — `bible/bible-service.ts` has two factory functions with duplicated code:
+- [x] **Duplicate bible service implementations** — `bible/bible-service.ts` has two factory functions with duplicated code:
   - `createBibleService()` (lines 108-292)
   - `createBibleServiceFromRepositories()` (lines 297-475)
   - `searchAll()` method duplicated exactly (60+ lines each)
-  - **Fix**: Extract shared implementation, have factories compose it
+  - **Fixed**: Extracted `buildBibleServiceMethods()` helper, factories now compose shared implementation
 
-- [ ] **Duplicate search pattern in repositories** — FTS5 search with identical escaping logic in:
+- [x] **Duplicate search pattern in repositories** — FTS5 search with identical escaping logic in:
   - `storage/repositories/character-repository.ts:242-244`
   - `storage/repositories/location-repository.ts:237-240`
   - `storage/repositories/content-repository.ts:352-355`
-  - **Fix**: Extract to base repository method
+  - **Fixed**: Extracted `formatFts5PrefixQuery()` to `utils/text.ts`
 
 - [ ] **Duplicate add-relation pattern** — Filter + update pattern repeated across entity repositories
   - **Fix**: Extract to base repository or mixin
@@ -476,14 +473,14 @@ Carried forward from existing implementation:
 
 ### MCP Tool Issues (serial/mcp)
 
-- [ ] **Duplicate "list empty" response pattern** — 11+ instances of identical empty state handling:
+- [x] **Duplicate "list empty" response pattern** — 11+ instances of identical empty state handling:
   - `bible.ts:115-123, 242-250, 323-331, 403-411, 485-493`
   - `project.ts:24-32`
   - `serial.ts:232-240`
   - `review.ts:31-41`
   - `analytics.ts:30-38, 85-93`
   - `extraction.ts:94-102`
-  - **Fix**: Extract to `formatEmptyList()` utility
+  - **Fixed**: Created `utils/response.ts` with `textResponse()`, `emptyListResponse()`, and `listResponse()` helpers
 
 - [ ] **Duplicate projectId resolution pattern** — 30+ instances of `projectId || requireProjectId(session)`:
   - `bible.ts` (14+ times)

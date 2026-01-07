@@ -48,3 +48,6 @@ export * from './error-handling';
 
 // Re-export bible extraction (Phase 6.1)
 export * from './extraction';
+
+// Re-export utilities
+export * from './utils';

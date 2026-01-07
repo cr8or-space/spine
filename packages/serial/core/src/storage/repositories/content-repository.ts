@@ -13,6 +13,7 @@ import type { Content, ContentAnalysis, ContentStatus, ContentVersion, Generatio
 import type { DrizzleDB } from '../database';
 import { contents, contentVersions } from '../drizzle-schema';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { countWords, formatFts5PrefixQuery } from '../../utils/text';
 
 /**
  * Database row representation of content (for raw SQL FTS5 queries)
@@ -158,10 +159,6 @@ export function createContentRepository(db: Database.Database, drizzleDb: Drizzl
       .orderBy(asc(contentVersions.version))
       .all();
     return rows.map(versionRowToVersion);
-  }
-
-  function countWords(text: string): number {
-    return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
   }
 
   return {
@@ -350,8 +347,7 @@ export function createContentRepository(db: Database.Database, drizzleDb: Drizzl
     },
 
     search(projectId: string, query: string): Content[] {
-      const escapedQuery = query.replace(/"/g, '""');
-      const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as ContentRow[];
+      const rows = searchStmt.all(projectId, formatFts5PrefixQuery(query)) as ContentRow[];
       return rows.map((row) => rawRowToContent(row, loadVersions(row.id)));
     },
 

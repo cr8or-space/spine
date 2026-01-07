@@ -8,6 +8,7 @@ import type { ToolContext } from './index';
 import { requireProjectId, selectStructure } from '../context';
 import { handleToolCall } from '../utils/errors';
 import { formatStructureTree } from '../utils/formatting';
+import { emptyListResponse, textResponse } from '../utils/response';
 
 export function registerStructureTools(
   server: McpServer,
@@ -28,14 +29,9 @@ export function registerStructureTools(
         const allStructures = await client.structure.getAll(pid);
 
         if (allStructures.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: '# Structure Tree\n\nNo structures found. Use spine_structure_create to add books, arcs, chapters, or scenes.'
-              }
-            ]
-          };
+          return textResponse(
+            '# Structure Tree\n\nNo structures found. Use `spine_structure_create` to add books, arcs, chapters, or scenes.'
+          );
         }
 
         // Build a map for quick parent lookup
@@ -62,14 +58,7 @@ export function registerStructureTools(
         // Format each root tree
         const formatted = roots.map((root) => formatStructureTree(root)).join('\n\n');
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Structure Tree\n\n${formatted}`
-            }
-          ]
-        };
+        return textResponse(`# Structure Tree\n\n${formatted}`);
       });
     }
   );
@@ -95,16 +84,10 @@ export function registerStructureTools(
         }
 
         if (structures.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: type
-                  ? `No ${type}s found. Use spine_structure_create to add structures.`
-                  : 'No structures found. Use spine_structure_create to add structures.'
-              }
-            ]
-          };
+          return emptyListResponse(
+            type ? `${type}s` : 'structures',
+            'spine_structure_create'
+          );
         }
 
         const lines = structures.map((s) => {
@@ -118,14 +101,7 @@ export function registerStructureTools(
           return line;
         });
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Structures (${structures.length})\n\n${lines.join('\n')}`
-            }
-          ]
-        };
+        return textResponse(`# Structures (${structures.length})\n\n${lines.join('\n')}`);
       });
     }
   );

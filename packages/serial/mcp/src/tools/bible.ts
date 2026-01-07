@@ -13,6 +13,7 @@ import {
   formatFaction,
   formatPlotThread
 } from '../utils/formatting';
+import { listResponse, textResponse } from '../utils/response';
 
 export function registerBibleTools(
   server: McpServer,
@@ -112,27 +113,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const characters = await client.bible.character.list(pid);
 
-        if (characters.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No characters found. Use spine_bible_character_create to add characters.'
-              }
-            ]
-          };
-        }
-
-        const lines = characters.map((c) => formatCharacter(c));
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Characters (${characters.length})\n\n${lines.join('\n\n---\n\n')}`
-            }
-          ]
-        };
+        return listResponse(characters, 'characters', formatCharacter, {
+          createTool: 'spine_bible_character_create',
+        });
       });
     }
   );
@@ -159,14 +142,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const character = await client.bible.character.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created character "${character.name}" (${character.id})\n\n${formatCharacter(character)}`
-            }
-          ]
-        };
+        return textResponse(
+          `Created character "${character.name}" (${character.id})\n\n${formatCharacter(character)}`
+        );
       });
     }
   );
@@ -195,14 +173,7 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const character = await client.bible.character.update(pid, id, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Updated character "${character.name}"\n\n${formatCharacter(character)}`
-            }
-          ]
-        };
+        return textResponse(`Updated character "${character.name}"\n\n${formatCharacter(character)}`);
       });
     }
   );
@@ -220,9 +191,7 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         await client.bible.character.delete(pid, id);
 
-        return {
-          content: [{ type: 'text', text: `Deleted character ${id}` }]
-        };
+        return textResponse(`Deleted character ${id}`);
       });
     }
   );
@@ -239,27 +208,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const locations = await client.bible.location.list(pid);
 
-        if (locations.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No locations found. Use spine_bible_location_create to add locations.'
-              }
-            ]
-          };
-        }
-
-        const lines = locations.map((l) => formatLocation(l));
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Locations (${locations.length})\n\n${lines.join('\n\n---\n\n')}`
-            }
-          ]
-        };
+        return listResponse(locations, 'locations', formatLocation, {
+          createTool: 'spine_bible_location_create',
+        });
       });
     }
   );
@@ -296,14 +247,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const location = await client.bible.location.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created location "${location.name}" (${location.id})\n\n${formatLocation(location)}`
-            }
-          ]
-        };
+        return textResponse(
+          `Created location "${location.name}" (${location.id})\n\n${formatLocation(location)}`
+        );
       });
     }
   );
@@ -320,27 +266,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const factions = await client.bible.faction.list(pid);
 
-        if (factions.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No factions found. Use spine_bible_faction_create to add factions.'
-              }
-            ]
-          };
-        }
-
-        const lines = factions.map((f) => formatFaction(f));
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Factions (${factions.length})\n\n${lines.join('\n\n---\n\n')}`
-            }
-          ]
-        };
+        return listResponse(factions, 'factions', formatFaction, {
+          createTool: 'spine_bible_faction_create',
+        });
       });
     }
   );
@@ -376,14 +304,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const faction = await client.bible.faction.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created faction "${faction.name}" (${faction.id})\n\n${formatFaction(faction)}`
-            }
-          ]
-        };
+        return textResponse(
+          `Created faction "${faction.name}" (${faction.id})\n\n${formatFaction(faction)}`
+        );
       });
     }
   );
@@ -400,27 +323,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const threads = await client.bible.plotThread.list(pid);
 
-        if (threads.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No plot threads found. Use spine_bible_thread_create to add threads.'
-              }
-            ]
-          };
-        }
-
-        const lines = threads.map((t) => formatPlotThread(t));
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Plot Threads (${threads.length})\n\n${lines.join('\n\n---\n\n')}`
-            }
-          ]
-        };
+        return listResponse(threads, 'plot threads', formatPlotThread, {
+          createTool: 'spine_bible_thread_create',
+        });
       });
     }
   );
@@ -458,14 +363,9 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const thread = await client.bible.plotThread.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created plot thread "${thread.name}" (${thread.id})\n\n${formatPlotThread(thread)}`
-            }
-          ]
-        };
+        return textResponse(
+          `Created plot thread "${thread.name}" (${thread.id})\n\n${formatPlotThread(thread)}`
+        );
       });
     }
   );
@@ -482,30 +382,12 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const rules = await client.bible.worldRule.list(pid);
 
-        if (rules.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No world rules found. Use spine_bible_rule_create to add rules.'
-              }
-            ]
-          };
-        }
+        const formatRule = (r: (typeof rules)[0]) =>
+          `**${r.name}** (${r.category})\n${r.description || 'No description'}`;
 
-        const lines = rules.map(
-          (r) =>
-            `**${r.name}** (${r.category})\n${r.description || 'No description'}`
-        );
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# World Rules (${rules.length})\n\n${lines.join('\n\n---\n\n')}`
-            }
-          ]
-        };
+        return listResponse(rules, 'world rules', formatRule, {
+          createTool: 'spine_bible_rule_create',
+        });
       });
     }
   );
@@ -529,14 +411,7 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const rule = await client.bible.worldRule.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created world rule "${rule.name}" (${rule.id})`
-            }
-          ]
-        };
+        return textResponse(`Created world rule "${rule.name}" (${rule.id})`);
       });
     }
   );
@@ -553,30 +428,14 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const events = await client.bible.timelineEvent.list(pid);
 
-        if (events.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No timeline events found. Use spine_bible_event_create to add events.'
-              }
-            ]
-          };
-        }
+        const formatEvent = (e: (typeof events)[0]) =>
+          `**${e.date}**: ${e.name}${e.significance ? ` (${e.significance})` : ''}\n${e.description || ''}`;
 
-        const lines = events.map(
-          (e) =>
-            `**${e.date}**: ${e.name}${e.significance ? ` (${e.significance})` : ''}\n${e.description || ''}`
-        );
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `# Timeline (${events.length} events)\n\n${lines.join('\n\n')}`
-            }
-          ]
-        };
+        return listResponse(events, 'timeline events', formatEvent, {
+          title: `# Timeline (${events.length} events)`,
+          separator: '\n\n',
+          createTool: 'spine_bible_event_create',
+        });
       });
     }
   );
@@ -608,14 +467,7 @@ export function registerBibleTools(
         const pid = projectId || requireProjectId(session);
         const event = await client.bible.timelineEvent.create(pid, data);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created timeline event "${event.name}" on ${event.date} (${event.id})`
-            }
-          ]
-        };
+        return textResponse(`Created timeline event "${event.name}" on ${event.date} (${event.id})`);
       });
     }
   );

@@ -7,6 +7,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ToolContext } from './index';
 import { loadProject, clearContext } from '../context';
 import { handleToolCall } from '../utils/errors';
+import { emptyListResponse, textResponse } from '../utils/response';
 
 export function registerProjectTools(
   server: McpServer,
@@ -22,14 +23,7 @@ export function registerProjectTools(
         const projects = await client.project.list();
 
         if (projects.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No projects found. Use spine_project_create to create a new project.'
-              }
-            ]
-          };
+          return emptyListResponse('projects', 'spine_project_create');
         }
 
         const lines = projects.map(
@@ -37,14 +31,7 @@ export function registerProjectTools(
             `• ${p.title} (${p.id})\n  Format: ${p.format} | Updated: ${p.updatedAt}`
         );
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Found ${projects.length} project(s):\n\n${lines.join('\n\n')}`
-            }
-          ]
-        };
+        return textResponse(`Found ${projects.length} project(s):\n\n${lines.join('\n\n')}`);
       });
     }
   );
@@ -68,14 +55,9 @@ export function registerProjectTools(
         // Auto-load the new project
         loadProject(session, project.id, project.title);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Created and loaded project "${project.title}" (${project.id})\nFormat: ${project.format}\n\nProject is now active. You can start adding to the bible or structure.`
-            }
-          ]
-        };
+        return textResponse(
+          `Created and loaded project "${project.title}" (${project.id})\nFormat: ${project.format}\n\nProject is now active. You can start adding to the bible or structure.`
+        );
       });
     }
   );
@@ -93,14 +75,9 @@ export function registerProjectTools(
 
         loadProject(session, project.id, project.title);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Loaded project "${project.title}" (${project.id})\nFormat: ${project.format}\nCreated: ${project.createdAt}\nUpdated: ${project.updatedAt}`
-            }
-          ]
-        };
+        return textResponse(
+          `Loaded project "${project.title}" (${project.id})\nFormat: ${project.format}\nCreated: ${project.createdAt}\nUpdated: ${project.updatedAt}`
+        );
       });
     }
   );
@@ -118,14 +95,7 @@ export function registerProjectTools(
     async ({ id, confirm }) => {
       return handleToolCall(async () => {
         if (!confirm) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'Deletion not confirmed. Set confirm: true to delete the project.'
-              }
-            ]
-          };
+          return textResponse('Deletion not confirmed. Set confirm: true to delete the project.');
         }
 
         // Clear session if deleting current project
@@ -135,14 +105,7 @@ export function registerProjectTools(
 
         await client.project.delete(id);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Project ${id} has been deleted.`
-            }
-          ]
-        };
+        return textResponse(`Project ${id} has been deleted.`);
       });
     }
   );
@@ -174,9 +137,7 @@ export function registerProjectTools(
           : 'Use spine_project_load or spine_project_create to get started.'
       );
 
-      return {
-        content: [{ type: 'text', text: lines.join('\n') }]
-      };
+      return textResponse(lines.join('\n'));
     }
   );
 
@@ -202,14 +163,7 @@ export function registerProjectTools(
       return handleToolCall(async () => {
         const projectId = session.currentProjectId;
         if (!projectId) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No project loaded. Use spine_project_load first.'
-              }
-            ]
-          };
+          return textResponse('No project loaded. Use spine_project_load first.');
         }
 
         const settings: Record<string, unknown> = {};
@@ -237,26 +191,12 @@ export function registerProjectTools(
         }
 
         if (Object.keys(settings).length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: 'No settings provided to update.'
-              }
-            ]
-          };
+          return textResponse('No settings provided to update.');
         }
 
         await client.project.updateSettings(projectId, settings);
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Updated settings for project "${session.currentProjectTitle}".`
-            }
-          ]
-        };
+        return textResponse(`Updated settings for project "${session.currentProjectTitle}".`);
       });
     }
   );

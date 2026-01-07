@@ -78,3 +78,17 @@ export type {
   RevisionInput,
 } from './draft';
 export { createDraftService, DEFAULT_DRAFT_CONFIG } from './draft';
+
+// Formatting utilities
+export type { FormatContextOptions, FormatStructureOptions } from './formatting';
+export {
+  formatContext,
+  formatStructure,
+  formatContextForOutline,
+  formatContextForBeats,
+  formatContextForDraft,
+  formatStructureForOutline,
+  formatStructureForBeats,
+  formatStructureForDraft,
+  formatStructureForPipeline,
+} from './formatting';

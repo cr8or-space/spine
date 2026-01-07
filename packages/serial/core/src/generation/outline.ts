@@ -10,6 +10,7 @@ import type { Beat, Structure } from '@repo/serial-types';
 import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
 import { buildStageMessages } from './prompts';
+import { formatContextForOutline, formatStructureForOutline } from './formatting';
 
 /**
  * Outline generation configuration
@@ -120,91 +121,6 @@ export interface OutlineValidation {
   warnings: string[];
 }
 
-// Type helper for entities that might be Character, CharacterSummary, etc.
-interface EntityWithName {
-  name: string;
-  role?: string;
-  type?: string;
-  status?: string;
-  description?: string;
-}
-
-/**
- * Format context for prompt
- */
-function formatContext(context: AssembledContext): string {
-  const sections: string[] = [];
-
-  // Format characters
-  if (context.bible.characters.length > 0) {
-    sections.push('### Characters');
-    for (const char of context.bible.characters as unknown as EntityWithName[]) {
-      const name = char.name;
-      const role = char.role ?? '';
-      const description = char.description ?? '';
-      sections.push(`- **${name}** (${role}): ${description}`);
-    }
-  }
-
-  // Format locations
-  if (context.bible.locations.length > 0) {
-    sections.push('\n### Locations');
-    for (const loc of context.bible.locations as unknown as EntityWithName[]) {
-      const name = loc.name;
-      const type = loc.type ?? '';
-      const description = loc.description ?? '';
-      sections.push(`- **${name}** (${type}): ${description}`);
-    }
-  }
-
-  // Format recent content
-  if (context.recentContent.length > 0) {
-    sections.push('\n### Recent Events');
-    for (const content of context.recentContent) {
-      sections.push(`**${content.title}**: ${content.summary}`);
-    }
-  }
-
-  // Format active plot threads
-  if (context.bible.plotThreads.length > 0) {
-    sections.push('\n### Active Plot Threads');
-    for (const thread of context.bible.plotThreads as unknown as EntityWithName[]) {
-      const name = thread.name;
-      const type = thread.type ?? '';
-      const status = thread.status ?? '';
-      if (status === 'active' || status === 'planned') {
-        sections.push(`- **${name}** (${type}): ${status}`);
-      }
-    }
-  }
-
-  return sections.join('\n');
-}
-
-/**
- * Format structure for prompt
- */
-function formatStructure(structure: Structure): string {
-  const lines: string[] = [];
-  lines.push(`**${structure.type.toUpperCase()}**: ${structure.title}`);
-  if (structure.summary) {
-    lines.push(`Summary: ${structure.summary}`);
-  }
-  if (structure.chapterType) {
-    lines.push(`Type: ${structure.chapterType}`);
-  }
-  if (structure.tensionTarget !== undefined) {
-    lines.push(`Tension Target: ${structure.tensionTarget}/100`);
-  }
-  if (structure.hook) {
-    lines.push(`Hook: ${structure.hook.type} - ${structure.hook.description}`);
-  }
-  if (structure.notes) {
-    lines.push(`Notes: ${structure.notes}`);
-  }
-  return lines.join('\n');
-}
-
 /**
  * Parse outline response into beats
  */
@@ -256,10 +172,10 @@ export function createOutlineService(client: LLMClient): OutlineService {
     const { structure, context } = input;
 
     // Format context for prompt
-    const formattedContext = formatContext(context);
+    const formattedContext = formatContextForOutline(context);
 
     // Format structure
-    const structureText = formatStructure(structure);
+    const structureText = formatStructureForOutline(structure);
 
     // Format constraints
     const constraintsText = context.constraints.length > 0

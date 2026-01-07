@@ -10,6 +10,7 @@ import type { Beat, Structure } from '@repo/serial-types';
 import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
 import { buildStageMessages } from './prompts';
+import { formatContextForBeats, formatStructureForBeats } from './formatting';
 
 /**
  * Beat expansion configuration
@@ -147,69 +148,6 @@ function formatOutlineBeats(beats: Beat[]): string {
     .join('\n');
 }
 
-// Type helper for entities that might be Character, CharacterSummary, etc.
-interface EntityWithName {
-  name: string;
-  role?: string;
-}
-
-/**
- * Format context for prompt
- */
-function formatContext(context: AssembledContext): string {
-  const sections: string[] = [];
-
-  // Format characters
-  if (context.bible.characters.length > 0) {
-    sections.push('### Characters');
-    for (const char of context.bible.characters as unknown as EntityWithName[]) {
-      const name = char.name;
-      const role = char.role ?? '';
-      sections.push(`- **${name}** (${role})`);
-    }
-  }
-
-  // Format locations
-  if (context.bible.locations.length > 0) {
-    sections.push('\n### Locations');
-    for (const loc of context.bible.locations as unknown as EntityWithName[]) {
-      const name = loc.name;
-      sections.push(`- **${name}**`);
-    }
-  }
-
-  // Format recent content summaries
-  if (context.recentContent.length > 0) {
-    sections.push('\n### Recent Events');
-    for (const content of context.recentContent) {
-      sections.push(`**${content.title}**: ${content.summary}`);
-    }
-  }
-
-  return sections.join('\n');
-}
-
-/**
- * Format structure for prompt
- */
-function formatStructure(structure: Structure): string {
-  const lines: string[] = [];
-  lines.push(`**${structure.type.toUpperCase()}**: ${structure.title}`);
-  if (structure.summary) {
-    lines.push(`Summary: ${structure.summary}`);
-  }
-  if (structure.chapterType) {
-    lines.push(`Type: ${structure.chapterType}`);
-  }
-  if (structure.tensionTarget !== undefined) {
-    lines.push(`Tension Target: ${structure.tensionTarget}/100`);
-  }
-  if (structure.hook) {
-    lines.push(`Hook: ${structure.hook.type} - ${structure.hook.description}`);
-  }
-  return lines.join('\n');
-}
-
 /**
  * Parse beats response into expanded beats
  */
@@ -342,10 +280,10 @@ export function createBeatsService(client: LLMClient): BeatsService {
     const { structure, context, outlineBeats } = input;
 
     // Format context for prompt
-    const formattedContext = formatContext(context);
+    const formattedContext = formatContextForBeats(context);
 
     // Format structure
-    const structureText = formatStructure(structure);
+    const structureText = formatStructureForBeats(structure);
 
     // Format outline beats
     const beatsText = formatOutlineBeats(outlineBeats);

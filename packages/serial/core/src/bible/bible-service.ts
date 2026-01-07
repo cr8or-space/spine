@@ -22,6 +22,7 @@ import {
   createWorldRuleRepository,
 } from '../storage/repositories';
 import { nowTimestamp } from '../storage/repository';
+import { truncateText } from '../utils/text';
 import { createCharacterService, type CharacterService } from './character-service';
 import {
   createCrossReferenceRepository,
@@ -103,33 +104,38 @@ export interface BibleService {
 }
 
 /**
- * Create bible service
+ * Internal services required to build a BibleService
  */
-export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, projectId: string): BibleService {
-  // Create repositories
-  const characterRepo = createCharacterRepository(db, drizzleDb);
-  const locationRepo = createLocationRepository(db, drizzleDb);
-  const factionRepo = createFactionRepository(db, drizzleDb);
-  const worldRuleRepo = createWorldRuleRepository(db, drizzleDb);
-  const plotThreadRepo = createPlotThreadRepository(db, drizzleDb);
-  const timelineEventRepo = createTimelineEventRepository(db, drizzleDb);
-  const timelineSpanRepo = createTimelineSpanRepository(db, drizzleDb);
-  const crossRefRepo = createCrossReferenceRepository(db, drizzleDb);
+interface BibleServiceDeps {
+  projectId: string;
+  characterService: CharacterService;
+  locationService: LocationService;
+  factionService: FactionService;
+  worldRuleService: WorldRuleService;
+  plotThreadService: PlotThreadService;
+  timelineService: TimelineService;
+  crossRefRepo: CrossReferenceRepository;
+  graphService: RelationshipGraphService;
+}
 
-  // Create services
-  const characterService = createCharacterService(projectId, characterRepo);
-  const locationService = createLocationService(projectId, locationRepo);
-  const factionService = createFactionService(projectId, factionRepo);
-  const worldRuleService = createWorldRuleService(projectId, worldRuleRepo);
-  const plotThreadService = createPlotThreadService(projectId, plotThreadRepo);
-  const timelineService = createTimelineService(projectId, timelineEventRepo, timelineSpanRepo);
-  const graphService = createRelationshipGraphService(
+/**
+ * Build bible service methods from dependencies
+ *
+ * This shared implementation is used by both factory functions
+ * to avoid code duplication.
+ */
+function buildBibleServiceMethods(deps: BibleServiceDeps): BibleService {
+  const {
+    projectId,
     characterService,
     locationService,
     factionService,
+    worldRuleService,
     plotThreadService,
-    timelineService
-  );
+    timelineService,
+    crossRefRepo,
+    graphService,
+  } = deps;
 
   return {
     characters: characterService,
@@ -180,7 +186,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const char of characterService.search(query)) {
         let match = char.name;
         if (char.description.toLowerCase().includes(lowerQuery)) {
-          match = char.description.substring(0, 100);
+          match = truncateText(char.description, 100);
         }
         results.push({ type: 'character', id: char.id, name: char.name, match });
       }
@@ -189,7 +195,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const loc of locationService.search(query)) {
         let match = loc.name;
         if (loc.description.toLowerCase().includes(lowerQuery)) {
-          match = loc.description.substring(0, 100);
+          match = truncateText(loc.description, 100);
         }
         results.push({ type: 'location', id: loc.id, name: loc.name, match });
       }
@@ -198,7 +204,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const faction of factionService.search(query)) {
         let match = faction.name;
         if (faction.description.toLowerCase().includes(lowerQuery)) {
-          match = faction.description.substring(0, 100);
+          match = truncateText(faction.description, 100);
         }
         results.push({ type: 'faction', id: faction.id, name: faction.name, match });
       }
@@ -207,7 +213,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const rule of worldRuleService.search(query)) {
         let match = rule.name;
         if (rule.rule.toLowerCase().includes(lowerQuery)) {
-          match = rule.rule.substring(0, 100);
+          match = truncateText(rule.rule, 100);
         }
         results.push({ type: 'world-rule', id: rule.id, name: rule.name, match });
       }
@@ -216,7 +222,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const thread of plotThreadService.search(query)) {
         let match = thread.name;
         if (thread.description.toLowerCase().includes(lowerQuery)) {
-          match = thread.description.substring(0, 100);
+          match = truncateText(thread.description, 100);
         }
         results.push({ type: 'plot-thread', id: thread.id, name: thread.name, match });
       }
@@ -225,7 +231,7 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
       for (const event of timelineService.searchEvents(query)) {
         let match = event.name;
         if (event.description.toLowerCase().includes(lowerQuery)) {
-          match = event.description.substring(0, 100);
+          match = truncateText(event.description, 100);
         }
         results.push({ type: 'timeline-event', id: event.id, name: event.name, match });
       }
@@ -292,6 +298,48 @@ export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, 
 }
 
 /**
+ * Create bible service
+ */
+export function createBibleService(db: Database.Database, drizzleDb: DrizzleDB, projectId: string): BibleService {
+  // Create repositories
+  const characterRepo = createCharacterRepository(db, drizzleDb);
+  const locationRepo = createLocationRepository(db, drizzleDb);
+  const factionRepo = createFactionRepository(db, drizzleDb);
+  const worldRuleRepo = createWorldRuleRepository(db, drizzleDb);
+  const plotThreadRepo = createPlotThreadRepository(db, drizzleDb);
+  const timelineEventRepo = createTimelineEventRepository(db, drizzleDb);
+  const timelineSpanRepo = createTimelineSpanRepository(db, drizzleDb);
+  const crossRefRepo = createCrossReferenceRepository(db, drizzleDb);
+
+  // Create services
+  const characterService = createCharacterService(projectId, characterRepo);
+  const locationService = createLocationService(projectId, locationRepo);
+  const factionService = createFactionService(projectId, factionRepo);
+  const worldRuleService = createWorldRuleService(projectId, worldRuleRepo);
+  const plotThreadService = createPlotThreadService(projectId, plotThreadRepo);
+  const timelineService = createTimelineService(projectId, timelineEventRepo, timelineSpanRepo);
+  const graphService = createRelationshipGraphService(
+    characterService,
+    locationService,
+    factionService,
+    plotThreadService,
+    timelineService
+  );
+
+  return buildBibleServiceMethods({
+    projectId,
+    characterService,
+    locationService,
+    factionService,
+    worldRuleService,
+    plotThreadService,
+    timelineService,
+    crossRefRepo,
+    graphService,
+  });
+}
+
+/**
  * Create bible service from existing project repositories
  */
 export function createBibleServiceFromRepositories(
@@ -320,156 +368,15 @@ export function createBibleServiceFromRepositories(
     timelineService
   );
 
-  return {
-    characters: characterService,
-    locations: locationService,
-    factions: factionService,
-    worldRules: worldRuleService,
-    plotThreads: plotThreadService,
-    timeline: timelineService,
-    crossRefs: crossRefRepo,
-    graph: graphService,
-
-    getBible(): Bible {
-      const now = nowTimestamp();
-      return {
-        id: projectId,
-        characters: characterService.getAll(),
-        locations: locationService.getAll(),
-        factions: factionService.getAll(),
-        worldRules: worldRuleService.getAll(),
-        plotThreads: plotThreadService.getAll(),
-        timelineEvents: timelineService.getAllEvents(),
-        timelineSpans: timelineService.getAllSpans(),
-        createdAt: now,
-        updatedAt: now,
-      };
-    },
-
-    getBibleSummary(): BibleSummary {
-      return {
-        id: projectId,
-        characters: characterService.getAllSummaries(),
-        locations: locationService.getAllSummaries(),
-        factions: factionService.getAllSummaries(),
-        worldRules: worldRuleService.getAllSummaries(),
-        plotThreads: plotThreadService.getAllSummaries(),
-        timelineEvents: timelineService.getAllEventSummaries(),
-      };
-    },
-
-    searchAll(
-      query: string
-    ): Array<{ type: EntityRef['type']; id: string; name: string; match: string }> {
-      const results: Array<{ type: EntityRef['type']; id: string; name: string; match: string }> =
-        [];
-      const lowerQuery = query.toLowerCase();
-
-      for (const char of characterService.search(query)) {
-        let match = char.name;
-        if (char.description.toLowerCase().includes(lowerQuery)) {
-          match = char.description.substring(0, 100);
-        }
-        results.push({ type: 'character', id: char.id, name: char.name, match });
-      }
-
-      for (const loc of locationService.search(query)) {
-        let match = loc.name;
-        if (loc.description.toLowerCase().includes(lowerQuery)) {
-          match = loc.description.substring(0, 100);
-        }
-        results.push({ type: 'location', id: loc.id, name: loc.name, match });
-      }
-
-      for (const faction of factionService.search(query)) {
-        let match = faction.name;
-        if (faction.description.toLowerCase().includes(lowerQuery)) {
-          match = faction.description.substring(0, 100);
-        }
-        results.push({ type: 'faction', id: faction.id, name: faction.name, match });
-      }
-
-      for (const rule of worldRuleService.search(query)) {
-        let match = rule.name;
-        if (rule.rule.toLowerCase().includes(lowerQuery)) {
-          match = rule.rule.substring(0, 100);
-        }
-        results.push({ type: 'world-rule', id: rule.id, name: rule.name, match });
-      }
-
-      for (const thread of plotThreadService.search(query)) {
-        let match = thread.name;
-        if (thread.description.toLowerCase().includes(lowerQuery)) {
-          match = thread.description.substring(0, 100);
-        }
-        results.push({ type: 'plot-thread', id: thread.id, name: thread.name, match });
-      }
-
-      for (const event of timelineService.searchEvents(query)) {
-        let match = event.name;
-        if (event.description.toLowerCase().includes(lowerQuery)) {
-          match = event.description.substring(0, 100);
-        }
-        results.push({ type: 'timeline-event', id: event.id, name: event.name, match });
-      }
-
-      return results;
-    },
-
-    getEntity(ref: EntityRef): unknown | undefined {
-      switch (ref.type) {
-        case 'character':
-          return characterService.get(ref.id);
-        case 'location':
-          return locationService.get(ref.id);
-        case 'faction':
-          return factionService.get(ref.id);
-        case 'world-rule':
-          return worldRuleService.get(ref.id);
-        case 'plot-thread':
-          return plotThreadService.get(ref.id);
-        case 'timeline-event':
-          return timelineService.getEvent(ref.id);
-        default:
-          return undefined;
-      }
-    },
-
-    getReferencingEntities(entityId: string, entityType: EntityRef['type']): EntityRef[] {
-      return crossRefRepo.findReferencingEntities(projectId, entityId, entityType);
-    },
-
-    getReferencedEntities(entityId: string, entityType: EntityRef['type']): EntityRef[] {
-      return crossRefRepo.findReferencedEntities(projectId, entityId, entityType);
-    },
-
-    updateContentReferences(
-      contentId: string,
-      references: Array<{ targetId: string; targetType: EntityRef['type']; context?: string }>
-    ): void {
-      crossRefRepo.replaceSourceReferences(projectId, contentId, 'content', references);
-    },
-
-    getStats(): {
-      characters: number;
-      locations: number;
-      factions: number;
-      worldRules: number;
-      plotThreads: number;
-      timelineEvents: number;
-      timelineSpans: number;
-      crossReferences: number;
-    } {
-      return {
-        characters: characterService.getAll().length,
-        locations: locationService.getAll().length,
-        factions: factionService.getAll().length,
-        worldRules: worldRuleService.getAll().length,
-        plotThreads: plotThreadService.getAll().length,
-        timelineEvents: timelineService.getAllEvents().length,
-        timelineSpans: timelineService.getAllSpans().length,
-        crossReferences: crossRefRepo.findByProject(projectId).length,
-      };
-    },
-  };
+  return buildBibleServiceMethods({
+    projectId,
+    characterService,
+    locationService,
+    factionService,
+    worldRuleService,
+    plotThreadService,
+    timelineService,
+    crossRefRepo,
+    graphService,
+  });
 }

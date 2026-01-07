@@ -12,6 +12,8 @@ import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 import { buildStageMessages } from './prompts';
 import type { ExpandedBeat } from './beats';
 import type { SelfReviewFeedback } from './types';
+import { formatContextForDraft, formatStructureForDraft } from './formatting';
+import { countWords as countWordsUtil, splitParagraphs as splitParagraphsUtil } from '../utils/text';
 
 /**
  * Draft generation configuration
@@ -166,112 +168,6 @@ function formatBeats(beats: (Beat | ExpandedBeat)[]): string {
     .join('\n');
 }
 
-// Type helper for entities that might be Character, CharacterSummary, etc.
-interface CharacterWithDetails {
-  name: string;
-  role?: string;
-  description?: string;
-  voiceNotes?: string;
-}
-
-interface LocationWithDetails {
-  name: string;
-  description?: string;
-  sensoryDetails?: string;
-}
-
-/**
- * Format context for prompt
- */
-function formatContext(context: AssembledContext, povCharacter?: string): string {
-  const sections: string[] = [];
-
-  // Format characters, highlighting POV character
-  if (context.bible.characters.length > 0) {
-    sections.push('### Characters');
-    for (const char of context.bible.characters as unknown as CharacterWithDetails[]) {
-      const name = char.name;
-      const role = char.role ?? '';
-      const description = char.description ?? '';
-      const voiceNotes = char.voiceNotes ?? '';
-
-      if (povCharacter && name.toLowerCase() === povCharacter.toLowerCase()) {
-        sections.push(`- **${name} (POV)** (${role}): ${description}`);
-        if (voiceNotes) {
-          sections.push(`  Voice: ${voiceNotes}`);
-        }
-      } else {
-        sections.push(`- **${name}** (${role}): ${description}`);
-      }
-    }
-  }
-
-  // Format locations
-  if (context.bible.locations.length > 0) {
-    sections.push('\n### Locations');
-    for (const loc of context.bible.locations as unknown as LocationWithDetails[]) {
-      const name = loc.name;
-      const description = loc.description ?? '';
-      const sensory = loc.sensoryDetails ?? '';
-      sections.push(`- **${name}**: ${description}`);
-      if (sensory) {
-        sections.push(`  Sensory: ${sensory}`);
-      }
-    }
-  }
-
-  // Format recent content
-  if (context.recentContent.length > 0) {
-    sections.push('\n### Recent Events');
-    for (const content of context.recentContent) {
-      sections.push(`**${content.title}**: ${content.summary}`);
-    }
-  }
-
-  return sections.join('\n');
-}
-
-/**
- * Format structure for prompt
- */
-function formatStructure(structure: Structure): string {
-  const lines: string[] = [];
-  lines.push(`**${structure.type.toUpperCase()}**: ${structure.title}`);
-  if (structure.summary) {
-    lines.push(`Summary: ${structure.summary}`);
-  }
-  if (structure.chapterType) {
-    lines.push(`Type: ${structure.chapterType}`);
-  }
-  if (structure.tensionTarget !== undefined) {
-    lines.push(`Tension Target: ${structure.tensionTarget}/100`);
-  }
-  if (structure.hook) {
-    lines.push(`Required Hook: ${structure.hook.type} - ${structure.hook.description}`);
-  }
-  if (structure.notes) {
-    lines.push(`Notes: ${structure.notes}`);
-  }
-  return lines.join('\n');
-}
-
-/**
- * Count words in text
- */
-function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
-/**
- * Split text into paragraphs
- */
-function splitParagraphs(text: string): string[] {
-  return text
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-}
-
 /**
  * Create the draft service
  */
@@ -295,10 +191,10 @@ export function createDraftService(client: LLMClient): DraftService {
     const { structure, context, beats } = input;
 
     // Format context for prompt, highlighting POV character
-    const formattedContext = formatContext(context, input.povCharacter);
+    const formattedContext = formatContextForDraft(context, input.povCharacter);
 
     // Format structure
-    const structureText = formatStructure(structure);
+    const structureText = formatStructureForDraft(structure);
 
     // Format beats
     const beatsText = formatBeats(beats);
@@ -390,7 +286,7 @@ export function createDraftService(client: LLMClient): DraftService {
       }
 
       const durationMs = Date.now() - startTime;
-      const wordCount = countWords(responseText);
+      const wordCount = countWordsUtil(responseText);
 
       const result: DraftResult = {
         success: true,
@@ -434,8 +330,8 @@ export function createDraftService(client: LLMClient): DraftService {
 
     try {
       const placeholders = {
-        context: formatContext(input.context, input.povCharacter),
-        structure: formatStructure(input.structure),
+        context: formatContextForDraft(input.context, input.povCharacter),
+        structure: formatStructureForDraft(input.structure),
         draft,
         constraints: input.context.constraints.length > 0
           ? input.context.constraints.map((c) => `- ${c.statement}`).join('\n')
@@ -505,13 +401,13 @@ export function createDraftService(client: LLMClient): DraftService {
 
     try {
       // Build revision-specific prompt
-      const formattedContext = formatContext(input.context, input.povCharacter);
+      const formattedContext = formatContextForDraft(input.context, input.povCharacter);
 
       const messages = buildStageMessages(
         'revision',
         {
           context: formattedContext,
-          structure: formatStructure(input.structure),
+          structure: formatStructureForDraft(input.structure),
           draft: input.originalDraft,
           issues: input.issues.map((issue) => ({
             type: issue.type,
@@ -555,7 +451,7 @@ export function createDraftService(client: LLMClient): DraftService {
       }
 
       const durationMs = Date.now() - startTime;
-      const wordCount = countWords(responseText);
+      const wordCount = countWordsUtil(responseText);
 
       return {
         success: true,
@@ -651,7 +547,7 @@ Complete all remaining beats and end with the required hook.
       const fullDraft = partialDraft + '\n\n' + responseText;
 
       const durationMs = Date.now() - startTime;
-      const wordCount = countWords(fullDraft);
+      const wordCount = countWordsUtil(fullDraft);
 
       return {
         success: true,
@@ -666,7 +562,7 @@ Complete all remaining beats and end with the required hook.
       return {
         success: false,
         text: partialDraft, // Return what we had
-        wordCount: countWords(partialDraft),
+        wordCount: countWordsUtil(partialDraft),
         tokens: { prompt: 0, completion: 0 },
         durationMs,
         error: error instanceof Error ? error.message : String(error),
@@ -712,7 +608,7 @@ Complete all remaining beats and end with the required hook.
     revise,
     continue: draftContinue,
     toContent,
-    countWords,
-    splitParagraphs,
+    countWords: countWordsUtil,
+    splitParagraphs: splitParagraphsUtil,
   };
 }

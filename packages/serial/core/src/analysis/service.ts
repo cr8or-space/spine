@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 import type { ContentAnalysis, ContinuityIssue, ExplainedScore } from '@repo/serial-types';
 import type { LLMClient } from '@repo/framework-llm';
 
+import { countWords } from '../utils/text';
 import type {
   AnalysisConfig,
   AnalysisInput,
@@ -58,13 +59,6 @@ function mergeConfig(config?: AnalysisConfig): Required<AnalysisConfig> {
     ...DEFAULT_ANALYSIS_CONFIG,
     ...config,
   };
-}
-
-/**
- * Count words in text
- */
-function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 /**

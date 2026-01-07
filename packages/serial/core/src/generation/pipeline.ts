@@ -7,7 +7,7 @@
 import { nanoid } from 'nanoid';
 import type { Beat, Content, GenerationRecord } from '@repo/serial-types';
 import type { LLMClient } from '@repo/framework-llm';
-import { formatContext } from '@repo/framework-llm';
+import { formatContext as formatContextLlm } from '@repo/framework-llm';
 
 import {
   type GenerationPipeline,
@@ -22,6 +22,8 @@ import {
   DEFAULT_GENERATION_OPTIONS,
 } from './types';
 import { buildStageMessages } from './prompts';
+import { formatStructureForPipeline } from './formatting';
+import { countWords as countWordsUtil } from '../utils/text';
 
 /**
  * Create a generation pipeline
@@ -84,10 +86,10 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
     const { structure, context, options } = request;
 
     // Format context for prompt
-    const formattedContext = formatContext(context);
+    const formattedContext = formatContextLlm(context);
 
     // Format structure
-    const structureText = formatStructure(structure);
+    const structureText = formatStructureForPipeline(structure);
 
     // Format beats if we have them from previous stages
     let beatsText: string | undefined;
@@ -119,37 +121,6 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
       hookRequirements,
       tensionTarget: structure.tensionTarget,
     };
-  }
-
-  /**
-   * Format structure for prompt
-   */
-  function formatStructure(structure: import('@repo/serial-types').Structure): string {
-    const lines: string[] = [];
-    lines.push(`**${structure.type.toUpperCase()}**: ${structure.title}`);
-    if (structure.summary) {
-      lines.push(`Summary: ${structure.summary}`);
-    }
-    if (structure.chapterType) {
-      lines.push(`Type: ${structure.chapterType}`);
-    }
-    if (structure.tensionTarget !== undefined) {
-      lines.push(`Tension Target: ${structure.tensionTarget}/100`);
-    }
-    if (structure.hook) {
-      lines.push(`Hook: ${structure.hook.type} - ${structure.hook.description}`);
-    }
-    if (structure.beats.length > 0) {
-      lines.push('Beats:');
-      for (const beat of structure.beats) {
-        const status = beat.completed ? '[x]' : '[ ]';
-        lines.push(`  ${status} ${beat.description}`);
-      }
-    }
-    if (structure.notes) {
-      lines.push(`Notes: ${structure.notes}`);
-    }
-    return lines.join('\n');
   }
 
   /**
@@ -617,7 +588,7 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
             {
               version: 1,
               text: draftText,
-              wordCount: countWords(draftText),
+              wordCount: countWordsUtil(draftText),
               source: 'generated',
               createdAt: completedAt,
             },
@@ -670,13 +641,6 @@ export function createGenerationPipeline(client: LLMClient): GenerationPipeline 
       generationRecord,
       selfReviewFeedback: stageResults['self-review']?.feedback,
     };
-  }
-
-  /**
-   * Count words in text
-   */
-  function countWords(text: string): number {
-    return text.trim().split(/\s+/).filter(Boolean).length;
   }
 
   /**

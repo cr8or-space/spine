@@ -13,6 +13,7 @@ import type { AppearanceRef, Character, CharacterArc, Relationship, Trait } from
 import type { DrizzleDB } from '../database';
 import { characters } from '../drizzle-schema';
 import { generateId, nowTimestamp, parseJson, type ProjectScopedRepository } from '../repository';
+import { formatFts5PrefixQuery } from '../../utils/text';
 
 /**
  * Database row representation of a character (for raw SQL FTS5 queries)
@@ -239,9 +240,7 @@ export function createCharacterRepository(db: Database.Database, drizzleDb: Driz
     },
 
     search(projectId: string, query: string): Character[] {
-      // FTS5 requires proper quoting for special characters
-      const escapedQuery = query.replace(/"/g, '""');
-      const rows = searchStmt.all(projectId, `"${escapedQuery}"*`) as CharacterRow[];
+      const rows = searchStmt.all(projectId, formatFts5PrefixQuery(query)) as CharacterRow[];
       return rows.map(rawRowToCharacter);
     },
 
