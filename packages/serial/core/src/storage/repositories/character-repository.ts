@@ -80,8 +80,9 @@ function rawRowToCharacter(row: CharacterRow): Character {
 
 /**
  * Data required to create a character (without auto-generated fields)
+ * Also omits 'type' since it has a default value in the schema
  */
-export type CreateCharacterData = Omit<Character, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateCharacterData = Omit<Character, 'id' | 'type' | 'createdAt' | 'updatedAt'>;
 
 /**
  * Data for updating a character

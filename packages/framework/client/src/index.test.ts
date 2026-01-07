@@ -23,7 +23,7 @@ class MockWebSocket {
   onerror: (() => void) | null = null;
   onmessage: (() => void) | null = null;
 
-  constructor(_url: string) { // eslint-disable-line @typescript-eslint/no-unused-vars
+  constructor(_url: string) {
     MockWebSocket.instances.push(this);
   }
 

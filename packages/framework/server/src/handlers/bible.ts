@@ -82,7 +82,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         description?: string;
       };
       return bible.characters.create({
-        type: 'character',
         name: data.name,
         aliases: [],
         role: data.role,
@@ -159,7 +158,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         other: 'other'
       };
       return bible.locations.create({
-        entityType: 'location',
         name: data.name,
         aliases: [],
         description: data.description || '',
@@ -217,7 +215,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         description?: string;
       };
       return bible.factions.create({
-        entityType: 'faction',
         name: data.name,
         aliases: [],
         description: data.description || '',
@@ -278,7 +275,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         rule?: string;
       };
       return bible.worldRules.create({
-        type: 'world-rule',
         name: data.name,
         description: data.description || '',
         category: data.category,
@@ -345,7 +341,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         romance: 'romance'
       };
       return bible.plotThreads.create({
-        entityType: 'plot-thread',
         name: data.name,
         description: data.description || '',
         type: typeMap[data.type] || 'other',
@@ -408,7 +403,6 @@ export function registerBibleHandlers(router: Router, services: Services): void 
         significance?: TimelineEvent['significance'];
       };
       return bible.timeline.createEvent({
-        entityType: 'timeline-event',
         name: data.name,
         description: data.description || '',
         position: {

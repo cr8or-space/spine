@@ -149,7 +149,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
     // Insert new entities
     for (const char of bible.characters) {
       repos.characters.create(projectId, {
-        type: 'character',
         introducedAt: char.introducedAt,
         retiredAt: char.retiredAt,
         name: char.name,
@@ -167,7 +166,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const loc of bible.locations) {
       repos.locations.create(projectId, {
-        entityType: 'location',
         introducedAt: loc.introducedAt,
         retiredAt: loc.retiredAt,
         name: loc.name,
@@ -185,7 +183,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const faction of bible.factions) {
       repos.factions.create(projectId, {
-        entityType: 'faction',
         introducedAt: faction.introducedAt,
         retiredAt: faction.retiredAt,
         name: faction.name,
@@ -205,7 +202,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const rule of bible.worldRules) {
       repos.worldRules.create(projectId, {
-        type: 'world-rule',
         introducedAt: rule.introducedAt,
         retiredAt: rule.retiredAt,
         name: rule.name,
@@ -224,7 +220,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const thread of bible.plotThreads) {
       repos.plotThreads.create(projectId, {
-        entityType: 'plot-thread',
         spineIntroducedAt: thread.spineIntroducedAt,
         spineRetiredAt: thread.spineRetiredAt,
         name: thread.name,
@@ -246,7 +241,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const event of bible.timelineEvents) {
       repos.timelineEvents.create(projectId, {
-        entityType: 'timeline-event',
         spineIntroducedAt: event.spineIntroducedAt,
         spineRetiredAt: event.spineRetiredAt,
         name: event.name,
@@ -267,7 +261,6 @@ export function createProjectService(db: Database.Database, drizzleDb: DrizzleDB
 
     for (const span of bible.timelineSpans) {
       repos.timelineSpans.create(projectId, {
-        entityType: 'timeline-span',
         spineIntroducedAt: span.spineIntroducedAt,
         spineRetiredAt: span.spineRetiredAt,
         name: span.name,

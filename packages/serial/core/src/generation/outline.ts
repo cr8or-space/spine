@@ -9,9 +9,7 @@ import { nanoid } from 'nanoid';
 import type { Beat, Structure } from '@repo/serial-types';
 import type { LLMClient, AssembledContext } from '@repo/framework-llm';
 
-import { buildStageMessages, fillTemplate, OUTLINE_TEMPLATE } from './prompts';
-import type { GenerationOptions, StageResult } from './types';
-import { DEFAULT_GENERATION_OPTIONS } from './types';
+import { buildStageMessages } from './prompts';
 
 /**
  * Outline generation configuration
@@ -122,6 +120,15 @@ export interface OutlineValidation {
   warnings: string[];
 }
 
+// Type helper for entities that might be Character, CharacterSummary, etc.
+interface EntityWithName {
+  name: string;
+  role?: string;
+  type?: string;
+  status?: string;
+  description?: string;
+}
+
 /**
  * Format context for prompt
  */
@@ -131,10 +138,10 @@ function formatContext(context: AssembledContext): string {
   // Format characters
   if (context.bible.characters.length > 0) {
     sections.push('### Characters');
-    for (const char of context.bible.characters) {
-      const name = 'name' in char ? char.name : char.name;
-      const role = 'role' in char ? char.role : '';
-      const description = 'description' in char && char.description ? char.description : '';
+    for (const char of context.bible.characters as unknown as EntityWithName[]) {
+      const name = char.name;
+      const role = char.role ?? '';
+      const description = char.description ?? '';
       sections.push(`- **${name}** (${role}): ${description}`);
     }
   }
@@ -142,10 +149,10 @@ function formatContext(context: AssembledContext): string {
   // Format locations
   if (context.bible.locations.length > 0) {
     sections.push('\n### Locations');
-    for (const loc of context.bible.locations) {
-      const name = 'name' in loc ? loc.name : loc.name;
-      const type = 'type' in loc ? loc.type : '';
-      const description = 'description' in loc && loc.description ? loc.description : '';
+    for (const loc of context.bible.locations as unknown as EntityWithName[]) {
+      const name = loc.name;
+      const type = loc.type ?? '';
+      const description = loc.description ?? '';
       sections.push(`- **${name}** (${type}): ${description}`);
     }
   }
@@ -161,10 +168,10 @@ function formatContext(context: AssembledContext): string {
   // Format active plot threads
   if (context.bible.plotThreads.length > 0) {
     sections.push('\n### Active Plot Threads');
-    for (const thread of context.bible.plotThreads) {
-      const name = 'name' in thread ? thread.name : '';
-      const type = 'type' in thread ? thread.type : '';
-      const status = 'status' in thread ? thread.status : '';
+    for (const thread of context.bible.plotThreads as unknown as EntityWithName[]) {
+      const name = thread.name;
+      const type = thread.type ?? '';
+      const status = thread.status ?? '';
       if (status === 'active' || status === 'planned') {
         sections.push(`- **${name}** (${type}): ${status}`);
       }

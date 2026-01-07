@@ -118,7 +118,6 @@ export function createServices(config: ServiceConfig): Services {
     return createStructureService(projectId, projectService.repos.structures);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function getReviewService(_projectId: string): ReviewWorkflowService {
     // Note: projectId is used by the caller to scope method calls, not for service creation
     return createReviewWorkflowService(

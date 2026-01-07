@@ -78,7 +78,7 @@ function rawRowToLocation(row: LocationRow): Location {
   };
 }
 
-export type CreateLocationData = Omit<Location, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateLocationData = Omit<Location, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdateLocationData = Partial<Omit<Location, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface LocationRepository extends ProjectScopedRepository<Location, CreateLocationData> {

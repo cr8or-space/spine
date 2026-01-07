@@ -220,7 +220,7 @@ export {
   type HookDistribution,
   type HookStrengthTrend,
   type HookRepetition,
-  type HookRecommendation,
+  type AnalysisHookRecommendation,
   type HookSummary,
   type HookAnalysisReport,
 } from './hooks';

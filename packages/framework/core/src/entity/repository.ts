@@ -256,7 +256,6 @@ export function createEntityRepository(db: Database.Database, registry?: EntityR
       const retiredAt = entity.retiredAt;
 
       // Store everything except id, type, and spine positions in data_json
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, type: _type, introducedAt: _intro, retiredAt: _retired, ...data } = entity;
 
       insertStmt.run(
@@ -302,7 +301,6 @@ export function createEntityRepository(db: Database.Database, registry?: EntityR
       const now = nowTimestamp();
 
       // Extract non-stored fields
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, type: _type, introducedAt: _intro, retiredAt: _retired, ...data } = updatedEntity;
 
       updateStmt.run(JSON.stringify(data), now, projectId, id);

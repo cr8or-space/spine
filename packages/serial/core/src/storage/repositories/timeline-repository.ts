@@ -42,7 +42,7 @@ function rowToTimelineEvent(row: typeof timelineEvents.$inferSelect): TimelineEv
   };
 }
 
-export type CreateTimelineEventData = Omit<TimelineEvent, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTimelineEventData = Omit<TimelineEvent, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdateTimelineEventData = Partial<Omit<TimelineEvent, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface TimelineEventRepository extends ProjectScopedRepository<TimelineEvent, CreateTimelineEventData> {
@@ -251,7 +251,7 @@ function rowToTimelineSpan(row: typeof timelineSpans.$inferSelect): TimelineSpan
   };
 }
 
-export type CreateTimelineSpanData = Omit<TimelineSpan, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTimelineSpanData = Omit<TimelineSpan, 'id' | 'entityType' | 'createdAt' | 'updatedAt'>;
 export type UpdateTimelineSpanData = Partial<Omit<TimelineSpan, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export interface TimelineSpanRepository extends ProjectScopedRepository<TimelineSpan, CreateTimelineSpanData> {

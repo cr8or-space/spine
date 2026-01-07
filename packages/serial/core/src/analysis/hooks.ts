@@ -169,9 +169,12 @@ export interface HookRepetition {
 }
 
 /**
- * A recommendation for improving hooks
+ * A recommendation for improving hooks based on analysis
+ *
+ * Note: Named AnalysisHookRecommendation to distinguish from
+ * structure/hooks.ts HookRecommendation which suggests hook types for chapters.
  */
-export interface HookRecommendation {
+export interface AnalysisHookRecommendation {
   /** Recommendation type */
   type: 'strengthen' | 'diversify' | 'plan' | 'analyze';
   /** Priority (1 = highest) */
@@ -223,7 +226,7 @@ export interface HookAnalysisReport {
   /** All warnings across structure */
   warnings: HookWarning[];
   /** Recommendations for improvement */
-  recommendations: HookRecommendation[];
+  recommendations: AnalysisHookRecommendation[];
   /** Suggested hook type for next chapter */
   suggestedNextHook?: HookType;
   /** When the report was generated */
@@ -682,8 +685,8 @@ export function generateHookRecommendations(
   warnings: HookWarning[],
   distribution: HookDistribution,
   _trend: HookStrengthTrend
-): HookRecommendation[] {
-  const recommendations: HookRecommendation[] = [];
+): AnalysisHookRecommendation[] {
+  const recommendations: AnalysisHookRecommendation[] = [];
 
   // Recommendation for weak hooks
   const weakWarning = warnings.find((w) => w.type === 'weak-hook');
