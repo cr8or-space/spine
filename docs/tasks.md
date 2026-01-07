@@ -160,9 +160,9 @@ Checklist tracking implementation progress. See [plan.md](./plan.md) for detaile
 - [x] `snippets/repository.ts` — Snippet storage (28 unit tests)
 - [x] `snippets/parts.ts` — Named part management (35 unit tests)
 - [x] `snippets/operations.ts` — Operation application (25 unit tests)
-- [ ] `tangle/assembler.ts` — File assembly
-- [ ] `tangle/incremental.ts` — Change tracking
-- [ ] `tangle/output.ts` — File writing
+- [x] `tangle/assembler.ts` — File assembly (30 unit tests)
+- [x] `tangle/incremental.ts` — Change tracking (24 unit tests)
+- [x] `tangle/output.ts` — File writing (21 unit tests)
 - [ ] `checkpoints/manager.ts` — Checkpoint CRUD
 - [ ] `checkpoints/snapshots.ts` — Snapshot creation
 - [ ] `checkpoints/immutability.ts` — Release locking

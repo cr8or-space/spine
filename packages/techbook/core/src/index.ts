@@ -9,3 +9,6 @@ export * from './concepts';
 
 // Re-export snippets module
 export * from './snippets';
+
+// Re-export tangle module
+export * from './tangle';
